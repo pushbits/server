@@ -28,7 +28,7 @@ func configFiles() []string {
 
 // Get returns the configuration extracted from env variables or config file.
 func Get() *Configuration {
-	config := new(Configuration)
+	config := &Configuration{}
 
 	err := configor.New(&configor.Config{
 		Environment:          "production",

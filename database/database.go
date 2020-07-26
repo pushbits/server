@@ -78,8 +78,9 @@ func (d *Database) Close() {
 
 // Populate fills the database with initial information like the admin user.
 func (d *Database) Populate(name, password, matrixID string) error {
-	user := new(model.User)
-	query := d.gormdb.Where("name = ?", name).First(user)
+	var user model.User
+
+	query := d.gormdb.Where("name = ?", name).First(&user)
 
 	if errors.Is(query.Error, gorm.ErrRecordNotFound) {
 		user := model.NewUser(name, password, true, matrixID)

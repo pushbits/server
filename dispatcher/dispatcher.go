@@ -3,8 +3,6 @@ package dispatcher
 import (
 	"log"
 
-	"github.com/eikendev/pushbits/model"
-
 	"github.com/matrix-org/gomatrix"
 )
 
@@ -14,7 +12,6 @@ var (
 
 // The Database interface for encapsulating database access.
 type Database interface {
-	UpdateApplication(application *model.Application) error
 }
 
 // Dispatcher holds information for sending notifications to clients.

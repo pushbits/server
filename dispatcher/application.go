@@ -3,6 +3,8 @@ package dispatcher
 import (
 	"log"
 
+	"github.com/eikendev/pushbits/model"
+
 	"github.com/matrix-org/gomatrix"
 )
 
@@ -29,10 +31,10 @@ func (d *Dispatcher) RegisterApplication(name, user string) (string, error) {
 }
 
 // DeregisterApplication deletes a channel for an application.
-func (d *Dispatcher) DeregisterApplication(matrixID string) error {
-	log.Printf("Deregistering application with ID %s.\n", matrixID)
+func (d *Dispatcher) DeregisterApplication(a *model.Application) error {
+	log.Printf("Deregistering application with ID %s.\n", a.MatrixID)
 
-	_, err := d.client.LeaveRoom(matrixID)
+	_, err := d.client.LeaveRoom(a.MatrixID)
 
 	if err != nil {
 		log.Fatal(err)

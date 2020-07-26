@@ -68,3 +68,8 @@ func (u *User) IntoExternalUser() *ExternalUser {
 		MatrixID: u.MatrixID,
 	}
 }
+
+// DeleteUser is used to process queries for deleting users.
+type DeleteUser struct {
+	ID uint `uri:"id"`
+}

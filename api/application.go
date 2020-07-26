@@ -21,7 +21,7 @@ type ApplicationDatabase interface {
 // The ApplicationDispatcher interface for relaying notifications.
 type ApplicationDispatcher interface {
 	RegisterApplication(name, user string) (string, error)
-	DeregisterApplication(matrixID string) error
+	DeregisterApplication(a *model.Application) error
 }
 
 // ApplicationHandler holds information for processing requests about applications.
@@ -35,7 +35,7 @@ func (h *ApplicationHandler) applicationExists(token string) bool {
 	return application != nil
 }
 
-// CreateApplication creates a user.
+// CreateApplication creates an application.
 func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	var createApplication model.CreateApplication
 
@@ -66,7 +66,7 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, &application)
 }
 
-// DeleteApplication deletes a user with a certain ID.
+// DeleteApplication deletes an application with a certain ID.
 func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 	var deleteApplication model.DeleteApplication
 
@@ -76,13 +76,13 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 
 	application, err := h.DB.GetApplicationByID(deleteApplication.ID)
 
-	log.Printf("Deleting application %s.\n", application.Name)
-
 	if success := successOrAbort(ctx, http.StatusBadRequest, err); !success {
 		return
 	}
 
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.Dispatcher.DeregisterApplication(application.MatrixID)); !success {
+	log.Printf("Deleting application %s.\n", application.Name)
+
+	if success := successOrAbort(ctx, http.StatusInternalServerError, h.Dispatcher.DeregisterApplication(application)); !success {
 		return
 	}
 

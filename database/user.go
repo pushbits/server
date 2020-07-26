@@ -13,14 +13,46 @@ func (d *Database) CreateUser(user *model.User) error {
 	return d.gormdb.Create(user).Error
 }
 
-// GetUserByName returns the user by the given name or nil.
-func (d *Database) GetUserByName(name string) (*model.User, error) {
-	user := new(model.User)
-	err := d.gormdb.Where("name = ?", name).First(user).Error
+// DeleteUser deletes a user.
+func (d *Database) DeleteUser(user *model.User) error {
+	if err := d.gormdb.Where("user_id = ?", user.ID).Delete(model.Application{}).Error; err != nil {
+		return err
+	}
+
+	return d.gormdb.Delete(user).Error
+}
+
+// GetUserByID returns the user with the given ID or nil.
+func (d *Database) GetUserByID(ID uint) (*model.User, error) {
+	var user model.User
+
+	err := d.gormdb.First(&user, ID).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
-	return user, err
+	return &user, err
+}
+
+// GetUserByName returns the user with the given name or nil.
+func (d *Database) GetUserByName(name string) (*model.User, error) {
+	var user model.User
+
+	err := d.gormdb.Where("name = ?", name).First(&user).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	return &user, err
+}
+
+// GetApplications returns the applications associated with a given user.
+func (d *Database) GetApplications(user *model.User) ([]model.Application, error) {
+	var applications []model.Application
+
+	err := d.gormdb.Model(user).Association("Applications").Find(&applications)
+
+	return applications, err
 }

@@ -20,7 +20,7 @@ func Create(db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
 
 	applicationHandler := api.ApplicationHandler{DB: db, Dispatcher: dp}
 	notificationHandler := api.NotificationHandler{DB: db, Dispatcher: dp}
-	userHandler := api.UserHandler{DB: db}
+	userHandler := api.UserHandler{DB: db, Dispatcher: dp}
 
 	r := gin.Default()
 	r.Use(location.Default())
@@ -38,7 +38,7 @@ func Create(db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
 	userGroup.Use(auth.RequireAdmin())
 	{
 		userGroup.POST("", userHandler.CreateUser)
-		//userGroup.DELETE("/:id", userHandler.DeleteUser)
+		userGroup.DELETE("/:id", userHandler.DeleteUser)
 	}
 
 	return r
