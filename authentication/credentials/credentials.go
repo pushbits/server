@@ -3,7 +3,6 @@ package credentials
 import "golang.org/x/crypto/bcrypt"
 
 // CreatePassword returns a hashed version of the given password.
-// TODO: Make strength configurable.
 func CreatePassword(pw string) []byte {
 	strength := 12
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(pw), strength)

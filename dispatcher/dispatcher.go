@@ -21,9 +21,6 @@ type Dispatcher struct {
 }
 
 // Create instanciates a dispatcher connection.
-// TODO: Call JoinedRooms() to validate room mappings on startup.
-// TODO: ForgetRoom() for unused rooms.
-// TODO: InviteUser() if the user is no longer in the room.
 func Create(db Database, homeserver, username, password string) (*Dispatcher, error) {
 	log.Println("Setting up dispatcher.")
 
