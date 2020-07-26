@@ -1,5 +1,5 @@
 *.db
-*.yml
+config.yml
 debugging/
 pushbits
 

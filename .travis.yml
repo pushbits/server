@@ -1,0 +1,6 @@
+os: linux
+language: go
+before_script:
+  - make tools
+script:
+  - make test
