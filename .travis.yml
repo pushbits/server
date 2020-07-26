@@ -1,6 +1,8 @@
 os: linux
 language: go
-before_script:
+env:
+  - GO111MODULE=on
+install:
   - make tools
 script:
   - make test
