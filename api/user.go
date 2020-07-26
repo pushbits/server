@@ -27,7 +27,7 @@ func (h *UserHandler) userExists(name string) bool {
 
 // CreateUser creates a new user.
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
-	externalUser := model.ExternalUserWithCredentials{}
+	var externalUser model.ExternalUserWithCredentials
 
 	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.Bind(&externalUser)); !success {
 		return

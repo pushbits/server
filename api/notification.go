@@ -29,7 +29,7 @@ type NotificationHandler struct {
 
 // CreateNotification is used to create a new notification for a user.
 func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
-	notification := model.Notification{}
+	var notification model.Notification
 
 	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.Bind(&notification)); !success {
 		return

@@ -6,7 +6,7 @@ import (
 	"github.com/matrix-org/gomatrix"
 )
 
-// RegisterApplication creates a new channel for the application.
+// RegisterApplication creates a new channel for an application.
 func (d *Dispatcher) RegisterApplication(name, user string) (string, error) {
 	log.Printf("Registering application %s, notifications will be relayed to user %s.\n", name, user)
 
@@ -26,4 +26,17 @@ func (d *Dispatcher) RegisterApplication(name, user string) (string, error) {
 	log.Printf("Application %s is now relayed to room with ID %s.\n", name, response.RoomID)
 
 	return response.RoomID, err
+}
+
+// DeregisterApplication deletes a channel for an application.
+func (d *Dispatcher) DeregisterApplication(matrixID string) error {
+	log.Printf("Deregistering application with ID %s.\n", matrixID)
+
+	_, err := d.client.LeaveRoom(matrixID)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return err
 }

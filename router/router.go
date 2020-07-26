@@ -29,7 +29,7 @@ func Create(db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
 	applicationGroup.Use(auth.RequireUser())
 	{
 		applicationGroup.POST("", applicationHandler.CreateApplication)
-		//applicationGroup.DELETE("/:id", applicationHandler.DeleteApplication)
+		applicationGroup.DELETE("/:id", applicationHandler.DeleteApplication)
 	}
 
 	r.POST("/message", auth.RequireApplicationToken(), notificationHandler.CreateNotification)
