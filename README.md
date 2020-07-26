@@ -1,3 +1,5 @@
+[![Build status](https://img.shields.io/travis/eikendev/pushbits/master)](https://travis-ci.com/github/eikendev/pushbits/builds/)
+
 ## About
 
 PushBits is a relay server for push notifications.
