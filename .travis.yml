@@ -1,5 +1,7 @@
 os: linux
 language: go
+go:
+  - stable
 env:
   - GO111MODULE=on
 install:
