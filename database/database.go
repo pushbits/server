@@ -91,7 +91,7 @@ func (d *Database) Populate(name, password, matrixID string) error {
 	} else {
 		log.Printf("Admin user %s already exists.\n", name)
 
-		user.PasswordHash = credentials.CreatePassword(password)
+		user.PasswordHash = credentials.CreatePasswordHash(password)
 		user.IsAdmin = true
 		user.MatrixID = matrixID
 

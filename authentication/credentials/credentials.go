@@ -1,20 +1,30 @@
 package credentials
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"log"
 
-// CreatePassword returns a hashed version of the given password.
-func CreatePassword(pw string) []byte {
-	strength := 12
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(pw), strength)
+	"github.com/alexedwards/argon2id"
+)
+
+// CreatePasswordHash returns a hashed version of the given password.
+func CreatePasswordHash(password string) []byte {
+	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return hashedPassword
+	return []byte(hash)
 }
 
 // ComparePassword compares a hashed password with its possible plaintext equivalent.
-func ComparePassword(hashedPassword, password []byte) bool {
-	return bcrypt.CompareHashAndPassword(hashedPassword, password) == nil
+func ComparePassword(hash, password []byte) bool {
+	match, err := argon2id.ComparePasswordAndHash(string(password), string(hash))
+
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+
+	return match
 }

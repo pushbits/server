@@ -41,7 +41,7 @@ func NewUser(name, password string, isAdmin bool, matrixID string) *User {
 
 	user := User{
 		Name:         name,
-		PasswordHash: credentials.CreatePassword(password),
+		PasswordHash: credentials.CreatePasswordHash(password),
 		IsAdmin:      isAdmin,
 		MatrixID:     matrixID,
 	}
@@ -53,7 +53,7 @@ func NewUser(name, password string, isAdmin bool, matrixID string) *User {
 func (u *ExternalUserWithCredentials) IntoInternalUser() *User {
 	return &User{
 		Name:         u.Name,
-		PasswordHash: credentials.CreatePassword(u.Password),
+		PasswordHash: credentials.CreatePasswordHash(u.Password),
 		IsAdmin:      u.IsAdmin,
 		MatrixID:     u.MatrixID,
 	}
