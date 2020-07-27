@@ -7,8 +7,8 @@ It enables your services to send notifications via a simple web API, and deliver
 
 The vision is to have compatibility with [Gotify](https://gotify.net/) on the sending side, while on the receiving side established services are used.
 This has the advantages that
-- plugins written for Gotify and
-- clients written for all major platforms can be reused.
+- sending plugins written for Gotify (like those for [Watchtower](https://containrrr.dev/watchtower/) and [Jellyfin](https://jellyfin.org/)) as well as
+- receiving clients written for the messaging service can be reused.
 
 For now, only the [Matrix protocol](https://matrix.org/) is supported, but support for different services like [Telegram](https://telegram.org/) could be added in the future.
 I am myself experimenting with Matrix currently because I like the idea of a federated, synchronized but still end-to-end encrypted protocol.
