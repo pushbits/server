@@ -17,6 +17,7 @@ type UserDatabase interface {
 	GetUserByID(ID uint) (*model.User, error)
 	GetUserByName(name string) (*model.User, error)
 	GetApplications(user *model.User) ([]model.Application, error)
+	AdminUserCount() (int64, error)
 }
 
 // The UserDispatcher interface for relaying notifications.
@@ -68,6 +69,16 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 	user, err := h.DB.GetUserByID(deleteUser.ID)
 	if success := successOrAbort(ctx, http.StatusBadRequest, err); !success {
 		return
+	}
+
+	if user.IsAdmin {
+		if count, err := h.DB.AdminUserCount(); err != nil {
+			ctx.AbortWithError(http.StatusInternalServerError, err)
+			return
+		} else if count == 1 {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("cannot delete last admin user"))
+			return
+		}
 	}
 
 	log.Printf("Deleting user %s.\n", user.Name)

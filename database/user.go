@@ -56,3 +56,12 @@ func (d *Database) GetApplications(user *model.User) ([]model.Application, error
 
 	return applications, err
 }
+
+// AdminUserCount returns the number of admins or an error.
+func (d *Database) AdminUserCount() (int64, error) {
+	var users []model.User
+
+	query := d.gormdb.Where("is_admin = ?", true).Find(&users)
+
+	return query.RowsAffected, query.Error
+}
