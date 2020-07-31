@@ -6,9 +6,9 @@ import (
 
 // Argon2Config holds the parameters used for creating hashes with Argon2.
 type Argon2Config struct {
-	Memory      uint32 `default:"65536"`
-	Iterations  uint32 `default:"1"`
-	Parallelism uint8  `default:"2"`
+	Memory      uint32 `default:"131072"`
+	Iterations  uint32 `default:"4"`
+	Parallelism uint8  `default:"4"`
 	SaltLength  uint32 `default:"16"`
 	KeyLength   uint32 `default:"32"`
 }
