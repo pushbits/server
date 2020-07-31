@@ -1,4 +1,6 @@
 [![Build status](https://img.shields.io/travis/eikendev/pushbits/master)](https://travis-ci.com/github/eikendev/pushbits/builds/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/eikendev/pushbits)](https://hub.docker.com/r/eikendev/pushbits)
+![License](https://img.shields.io/github/license/eikendev/pushbits)
 
 ## About
 
