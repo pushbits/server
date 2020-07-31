@@ -12,7 +12,7 @@ import (
 
 // The UserDatabase interface for encapsulating database access.
 type UserDatabase interface {
-	CreateUser(user *model.User) error
+	CreateUser(user model.ExternalUserWithCredentials) (*model.User, error)
 	DeleteUser(user *model.User) error
 	GetUserByID(ID uint) (*model.User, error)
 	GetUserByName(name string) (*model.User, error)
@@ -44,14 +44,14 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	user := externalUser.IntoInternalUser()
-
-	if h.userExists(user.Name) {
+	if h.userExists(externalUser.Name) {
 		ctx.AbortWithError(http.StatusBadRequest, errors.New("username already exists"))
 		return
 	}
 
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DB.CreateUser(user)); !success {
+	user, err := h.DB.CreateUser(externalUser)
+
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
 	}
 

@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/eikendev/pushbits/authentication/credentials"
 	"github.com/eikendev/pushbits/configuration"
 	"github.com/eikendev/pushbits/database"
 	"github.com/eikendev/pushbits/dispatcher"
@@ -30,7 +31,9 @@ func main() {
 
 	c := configuration.Get()
 
-	db, err := database.Create(c.Database.Dialect, c.Database.Connection)
+	cm := credentials.CreateManager(c.Crypto)
+
+	db, err := database.Create(cm, c.Database.Dialect, c.Database.Connection)
 	if err != nil {
 		panic(err)
 	}

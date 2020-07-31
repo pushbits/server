@@ -3,28 +3,27 @@ package credentials
 import (
 	"log"
 
+	"github.com/eikendev/pushbits/configuration"
+
 	"github.com/alexedwards/argon2id"
 )
 
-// CreatePasswordHash returns a hashed version of the given password.
-func CreatePasswordHash(password string) []byte {
-	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return []byte(hash)
+// Manager holds information for managing credentials.
+type Manager struct {
+	argon2Params *argon2id.Params
 }
 
-// ComparePassword compares a hashed password with its possible plaintext equivalent.
-func ComparePassword(hash, password []byte) bool {
-	match, err := argon2id.ComparePasswordAndHash(string(password), string(hash))
+// CreateManager instanciates a credential manager.
+func CreateManager(c configuration.CryptoConfig) *Manager {
+	log.Println("Setting up credential manager.")
 
-	if err != nil {
-		log.Fatal(err)
-		return false
+	argon2Params := &argon2id.Params{
+		Memory:      c.Argon2.Memory,
+		Iterations:  c.Argon2.Iterations,
+		Parallelism: c.Argon2.Parallelism,
+		SaltLength:  c.Argon2.SaltLength,
+		KeyLength:   c.Argon2.KeyLength,
 	}
 
-	return match
+	return &Manager{argon2Params: argon2Params}
 }

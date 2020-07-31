@@ -18,8 +18,9 @@ import (
 
 // Database holds information for the database connection.
 type Database struct {
-	gormdb *gorm.DB
-	sqldb  *sql.DB
+	gormdb             *gorm.DB
+	sqldb              *sql.DB
+	credentialsManager *credentials.Manager
 }
 
 func createFileDir(file string) {
@@ -31,7 +32,7 @@ func createFileDir(file string) {
 }
 
 // Create instanciates a database connection.
-func Create(dialect, connection string) (*Database, error) {
+func Create(cm *credentials.Manager, dialect, connection string) (*Database, error) {
 	log.Println("Setting up database connection.")
 
 	maxOpenConns := 5
@@ -68,7 +69,7 @@ func Create(dialect, connection string) (*Database, error) {
 
 	db.AutoMigrate(&model.User{}, &model.Application{})
 
-	return &Database{gormdb: db, sqldb: sql}, nil
+	return &Database{gormdb: db, sqldb: sql, credentialsManager: cm}, nil
 }
 
 // Close closes the database connection.
@@ -83,7 +84,7 @@ func (d *Database) Populate(name, password, matrixID string) error {
 	query := d.gormdb.Where("name = ?", name).First(&user)
 
 	if errors.Is(query.Error, gorm.ErrRecordNotFound) {
-		user := model.NewUser(name, password, true, matrixID)
+		user := model.NewUser(d.credentialsManager, name, password, true, matrixID)
 
 		if err := d.gormdb.Create(&user).Error; err != nil {
 			return errors.New("user cannot be created")
@@ -91,7 +92,7 @@ func (d *Database) Populate(name, password, matrixID string) error {
 	} else {
 		log.Printf("Admin user %s already exists.\n", name)
 
-		user.PasswordHash = credentials.CreatePasswordHash(password)
+		user.PasswordHash = d.credentialsManager.CreatePasswordHash(password)
 		user.IsAdmin = true
 		user.MatrixID = matrixID
 
