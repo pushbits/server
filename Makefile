@@ -1,3 +1,5 @@
+IMAGE := eikendev/pushbits
+
 .PHONY: test
 test:
 	stdout=$$(gofmt -l . 2>&1); \
@@ -15,3 +17,8 @@ test:
 tools:
 	go get -u github.com/fzipp/gocyclo
 	go get -u golang.org/x/lint/golint
+
+.PHONY: push-image
+push-image:
+	docker build -t ${IMAGE}:latest .
+	docker push ${IMAGE}:latest

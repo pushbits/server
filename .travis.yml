@@ -8,3 +8,8 @@ install:
   - make tools
 script:
   - make test
+deploy:
+  provider: script
+  script: echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" && make push-image
+  on:
+    branch: master
