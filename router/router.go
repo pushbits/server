@@ -13,8 +13,12 @@ import (
 )
 
 // Create a Gin engine and setup all routes.
-func Create(db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
+func Create(debug bool, db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
 	log.Println("Setting up HTTP routes.")
+
+	if !debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	auth := authentication.Authenticator{DB: db}
 
@@ -23,6 +27,7 @@ func Create(db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
 	userHandler := api.UserHandler{DB: db, Dispatcher: dp}
 
 	r := gin.Default()
+
 	r.Use(location.Default())
 
 	applicationGroup := r.Group("/application")

@@ -20,6 +20,11 @@ type CryptoConfig struct {
 
 // Configuration holds values that can be configured by the user.
 type Configuration struct {
+	Debug bool `default:"false"`
+	HTTP  struct {
+		ListenAddress string `default:""`
+		Port          int    `default:"8080"`
+	}
 	Database struct {
 		Dialect    string `default:"sqlite3"`
 		Connection string `default:"pushbits.db"`

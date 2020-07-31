@@ -31,6 +31,10 @@ func main() {
 
 	c := configuration.Get()
 
+	if c.Debug {
+		log.Printf("%+v\n", c)
+	}
+
 	cm := credentials.CreateManager(c.Crypto)
 
 	db, err := database.Create(cm, c.Database.Dialect, c.Database.Connection)
@@ -51,6 +55,7 @@ func main() {
 
 	setupCleanup(db, dp)
 
-	engine := router.Create(db, dp)
-	runner.Run(engine)
+	engine := router.Create(c.Debug, db, dp)
+
+	runner.Run(engine, c.HTTP.ListenAddress, c.HTTP.Port)
 }
