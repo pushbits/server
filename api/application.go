@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -77,6 +78,13 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 	application, err := h.DB.GetApplicationByID(deleteApplication.ID)
 
 	if success := successOrAbort(ctx, http.StatusBadRequest, err); !success {
+		return
+	}
+
+	user := authentication.GetUser(ctx)
+
+	if user.ID != application.ID {
+		ctx.AbortWithError(http.StatusForbidden, errors.New("only owner can delete application"))
 		return
 	}
 
