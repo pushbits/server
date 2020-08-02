@@ -13,7 +13,7 @@ import (
 
 // The UserDatabase interface for encapsulating database access.
 type UserDatabase interface {
-	CreateUser(user model.ExternalUserWithCredentials) (*model.User, error)
+	CreateUser(user model.CreateUser) (*model.User, error)
 	DeleteUser(user *model.User) error
 	UpdateUser(user *model.User) error
 	GetUserByID(ID uint) (*model.User, error)
@@ -57,9 +57,9 @@ func (h *UserHandler) ensureIsNotLastAdmin(ctx *gin.Context) (int, error) {
 // CreateUser creates a new user.
 // This method assumes that the requesting user has privileges.
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
-	var externalUser model.ExternalUserWithCredentials
+	var externalUser model.CreateUser
 
-	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.Bind(&externalUser)); !success {
+	if err := ctx.Bind(&externalUser); err != nil {
 		return
 	}
 
@@ -81,13 +81,12 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 //
 // This method assumes that the requesting user has privileges.
 func (h *UserHandler) DeleteUser(ctx *gin.Context) {
-	var deleteUser model.DeleteUser
-
-	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.BindUri(&deleteUser)); !success {
+	id, err := getID(ctx)
+	if err != nil {
 		return
 	}
 
-	user, err := h.DB.GetUserByID(deleteUser.ID)
+	user, err := h.DB.GetUserByID(id)
 	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
 		return
 	}
@@ -125,14 +124,19 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 // This method assumes that the requesting user has privileges. If users can later update their own user, make sure they
 // cannot give themselves privileges.
 func (h *UserHandler) UpdateUser(ctx *gin.Context) {
-	var updateUser model.UpdateUser
-
-	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.BindUri(&updateUser)); !success {
+	id, err := getID(ctx)
+	if err != nil {
 		return
 	}
 
-	user, err := h.DB.GetUserByID(updateUser.ID)
+	user, err := h.DB.GetUserByID(id)
 	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
+		return
+	}
+
+	var updateUser model.UpdateUser
+
+	if err := ctx.BindUri(&updateUser); err != nil {
 		return
 	}
 

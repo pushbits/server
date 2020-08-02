@@ -31,7 +31,7 @@ type NotificationHandler struct {
 func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	var notification model.Notification
 
-	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.Bind(&notification)); !success {
+	if err := ctx.Bind(&notification); err != nil {
 		return
 	}
 

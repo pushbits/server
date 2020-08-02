@@ -10,7 +10,7 @@ import (
 )
 
 // CreateUser creates a user.
-func (d *Database) CreateUser(externalUser model.ExternalUserWithCredentials) (*model.User, error) {
+func (d *Database) CreateUser(externalUser model.CreateUser) (*model.User, error) {
 	user := externalUser.IntoInternalUser(d.credentialsManager)
 
 	return user, d.gormdb.Create(user).Error

@@ -40,7 +40,7 @@ func (h *ApplicationHandler) applicationExists(token string) bool {
 func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	var createApplication model.CreateApplication
 
-	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.Bind(&createApplication)); !success {
+	if err := ctx.Bind(&createApplication); err != nil {
 		return
 	}
 
@@ -69,13 +69,12 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 
 // DeleteApplication deletes an application with a certain ID.
 func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
-	var deleteApplication model.DeleteApplication
-
-	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.BindUri(&deleteApplication)); !success {
+	id, err := getID(ctx)
+	if err != nil {
 		return
 	}
 
-	application, err := h.DB.GetApplicationByID(deleteApplication.ID)
+	application, err := h.DB.GetApplicationByID(id)
 	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
 		return
 	}
@@ -99,18 +98,23 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 
 // UpdateApplication updates an application with a certain ID.
 func (h *ApplicationHandler) UpdateApplication(ctx *gin.Context) {
-	var updateApplication model.UpdateApplication
-
-	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.BindUri(&updateApplication)); !success {
+	id, err := getID(ctx)
+	if err != nil {
 		return
 	}
 
-	application, err := h.DB.GetApplicationByID(updateApplication.ID)
+	application, err := h.DB.GetApplicationByID(id)
 	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
 		return
 	}
 
 	if !isCurrentUser(ctx, application.UserID) {
+		return
+	}
+
+	var updateApplication model.UpdateApplication
+
+	if err := ctx.BindUri(&updateApplication); err != nil {
 		return
 	}
 

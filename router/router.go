@@ -35,8 +35,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	applicationGroup.Use(auth.RequireUser())
 	{
 		applicationGroup.POST("", applicationHandler.CreateApplication)
-		applicationGroup.DELETE("/:id", applicationHandler.DeleteApplication)
-		applicationGroup.PUT("/:id", applicationHandler.UpdateApplication)
+		applicationGroup.DELETE("/:id", api.RequireIDInURI(), applicationHandler.DeleteApplication)
+		applicationGroup.PUT("/:id", api.RequireIDInURI(), applicationHandler.UpdateApplication)
 	}
 
 	r.POST("/message", auth.RequireApplicationToken(), notificationHandler.CreateNotification)
@@ -45,8 +45,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	userGroup.Use(auth.RequireAdmin())
 	{
 		userGroup.POST("", userHandler.CreateUser)
-		userGroup.DELETE("/:id", userHandler.DeleteUser)
-		userGroup.PUT("/:id", userHandler.UpdateUser)
+		userGroup.DELETE("/:id", api.RequireIDInURI(), userHandler.DeleteUser)
+		userGroup.PUT("/:id", api.RequireIDInURI(), userHandler.UpdateUser)
 	}
 
 	return r

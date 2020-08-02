@@ -29,8 +29,8 @@ type UserCredentials struct {
 	Password string `json:"password,omitempty" form:"password" query:"password" binding:"required"`
 }
 
-// ExternalUserWithCredentials represents a user for external purposes and includes the user's credentials in plaintext.
-type ExternalUserWithCredentials struct {
+// CreateUser is used to process queries for creating users.
+type CreateUser struct {
 	ExternalUser
 	UserCredentials
 }
@@ -47,8 +47,8 @@ func NewUser(cm *credentials.Manager, name, password string, isAdmin bool, matri
 	}
 }
 
-// IntoInternalUser converts a ExternalUserWithCredentials into a User.
-func (u *ExternalUserWithCredentials) IntoInternalUser(cm *credentials.Manager) *User {
+// IntoInternalUser converts a CreateUser into a User.
+func (u *CreateUser) IntoInternalUser(cm *credentials.Manager) *User {
 	return &User{
 		Name:         u.Name,
 		PasswordHash: cm.CreatePasswordHash(u.Password),
@@ -67,18 +67,8 @@ func (u *User) IntoExternalUser() *ExternalUser {
 	}
 }
 
-type userIdentification struct {
-	ID uint `uri:"id" binding:"required"`
-}
-
-// DeleteUser is used to process queries for deleting users.
-type DeleteUser struct {
-	userIdentification
-}
-
 // UpdateUser is used to process queries for updating users.
 type UpdateUser struct {
-	userIdentification
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	IsAdmin  bool   `json:"is_admin"`
