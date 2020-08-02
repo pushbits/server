@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 
+	"github.com/eikendev/pushbits/assert"
 	"github.com/eikendev/pushbits/model"
 
 	"gorm.io/gorm"
@@ -24,6 +25,11 @@ func (d *Database) DeleteUser(user *model.User) error {
 	return d.gormdb.Delete(user).Error
 }
 
+// UpdateUser updates a user.
+func (d *Database) UpdateUser(user *model.User) error {
+	return d.gormdb.Save(user).Error
+}
+
 // GetUserByID returns the user with the given ID or nil.
 func (d *Database) GetUserByID(ID uint) (*model.User, error) {
 	var user model.User
@@ -33,6 +39,8 @@ func (d *Database) GetUserByID(ID uint) (*model.User, error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
+
+	assert.Assert(user.ID == ID)
 
 	return &user, err
 }
@@ -46,6 +54,8 @@ func (d *Database) GetUserByName(name string) (*model.User, error) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
+
+	assert.Assert(user.Name == name)
 
 	return &user, err
 }

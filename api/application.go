@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"log"
 	"net/http"
 
@@ -15,6 +14,7 @@ import (
 type ApplicationDatabase interface {
 	CreateApplication(application *model.Application) error
 	DeleteApplication(application *model.Application) error
+	UpdateApplication(application *model.Application) error
 	GetApplicationByID(ID uint) (*model.Application, error)
 	GetApplicationByToken(token string) (*model.Application, error)
 }
@@ -76,15 +76,11 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 	}
 
 	application, err := h.DB.GetApplicationByID(deleteApplication.ID)
-
-	if success := successOrAbort(ctx, http.StatusBadRequest, err); !success {
+	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
 		return
 	}
 
-	user := authentication.GetUser(ctx)
-
-	if user.ID != application.ID {
-		ctx.AbortWithError(http.StatusForbidden, errors.New("only owner can delete application"))
+	if !isCurrentUser(ctx, application.UserID) {
 		return
 	}
 
@@ -95,6 +91,35 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 	}
 
 	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DB.DeleteApplication(application)); !success {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{})
+}
+
+// UpdateApplication updates an application with a certain ID.
+func (h *ApplicationHandler) UpdateApplication(ctx *gin.Context) {
+	var updateApplication model.UpdateApplication
+
+	if success := successOrAbort(ctx, http.StatusBadRequest, ctx.BindUri(&updateApplication)); !success {
+		return
+	}
+
+	application, err := h.DB.GetApplicationByID(updateApplication.ID)
+	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
+		return
+	}
+
+	if !isCurrentUser(ctx, application.UserID) {
+		return
+	}
+
+	log.Printf("Updating application %s.\n", application.Name)
+
+	// TODO: Handle unbound members.
+	application.Name = updateApplication.Name
+
+	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DB.UpdateApplication(application)); !success {
 		return
 	}
 

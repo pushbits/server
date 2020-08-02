@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 
+	"github.com/eikendev/pushbits/assert"
 	"github.com/eikendev/pushbits/model"
 
 	"gorm.io/gorm"
@@ -18,28 +19,37 @@ func (d *Database) DeleteApplication(application *model.Application) error {
 	return d.gormdb.Delete(application).Error
 }
 
+// UpdateApplication updates an application.
+func (d *Database) UpdateApplication(application *model.Application) error {
+	return d.gormdb.Save(application).Error
+}
+
 // GetApplicationByID returns the application with the given ID or nil.
 func (d *Database) GetApplicationByID(ID uint) (*model.Application, error) {
-	var app model.Application
+	var application model.Application
 
-	err := d.gormdb.First(&app, ID).Error
+	err := d.gormdb.First(&application, ID).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
-	return &app, err
+	assert.Assert(application.ID == ID)
+
+	return &application, err
 }
 
 // GetApplicationByToken returns the application with the given token or nil.
 func (d *Database) GetApplicationByToken(token string) (*model.Application, error) {
-	var app model.Application
+	var application model.Application
 
-	err := d.gormdb.Where("token = ?", token).First(&app).Error
+	err := d.gormdb.Where("token = ?", token).First(&application).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
-	return &app, err
+	assert.Assert(application.Token == token)
+
+	return &application, err
 }

@@ -71,3 +71,11 @@ func (u *User) IntoExternalUser() *ExternalUser {
 type DeleteUser struct {
 	ID uint `uri:"id"`
 }
+
+// UpdateUser is used to process queries for updating users.
+type UpdateUser struct {
+	ID       uint   `uri:"id" binding:"required"`
+	Name     string `json:"name"`
+	IsAdmin  bool   `json:"is_admin"`
+	MatrixID string `json:"matrix_id"`
+}

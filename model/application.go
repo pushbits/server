@@ -18,3 +18,9 @@ type CreateApplication struct {
 type DeleteApplication struct {
 	ID uint `uri:"id"`
 }
+
+// UpdateApplication is used to process queries for updating applications.
+type UpdateApplication struct {
+	ID   uint   `uri:"id" binding:"required"`
+	Name string `json:"name"`
+}

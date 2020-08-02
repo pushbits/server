@@ -35,6 +35,7 @@ func Create(debug bool, db *database.Database, dp *dispatcher.Dispatcher) *gin.E
 	{
 		applicationGroup.POST("", applicationHandler.CreateApplication)
 		applicationGroup.DELETE("/:id", applicationHandler.DeleteApplication)
+		applicationGroup.PUT("/:id", applicationHandler.UpdateApplication)
 	}
 
 	r.POST("/message", auth.RequireApplicationToken(), notificationHandler.CreateNotification)
@@ -44,6 +45,7 @@ func Create(debug bool, db *database.Database, dp *dispatcher.Dispatcher) *gin.E
 	{
 		userGroup.POST("", userHandler.CreateUser)
 		userGroup.DELETE("/:id", userHandler.DeleteUser)
+		userGroup.PUT("/:id", userHandler.UpdateUser)
 	}
 
 	return r
