@@ -5,6 +5,7 @@ import (
 
 	"github.com/eikendev/pushbits/api"
 	"github.com/eikendev/pushbits/authentication"
+	"github.com/eikendev/pushbits/authentication/credentials"
 	"github.com/eikendev/pushbits/database"
 	"github.com/eikendev/pushbits/dispatcher"
 
@@ -13,7 +14,7 @@ import (
 )
 
 // Create a Gin engine and setup all routes.
-func Create(debug bool, db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
+func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
 	log.Println("Setting up HTTP routes.")
 
 	if !debug {
@@ -22,9 +23,9 @@ func Create(debug bool, db *database.Database, dp *dispatcher.Dispatcher) *gin.E
 
 	auth := authentication.Authenticator{DB: db}
 
-	applicationHandler := api.ApplicationHandler{DB: db, Dispatcher: dp}
-	notificationHandler := api.NotificationHandler{DB: db, Dispatcher: dp}
-	userHandler := api.UserHandler{DB: db, Dispatcher: dp}
+	applicationHandler := api.ApplicationHandler{DB: db, DP: dp}
+	notificationHandler := api.NotificationHandler{DB: db, DP: dp}
+	userHandler := api.UserHandler{CM: cm, DB: db, DP: dp}
 
 	r := gin.Default()
 

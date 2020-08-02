@@ -14,13 +14,17 @@ type CreateApplication struct {
 	Name string `form:"name" query:"name" json:"name" binding:"required"`
 }
 
+type applicationIdentification struct {
+	ID uint `uri:"id" binding:"required"`
+}
+
 // DeleteApplication is used to process queries for deleting applications.
 type DeleteApplication struct {
-	ID uint `uri:"id"`
+	applicationIdentification
 }
 
 // UpdateApplication is used to process queries for updating applications.
 type UpdateApplication struct {
-	ID   uint   `uri:"id" binding:"required"`
+	applicationIdentification
 	Name string `json:"name"`
 }

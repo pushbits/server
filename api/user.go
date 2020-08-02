@@ -27,10 +27,16 @@ type UserDispatcher interface {
 	DeregisterApplication(a *model.Application) error
 }
 
+// The CredentialsManager interface for updating credentials.
+type CredentialsManager interface {
+	CreatePasswordHash(password string) []byte
+}
+
 // UserHandler holds information for processing requests about users.
 type UserHandler struct {
-	DB         UserDatabase
-	Dispatcher ApplicationDispatcher
+	CM CredentialsManager
+	DB UserDatabase
+	DP UserDispatcher
 }
 
 func (h *UserHandler) userExists(name string) bool {
@@ -49,6 +55,7 @@ func (h *UserHandler) ensureIsNotLastAdmin(ctx *gin.Context) (int, error) {
 }
 
 // CreateUser creates a new user.
+// This method assumes that the requesting user has privileges.
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	var externalUser model.ExternalUserWithCredentials
 
@@ -71,6 +78,8 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 }
 
 // DeleteUser deletes a user with a certain ID.
+//
+// This method assumes that the requesting user has privileges.
 func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 	var deleteUser model.DeleteUser
 
@@ -99,7 +108,7 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 	}
 
 	for _, app := range applications {
-		if success := successOrAbort(ctx, http.StatusInternalServerError, h.Dispatcher.DeregisterApplication(&app)); !success {
+		if success := successOrAbort(ctx, http.StatusInternalServerError, h.DP.DeregisterApplication(&app)); !success {
 			return
 		}
 	}
@@ -112,6 +121,9 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 }
 
 // UpdateUser updates a user with a certain ID.
+//
+// This method assumes that the requesting user has privileges. If users can later update their own user, make sure they
+// cannot give themselves privileges.
 func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	var updateUser model.UpdateUser
 
@@ -136,11 +148,13 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 
 	log.Printf("Updating user %s.\n", user.Name)
 
-	// If users can later update their own user, make sure they cannot give themselves privileges.
+	if user.MatrixID != updateUser.MatrixID {
+		// TODO: Update correspondent in rooms of applications.
+	}
+
 	// TODO: Handle unbound members.
-	// TODO: Allow updating of password.
-	// TODO: Update rooms of applications when the user's MatrixID changes.
 	user.Name = updateUser.Name
+	user.PasswordHash = h.CM.CreatePasswordHash(updateUser.Password)
 	user.MatrixID = updateUser.MatrixID
 	user.IsAdmin = updateUser.IsAdmin
 

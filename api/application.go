@@ -27,8 +27,8 @@ type ApplicationDispatcher interface {
 
 // ApplicationHandler holds information for processing requests about applications.
 type ApplicationHandler struct {
-	DB         ApplicationDatabase
-	Dispatcher ApplicationDispatcher
+	DB ApplicationDatabase
+	DP ApplicationDispatcher
 }
 
 func (h *ApplicationHandler) applicationExists(token string) bool {
@@ -52,7 +52,7 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 
 	log.Printf("User %s will receive notifications for application %s.\n", user.Name, application.Name)
 
-	matrixid, err := h.Dispatcher.RegisterApplication(application.Name, user.MatrixID)
+	matrixid, err := h.DP.RegisterApplication(application.Name, user.MatrixID)
 
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
@@ -86,7 +86,7 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 
 	log.Printf("Deleting application %s.\n", application.Name)
 
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.Dispatcher.DeregisterApplication(application)); !success {
+	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DP.DeregisterApplication(application)); !success {
 		return
 	}
 

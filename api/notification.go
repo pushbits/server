@@ -23,8 +23,8 @@ type NotificationDispatcher interface {
 
 // NotificationHandler holds information for processing requests about notifications.
 type NotificationHandler struct {
-	DB         NotificationDatabase
-	Dispatcher NotificationDispatcher
+	DB NotificationDatabase
+	DP NotificationDispatcher
 }
 
 // CreateNotification is used to create a new notification for a user.
@@ -45,7 +45,7 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	}
 	notification.Date = time.Now()
 
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.Dispatcher.SendNotification(application, &notification)); !success {
+	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DP.SendNotification(application, &notification)); !success {
 		return
 	}
 

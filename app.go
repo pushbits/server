@@ -55,7 +55,7 @@ func main() {
 
 	setupCleanup(db, dp)
 
-	engine := router.Create(c.Debug, db, dp)
+	engine := router.Create(c.Debug, cm, db, dp)
 
 	runner.Run(engine, c.HTTP.ListenAddress, c.HTTP.Port)
 }

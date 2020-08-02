@@ -67,15 +67,20 @@ func (u *User) IntoExternalUser() *ExternalUser {
 	}
 }
 
+type userIdentification struct {
+	ID uint `uri:"id" binding:"required"`
+}
+
 // DeleteUser is used to process queries for deleting users.
 type DeleteUser struct {
-	ID uint `uri:"id"`
+	userIdentification
 }
 
 // UpdateUser is used to process queries for updating users.
 type UpdateUser struct {
-	ID       uint   `uri:"id" binding:"required"`
+	userIdentification
 	Name     string `json:"name"`
+	Password string `json:"password"`
 	IsAdmin  bool   `json:"is_admin"`
 	MatrixID string `json:"matrix_id"`
 }
