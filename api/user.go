@@ -44,31 +44,48 @@ func (h *UserHandler) userExists(name string) bool {
 	return user != nil
 }
 
-func (h *UserHandler) ensureIsNotLastAdmin(ctx *gin.Context) (int, error) {
+func (h *UserHandler) requireMultipleAdmins(ctx *gin.Context) error {
 	if count, err := h.DB.AdminUserCount(); err != nil {
-		return http.StatusInternalServerError, err
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return err
 	} else if count == 1 {
-		return http.StatusBadRequest, errors.New("instance needs at least one privileged user")
+		err := errors.New("instance needs at least one privileged user")
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return err
 	}
 
-	return 0, nil
+	return nil
+}
+
+func (h *UserHandler) getUser(ctx *gin.Context) (*model.User, error) {
+	id, err := getID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	application, err := h.DB.GetUserByID(id)
+	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
+		return nil, err
+	}
+
+	return application, nil
 }
 
 // CreateUser creates a new user.
 // This method assumes that the requesting user has privileges.
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
-	var externalUser model.CreateUser
+	var createUser model.CreateUser
 
-	if err := ctx.Bind(&externalUser); err != nil {
+	if err := ctx.Bind(&createUser); err != nil {
 		return
 	}
 
-	if h.userExists(externalUser.Name) {
+	if h.userExists(createUser.Name) {
 		ctx.AbortWithError(http.StatusBadRequest, errors.New("username already exists"))
 		return
 	}
 
-	user, err := h.DB.CreateUser(externalUser)
+	user, err := h.DB.CreateUser(createUser)
 
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
@@ -81,20 +98,14 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 //
 // This method assumes that the requesting user has privileges.
 func (h *UserHandler) DeleteUser(ctx *gin.Context) {
-	id, err := getID(ctx)
+	user, err := h.getUser(ctx)
 	if err != nil {
-		return
-	}
-
-	user, err := h.DB.GetUserByID(id)
-	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
 		return
 	}
 
 	// Last privileged user must not be deleted.
 	if user.IsAdmin {
-		if status, err := h.ensureIsNotLastAdmin(ctx); err != nil {
-			ctx.AbortWithError(status, err)
+		if err := h.requireMultipleAdmins(ctx); err != nil {
 			return
 		}
 	}
@@ -124,18 +135,12 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 // This method assumes that the requesting user has privileges. If users can later update their own user, make sure they
 // cannot give themselves privileges.
 func (h *UserHandler) UpdateUser(ctx *gin.Context) {
-	id, err := getID(ctx)
+	user, err := h.getUser(ctx)
 	if err != nil {
 		return
 	}
 
-	user, err := h.DB.GetUserByID(id)
-	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
-		return
-	}
-
 	var updateUser model.UpdateUser
-
 	if err := ctx.BindUri(&updateUser); err != nil {
 		return
 	}
@@ -144,8 +149,7 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 
 	// Last privileged user must not be taken privileges. Assumes that the current user has privileges.
 	if user.ID == currentUser.ID && !updateUser.IsAdmin {
-		if status, err := h.ensureIsNotLastAdmin(ctx); err != nil {
-			ctx.AbortWithError(status, err)
+		if err := h.requireMultipleAdmins(ctx); err != nil {
 			return
 		}
 	}
