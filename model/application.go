@@ -16,5 +16,5 @@ type CreateApplication struct {
 
 // UpdateApplication is used to process queries for updating applications.
 type UpdateApplication struct {
-	Name string `json:"name"`
+	Name *string `json:"name"`
 }

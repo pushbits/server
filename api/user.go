@@ -72,8 +72,8 @@ func (h *UserHandler) getUser(ctx *gin.Context) (*model.User, error) {
 	return application, nil
 }
 
-func (h *UserHandler) deleteApplications(ctx *gin.Context, user *model.User) error {
-	applications, err := h.DB.GetApplications(user)
+func (h *UserHandler) deleteApplications(ctx *gin.Context, u *model.User) error {
+	applications, err := h.DB.GetApplications(u)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
@@ -107,6 +107,34 @@ func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, channelID 
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser model.UpdateUser) error {
+	if updateUser.MatrixID != nil && u.MatrixID != *updateUser.MatrixID {
+		if err := h.updateChannels(ctx, u, *updateUser.MatrixID); err != nil {
+			return err
+		}
+	}
+
+	if updateUser.Name != nil {
+		u.Name = *updateUser.Name
+	}
+	if updateUser.Password != nil {
+		u.PasswordHash = h.CM.CreatePasswordHash(*updateUser.Password)
+	}
+	if updateUser.MatrixID != nil {
+		u.MatrixID = *updateUser.MatrixID
+	}
+	if updateUser.IsAdmin != nil {
+		u.IsAdmin = *updateUser.IsAdmin
+	}
+
+	err := h.DB.UpdateUser(u)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return err
 	}
 
 	return nil
@@ -184,7 +212,7 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	requestingUser := authentication.GetUser(ctx)
 
 	// Last privileged user must not be taken privileges. Assumes that the current user has privileges.
-	if user.ID == requestingUser.ID && !updateUser.IsAdmin {
+	if user.ID == requestingUser.ID && updateUser.IsAdmin != nil && !(*updateUser.IsAdmin) {
 		if err := h.requireMultipleAdmins(ctx); err != nil {
 			return
 		}
@@ -192,19 +220,7 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 
 	log.Printf("Updating user %s.\n", user.Name)
 
-	if user.MatrixID != updateUser.MatrixID {
-		if err := h.updateChannels(ctx, user, updateUser.MatrixID); err != nil {
-			return
-		}
-	}
-
-	// TODO: Handle unbound members.
-	user.Name = updateUser.Name
-	user.PasswordHash = h.CM.CreatePasswordHash(updateUser.Password)
-	user.MatrixID = updateUser.MatrixID
-	user.IsAdmin = updateUser.IsAdmin
-
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DB.UpdateUser(user)); !success {
+	if err := h.updateUser(ctx, user, updateUser); err != nil {
 		return
 	}
 

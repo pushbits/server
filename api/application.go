@@ -97,6 +97,19 @@ func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Applic
 	return nil
 }
 
+func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Application, updateApplication *model.UpdateApplication) error {
+	if updateApplication.Name != nil {
+		a.Name = *updateApplication.Name
+	}
+
+	err := h.DB.UpdateApplication(a)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return err
+	}
+
+	return nil
+}
+
 // CreateApplication creates an application.
 func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	var createApplication model.CreateApplication
@@ -153,10 +166,7 @@ func (h *ApplicationHandler) UpdateApplication(ctx *gin.Context) {
 
 	log.Printf("Updating application %s.\n", application.Name)
 
-	// TODO: Handle unbound members.
-	application.Name = updateApplication.Name
-
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DB.UpdateApplication(application)); !success {
+	if err := h.updateApplication(ctx, application, &updateApplication); err != nil {
 		return
 	}
 

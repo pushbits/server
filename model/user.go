@@ -69,8 +69,8 @@ func (u *User) IntoExternalUser() *ExternalUser {
 
 // UpdateUser is used to process queries for updating users.
 type UpdateUser struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
-	IsAdmin  bool   `json:"is_admin"`
-	MatrixID string `json:"matrix_id"`
+	Name     *string `json:"name"`
+	Password *string `json:"password"`
+	IsAdmin  *bool   `json:"is_admin"`
+	MatrixID *string `json:"matrix_id"`
 }
