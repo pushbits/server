@@ -8,7 +8,7 @@ import (
 )
 
 func getID(ctx *gin.Context) (uint, error) {
-	id, ok := ctx.MustGet("user").(uint)
+	id, ok := ctx.MustGet("id").(uint)
 	if !ok {
 		err := errors.New("an error occured while retrieving ID from context")
 		ctx.AbortWithError(http.StatusInternalServerError, err)

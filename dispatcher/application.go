@@ -8,7 +8,7 @@ import (
 	"github.com/matrix-org/gomatrix"
 )
 
-// RegisterApplication creates a new channel for an application.
+// RegisterApplication creates a channel for an application.
 func (d *Dispatcher) RegisterApplication(name, user string) (string, error) {
 	log.Printf("Registering application %s, notifications will be relayed to user %s.\n", name, user)
 

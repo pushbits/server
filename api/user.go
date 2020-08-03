@@ -34,6 +34,7 @@ type CredentialsManager interface {
 
 // UserHandler holds information for processing requests about users.
 type UserHandler struct {
+	AH *ApplicationHandler
 	CM CredentialsManager
 	DB UserDatabase
 	DP UserDispatcher
@@ -71,6 +72,46 @@ func (h *UserHandler) getUser(ctx *gin.Context) (*model.User, error) {
 	return application, nil
 }
 
+func (h *UserHandler) deleteApplications(ctx *gin.Context, user *model.User) error {
+	applications, err := h.DB.GetApplications(user)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return err
+	}
+
+	for _, application := range applications {
+		if err := h.AH.deleteApplication(ctx, &application); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, channelID string) error {
+	applications, err := h.DB.GetApplications(u)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return err
+	}
+
+	for _, application := range applications {
+		err := h.DP.DeregisterApplication(&application)
+		if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+			return err
+		}
+	}
+
+	u.MatrixID = channelID
+
+	for _, application := range applications {
+		err := h.AH.registerApplication(ctx, &application, u)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // CreateUser creates a new user.
 // This method assumes that the requesting user has privileges.
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
@@ -84,6 +125,8 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 		ctx.AbortWithError(http.StatusBadRequest, errors.New("username already exists"))
 		return
 	}
+
+	log.Printf("Creating user %s.\n", createUser.Name)
 
 	user, err := h.DB.CreateUser(createUser)
 
@@ -112,15 +155,8 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 
 	log.Printf("Deleting user %s.\n", user.Name)
 
-	applications, err := h.DB.GetApplications(user)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if err := h.deleteApplications(ctx, user); err != nil {
 		return
-	}
-
-	for _, app := range applications {
-		if success := successOrAbort(ctx, http.StatusInternalServerError, h.DP.DeregisterApplication(&app)); !success {
-			return
-		}
 	}
 
 	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DB.DeleteUser(user)); !success {
@@ -145,10 +181,10 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	currentUser := authentication.GetUser(ctx)
+	requestingUser := authentication.GetUser(ctx)
 
 	// Last privileged user must not be taken privileges. Assumes that the current user has privileges.
-	if user.ID == currentUser.ID && !updateUser.IsAdmin {
+	if user.ID == requestingUser.ID && !updateUser.IsAdmin {
 		if err := h.requireMultipleAdmins(ctx); err != nil {
 			return
 		}
@@ -157,7 +193,9 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	log.Printf("Updating user %s.\n", user.Name)
 
 	if user.MatrixID != updateUser.MatrixID {
-		// TODO: Update correspondent in rooms of applications.
+		if err := h.updateChannels(ctx, user, updateUser.MatrixID); err != nil {
+			return
+		}
 	}
 
 	// TODO: Handle unbound members.

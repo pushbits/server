@@ -25,7 +25,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 
 	applicationHandler := api.ApplicationHandler{DB: db, DP: dp}
 	notificationHandler := api.NotificationHandler{DB: db, DP: dp}
-	userHandler := api.UserHandler{CM: cm, DB: db, DP: dp}
+	userHandler := api.UserHandler{AH: &applicationHandler, CM: cm, DB: db, DP: dp}
 
 	r := gin.Default()
 

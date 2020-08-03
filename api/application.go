@@ -50,6 +50,53 @@ func (h *ApplicationHandler) getApplication(ctx *gin.Context) (*model.Applicatio
 	return application, nil
 }
 
+func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
+	log.Printf("Registering application %s.\n", a.Name)
+
+	channelID, err := h.DP.RegisterApplication(a.Name, u.MatrixID)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return err
+	}
+
+	a.MatrixID = channelID
+
+	return nil
+}
+
+func (h *ApplicationHandler) createApplication(ctx *gin.Context, name string, u *model.User) (*model.Application, error) {
+	log.Printf("Creating application %s.\n", name)
+
+	application := model.Application{}
+	application.Name = name
+	application.Token = authentication.GenerateNotExistingToken(authentication.GenerateApplicationToken, h.applicationExists)
+	application.UserID = u.ID
+
+	if err := h.registerApplication(ctx, &application, u); err != nil {
+		return nil, err
+	}
+
+	err := h.DB.CreateApplication(&application)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return nil, err
+	}
+
+	return &application, nil
+}
+
+func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Application) error {
+	err := h.DP.DeregisterApplication(a)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return err
+	}
+
+	err = h.DB.DeleteApplication(a)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return err
+	}
+
+	return nil
+}
+
 // CreateApplication creates an application.
 func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	var createApplication model.CreateApplication
@@ -60,21 +107,8 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 
 	user := authentication.GetUser(ctx)
 
-	application := model.Application{}
-	application.Token = authentication.GenerateNotExistingToken(authentication.GenerateApplicationToken, h.applicationExists)
-	application.UserID = user.ID
-
-	log.Printf("User %s will receive notifications for application %s.\n", user.Name, application.Name)
-
-	matrixid, err := h.DP.RegisterApplication(application.Name, user.MatrixID)
-
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
-		return
-	}
-
-	application.MatrixID = matrixid
-
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DB.CreateApplication(&application)); !success {
+	application, err := h.createApplication(ctx, createApplication.Name, user)
+	if err != nil {
 		return
 	}
 
@@ -94,11 +128,7 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 
 	log.Printf("Deleting application %s.\n", application.Name)
 
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DP.DeregisterApplication(application)); !success {
-		return
-	}
-
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DB.DeleteApplication(application)); !success {
+	if err := h.deleteApplication(ctx, application); err != nil {
 		return
 	}
 
