@@ -35,6 +35,9 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	applicationGroup.Use(auth.RequireUser())
 	{
 		applicationGroup.POST("", applicationHandler.CreateApplication)
+		applicationGroup.GET("", applicationHandler.GetApplications)
+
+		applicationGroup.GET("/:id", api.RequireIDInURI(), applicationHandler.GetApplication)
 		applicationGroup.DELETE("/:id", api.RequireIDInURI(), applicationHandler.DeleteApplication)
 		applicationGroup.PUT("/:id", api.RequireIDInURI(), applicationHandler.UpdateApplication)
 	}

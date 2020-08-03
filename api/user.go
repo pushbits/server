@@ -13,13 +13,14 @@ import (
 
 // The UserDatabase interface for encapsulating database access.
 type UserDatabase interface {
+	GetApplications(user *model.User) ([]model.Application, error)
+
+	AdminUserCount() (int64, error)
 	CreateUser(user model.CreateUser) (*model.User, error)
 	DeleteUser(user *model.User) error
-	UpdateUser(user *model.User) error
 	GetUserByID(ID uint) (*model.User, error)
 	GetUserByName(name string) (*model.User, error)
-	GetApplications(user *model.User) ([]model.Application, error)
-	AdminUserCount() (int64, error)
+	UpdateUser(user *model.User) error
 }
 
 // The UserDispatcher interface for relaying notifications.
@@ -56,20 +57,6 @@ func (h *UserHandler) requireMultipleAdmins(ctx *gin.Context) error {
 	}
 
 	return nil
-}
-
-func (h *UserHandler) getUser(ctx *gin.Context) (*model.User, error) {
-	id, err := getID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	application, err := h.DB.GetUserByID(id)
-	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
-		return nil, err
-	}
-
-	return application, nil
 }
 
 func (h *UserHandler) deleteApplications(ctx *gin.Context, u *model.User) error {
@@ -169,7 +156,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 //
 // This method assumes that the requesting user has privileges.
 func (h *UserHandler) DeleteUser(ctx *gin.Context) {
-	user, err := h.getUser(ctx)
+	user, err := getUser(ctx, h.DB)
 	if err != nil {
 		return
 	}
@@ -199,7 +186,7 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 // This method assumes that the requesting user has privileges. If users can later update their own user, make sure they
 // cannot give themselves privileges.
 func (h *UserHandler) UpdateUser(ctx *gin.Context) {
-	user, err := h.getUser(ctx)
+	user, err := getUser(ctx, h.DB)
 	if err != nil {
 		return
 	}

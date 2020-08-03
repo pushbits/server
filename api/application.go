@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -14,9 +15,12 @@ import (
 type ApplicationDatabase interface {
 	CreateApplication(application *model.Application) error
 	DeleteApplication(application *model.Application) error
-	UpdateApplication(application *model.Application) error
 	GetApplicationByID(ID uint) (*model.Application, error)
 	GetApplicationByToken(token string) (*model.Application, error)
+	GetApplications(user *model.User) ([]model.Application, error)
+	UpdateApplication(application *model.Application) error
+
+	GetUserByID(ID uint) (*model.User, error)
 }
 
 // The ApplicationDispatcher interface for relaying notifications.
@@ -122,6 +126,42 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 
 	application, err := h.createApplication(ctx, createApplication.Name, user)
 	if err != nil {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &application)
+}
+
+// GetApplications returns all applications for the current user.
+func (h *ApplicationHandler) GetApplications(ctx *gin.Context) {
+	user, err := getUser(ctx, h.DB)
+	if err != nil {
+		return
+	}
+
+	applications, err := h.DB.GetApplications(user)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &applications)
+}
+
+// GetApplication returns all applications for the current user.
+func (h *ApplicationHandler) GetApplication(ctx *gin.Context) {
+	application, err := h.getApplication(ctx)
+	if err != nil {
+		return
+	}
+
+	user, err := getUser(ctx, h.DB)
+	if err != nil {
+		return
+	}
+
+	if user.ID != application.UserID {
+		err := errors.New("application belongs to another user")
+		ctx.AbortWithError(http.StatusForbidden, err)
 		return
 	}
 
