@@ -138,7 +138,13 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, &users)
+	var externalUsers []*model.ExternalUser
+
+	for _, user := range users {
+		externalUsers = append(externalUsers, user.IntoExternalUser())
+	}
+
+	ctx.JSON(http.StatusOK, &externalUsers)
 }
 
 // GetUser returns the user with the specified ID.
@@ -149,7 +155,7 @@ func (h *UserHandler) GetUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, user)
+	ctx.JSON(http.StatusOK, user.IntoExternalUser())
 }
 
 // DeleteUser deletes a user with a certain ID.
