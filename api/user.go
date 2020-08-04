@@ -11,34 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// The UserDatabase interface for encapsulating database access.
-type UserDatabase interface {
-	GetApplications(user *model.User) ([]model.Application, error)
-
-	AdminUserCount() (int64, error)
-	CreateUser(user model.CreateUser) (*model.User, error)
-	DeleteUser(user *model.User) error
-	GetUserByID(ID uint) (*model.User, error)
-	GetUserByName(name string) (*model.User, error)
-	UpdateUser(user *model.User) error
-}
-
-// The UserDispatcher interface for relaying notifications.
-type UserDispatcher interface {
-	DeregisterApplication(a *model.Application) error
-}
-
-// The CredentialsManager interface for updating credentials.
-type CredentialsManager interface {
-	CreatePasswordHash(password string) []byte
-}
-
 // UserHandler holds information for processing requests about users.
 type UserHandler struct {
 	AH *ApplicationHandler
 	CM CredentialsManager
-	DB UserDatabase
-	DP UserDispatcher
+	DB Database
+	DP Dispatcher
 }
 
 func (h *UserHandler) userExists(name string) bool {
@@ -150,6 +128,28 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, user.IntoExternalUser())
+}
+
+// GetUsers returns all users.
+// This method assumes that the requesting user has privileges.
+func (h *UserHandler) GetUsers(ctx *gin.Context) {
+	users, err := h.DB.GetUsers()
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &users)
+}
+
+// GetUser returns the user with the specified ID.
+// This method assumes that the requesting user has privileges.
+func (h *UserHandler) GetUser(ctx *gin.Context) {
+	user, err := getUser(ctx, h.DB)
+	if err != nil {
+		return
+	}
+
+	ctx.JSON(http.StatusOK, user)
 }
 
 // DeleteUser deletes a user with a certain ID.

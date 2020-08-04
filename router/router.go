@@ -48,6 +48,9 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	userGroup.Use(auth.RequireAdmin())
 	{
 		userGroup.POST("", userHandler.CreateUser)
+		userGroup.GET("", userHandler.GetUsers)
+
+		userGroup.GET("/:id", api.RequireIDInURI(), userHandler.GetUser)
 		userGroup.DELETE("/:id", api.RequireIDInURI(), userHandler.DeleteUser)
 		userGroup.PUT("/:id", api.RequireIDInURI(), userHandler.UpdateUser)
 	}

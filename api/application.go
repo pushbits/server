@@ -11,47 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// The ApplicationDatabase interface for encapsulating database access.
-type ApplicationDatabase interface {
-	CreateApplication(application *model.Application) error
-	DeleteApplication(application *model.Application) error
-	GetApplicationByID(ID uint) (*model.Application, error)
-	GetApplicationByToken(token string) (*model.Application, error)
-	GetApplications(user *model.User) ([]model.Application, error)
-	UpdateApplication(application *model.Application) error
-
-	GetUserByID(ID uint) (*model.User, error)
-}
-
-// The ApplicationDispatcher interface for relaying notifications.
-type ApplicationDispatcher interface {
-	RegisterApplication(name, user string) (string, error)
-	DeregisterApplication(a *model.Application) error
-}
-
 // ApplicationHandler holds information for processing requests about applications.
 type ApplicationHandler struct {
-	DB ApplicationDatabase
-	DP ApplicationDispatcher
+	DB Database
+	DP Dispatcher
 }
 
 func (h *ApplicationHandler) applicationExists(token string) bool {
 	application, _ := h.DB.GetApplicationByToken(token)
 	return application != nil
-}
-
-func (h *ApplicationHandler) getApplication(ctx *gin.Context) (*model.Application, error) {
-	id, err := getID(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	application, err := h.DB.GetApplicationByID(id)
-	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
-		return nil, err
-	}
-
-	return application, nil
 }
 
 func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
@@ -123,6 +91,9 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	}
 
 	user := authentication.GetUser(ctx)
+	if user == nil {
+		return
+	}
 
 	application, err := h.createApplication(ctx, createApplication.Name, user)
 	if err != nil {
@@ -132,10 +103,10 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, &application)
 }
 
-// GetApplications returns all applications for the current user.
+// GetApplications returns all applications of the current user.
 func (h *ApplicationHandler) GetApplications(ctx *gin.Context) {
-	user, err := getUser(ctx, h.DB)
-	if err != nil {
+	user := authentication.GetUser(ctx)
+	if user == nil {
 		return
 	}
 
@@ -147,15 +118,15 @@ func (h *ApplicationHandler) GetApplications(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, &applications)
 }
 
-// GetApplication returns all applications for the current user.
+// GetApplication returns the application with the specified ID.
 func (h *ApplicationHandler) GetApplication(ctx *gin.Context) {
-	application, err := h.getApplication(ctx)
+	application, err := getApplication(ctx, h.DB)
 	if err != nil {
 		return
 	}
 
-	user, err := getUser(ctx, h.DB)
-	if err != nil {
+	user := authentication.GetUser(ctx)
+	if user == nil {
 		return
 	}
 
@@ -170,7 +141,7 @@ func (h *ApplicationHandler) GetApplication(ctx *gin.Context) {
 
 // DeleteApplication deletes an application with a certain ID.
 func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
-	application, err := h.getApplication(ctx)
+	application, err := getApplication(ctx, h.DB)
 	if err != nil {
 		return
 	}
@@ -190,7 +161,7 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 
 // UpdateApplication updates an application with a certain ID.
 func (h *ApplicationHandler) UpdateApplication(ctx *gin.Context) {
-	application, err := h.getApplication(ctx)
+	application, err := getApplication(ctx, h.DB)
 	if err != nil {
 		return
 	}

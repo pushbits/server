@@ -24,6 +24,7 @@ func GetUser(ctx *gin.Context) *model.User {
 	user, ok := ctx.MustGet("user").(*model.User)
 	if user == nil || !ok {
 		ctx.AbortWithError(http.StatusInternalServerError, errors.New("an error occured while retrieving user from context"))
+		return nil
 	}
 
 	return user
