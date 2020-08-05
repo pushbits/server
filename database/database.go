@@ -91,12 +91,6 @@ func (d *Database) Populate(name, password, matrixID string) error {
 		}
 	} else {
 		log.Printf("Admin user %s already exists.\n", name)
-
-		user.PasswordHash = d.credentialsManager.CreatePasswordHash(password)
-		user.IsAdmin = true
-		user.MatrixID = matrixID
-
-		d.gormdb.Save(&user)
 	}
 
 	return nil
