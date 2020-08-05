@@ -52,7 +52,7 @@ func (h *UserHandler) deleteApplications(ctx *gin.Context, u *model.User) error 
 	return nil
 }
 
-func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, channelID string) error {
+func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, matrixID string) error {
 	applications, err := h.DB.GetApplications(u)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
@@ -65,7 +65,7 @@ func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, channelID 
 		}
 	}
 
-	u.MatrixID = channelID
+	u.MatrixID = matrixID
 
 	for _, application := range applications {
 		err := h.AH.registerApplication(ctx, &application, u)
