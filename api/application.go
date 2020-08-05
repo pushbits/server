@@ -56,6 +56,8 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, name string, u 
 }
 
 func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Application) error {
+	log.Printf("Deleting application %s.\n", a.Name)
+
 	err := h.DP.DeregisterApplication(a)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
@@ -70,6 +72,8 @@ func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Applic
 }
 
 func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Application, updateApplication *model.UpdateApplication) error {
+	log.Printf("Updating application %s.\n", a.Name)
+
 	if updateApplication.Name != nil {
 		a.Name = *updateApplication.Name
 	}
@@ -150,8 +154,6 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 		return
 	}
 
-	log.Printf("Deleting application %s.\n", application.Name)
-
 	if err := h.deleteApplication(ctx, application); err != nil {
 		return
 	}
@@ -174,8 +176,6 @@ func (h *ApplicationHandler) UpdateApplication(ctx *gin.Context) {
 	if err := ctx.BindUri(&updateApplication); err != nil {
 		return
 	}
-
-	log.Printf("Updating application %s.\n", application.Name)
 
 	if err := h.updateApplication(ctx, application, &updateApplication); err != nil {
 		return

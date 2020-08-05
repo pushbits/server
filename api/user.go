@@ -84,6 +84,8 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 		}
 	}
 
+	log.Printf("Updating user %s.\n", u.Name)
+
 	if updateUser.Name != nil {
 		u.Name = *updateUser.Name
 	}
@@ -210,8 +212,6 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 			return
 		}
 	}
-
-	log.Printf("Updating user %s.\n", user.Name)
 
 	if err := h.updateUser(ctx, user, updateUser); err != nil {
 		return
