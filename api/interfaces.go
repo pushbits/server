@@ -6,6 +6,8 @@ import (
 
 // The Database interface for encapsulating database access.
 type Database interface {
+	Health() error
+
 	CreateApplication(application *model.Application) error
 	DeleteApplication(application *model.Application) error
 	GetApplicationByID(ID uint) (*model.Application, error)

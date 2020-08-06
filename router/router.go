@@ -24,6 +24,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	auth := authentication.Authenticator{DB: db}
 
 	applicationHandler := api.ApplicationHandler{DB: db, DP: dp}
+	healthHandler := api.HealthHandler{DB: db}
 	notificationHandler := api.NotificationHandler{DB: db, DP: dp}
 	userHandler := api.UserHandler{AH: &applicationHandler, CM: cm, DB: db, DP: dp}
 
@@ -41,6 +42,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		applicationGroup.DELETE("/:id", api.RequireIDInURI(), applicationHandler.DeleteApplication)
 		applicationGroup.PUT("/:id", api.RequireIDInURI(), applicationHandler.UpdateApplication)
 	}
+
+	r.GET("/health", healthHandler.Health)
 
 	r.POST("/message", auth.RequireApplicationToken(), notificationHandler.CreateNotification)
 

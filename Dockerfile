@@ -17,6 +17,8 @@ RUN set -ex \
 
 FROM alpine
 
+ENV PUSHBITS_HTTP_PORT="8080"
+
 EXPOSE 8080
 
 WORKDIR /app
@@ -30,5 +32,7 @@ RUN set -ex \
 	&& ln -s /data/config.yml /app/config.yml
 
 USER 1000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s CMD curl --fail http://localhost:$PUSHBITS_HTTP_PORT/health || exit 1
 
 ENTRYPOINT ["./run"]
