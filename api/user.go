@@ -44,7 +44,7 @@ func (h *UserHandler) deleteApplications(ctx *gin.Context, u *model.User) error 
 	}
 
 	for _, application := range applications {
-		if err := h.AH.deleteApplication(ctx, &application); err != nil {
+		if err := h.AH.deleteApplication(ctx, &application, u); err != nil {
 			return err
 		}
 	}
@@ -59,7 +59,7 @@ func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, matrixID s
 	}
 
 	for _, application := range applications {
-		err := h.DP.DeregisterApplication(&application)
+		err := h.DP.DeregisterApplication(&application, u)
 		if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 			return err
 		}

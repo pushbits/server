@@ -25,7 +25,7 @@ func (h *ApplicationHandler) applicationExists(token string) bool {
 func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
 	log.Printf("Registering application %s.\n", a.Name)
 
-	channelID, err := h.DP.RegisterApplication(a.Name, u.MatrixID)
+	channelID, err := h.DP.RegisterApplication(a.ID, a.Name, a.Token, u.MatrixID)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
@@ -55,10 +55,10 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, name string, u 
 	return &application, nil
 }
 
-func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Application) error {
+func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
 	log.Printf("Deleting application %s.\n", a.Name)
 
-	err := h.DP.DeregisterApplication(a)
+	err := h.DP.DeregisterApplication(a, u)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
@@ -154,7 +154,7 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.deleteApplication(ctx, application); err != nil {
+	if err := h.deleteApplication(ctx, application, authentication.GetUser(ctx)); err != nil {
 		return
 	}
 
