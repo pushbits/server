@@ -27,6 +27,27 @@ At the moment, there is no front-end implemented.
 New users and applications need to be created via the API.
 Details will be made available once the interface is more stable.
 
+To get started, here is a Docker Compose file you can use.
+```yaml
+version: '2'
+
+services:
+    server:
+        image: eikendev/pushbits:latest
+    	ports:
+      	  - 8080:8080
+        environment:
+			PUSHBITS_DATABASE_DIALECT: 'sqlite3'
+			PUSHBITS_ADMIN_MATRIXID: '@your/matrix/username:matrix.org'
+			PUSHBITS_ADMIN_PASSWORD: 'your/matrix/password'
+			PUSHBITS_MATRIX_USERNAME: 'your/pushbits/username'
+			PUSHBITS_MATRIX_PASSWORD: 'your/pushbits/password'
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+            - /etc/timezone:/etc/timezone:ro
+            - ./mount/data:/data
+```
+
 ## Development
 
 PushBits is currently in alpha stage.
