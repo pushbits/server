@@ -34,14 +34,14 @@ version: '2'
 services:
     server:
         image: eikendev/pushbits:latest
-    	ports:
-      	  - 8080:8080
+        ports:
+            - 8080:8080
         environment:
-			PUSHBITS_DATABASE_DIALECT: 'sqlite3'
-			PUSHBITS_ADMIN_MATRIXID: '@your/matrix/username:matrix.org'
-			PUSHBITS_ADMIN_PASSWORD: 'your/matrix/password'
-			PUSHBITS_MATRIX_USERNAME: 'your/pushbits/username'
-			PUSHBITS_MATRIX_PASSWORD: 'your/pushbits/password'
+            PUSHBITS_DATABASE_DIALECT: 'sqlite3'
+            PUSHBITS_ADMIN_MATRIXID: '@your/matrix/username:matrix.org'
+            PUSHBITS_ADMIN_PASSWORD: 'your/matrix/password'
+            PUSHBITS_MATRIX_USERNAME: 'your/pushbits/username'
+            PUSHBITS_MATRIX_PASSWORD: 'your/pushbits/password'
         volumes:
             - /etc/localtime:/etc/localtime:ro
             - /etc/timezone:/etc/timezone:ro
