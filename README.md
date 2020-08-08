@@ -15,7 +15,7 @@ This has the advantages that
 
 ### Why Matrix instead of X?
 
-For now, only [Matrix](https://matrix.org/) is supported, but support for different services like [Telegram](https://telegram.org/) could be added in the future.
+For now, only Matrix is supported, but support for different services like [Telegram](https://telegram.org/) could be added in the future.
 [WhatsApp](https://www.whatsapp.com/) and [Signal](https://signal.org/) unfortunately do not have an API through which PushBits can interact.
 
 I am myself experimenting with Matrix currently because I like the idea of a federated, synchronized but still end-to-end encrypted protocol.
