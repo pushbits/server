@@ -15,7 +15,7 @@ test:
 
 .PHONY: tools
 tools:
-	go get -u github.com/fzipp/gocyclo
+	go get -u github.com/fzipp/gocyclo/cmd/gocyclo
 	go get -u golang.org/x/lint/golint
 
 .PHONY: push-image
