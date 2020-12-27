@@ -9,6 +9,12 @@ jobs:
       - uses: actions/setup-go@v1
         with:
           go-version: '*'
+      - name: Print Go environment
+        run: |
+            echo ${GOPATH}
+            echo ${GOROOT}
+            echo ${PATH}
+            go env
       - name: Install dependencies
         run: make setup
       - name: Run tests
