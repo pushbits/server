@@ -6,15 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Go environment
-        run: |
-            export PATH="$(go env GOPATH)/bin:${PATH}"
-            echo ${GOPATH}
-            echo ${PATH}
       - name: Install dependencies
         run: make setup
       - name: Run tests
-        run: make test
+        run: |
+            export PATH="$PATH:$(go env GOPATH)/bin" # Currently the path needs to be set manually.
+            make test
       - name: Build image
         run: make build_image
       - name: Login to Docker Hub
