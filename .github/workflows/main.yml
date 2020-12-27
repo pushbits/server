@@ -8,7 +8,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup Go environment
         run: |
-            export PATH="${GOPATH}/bin:${PATH}"
+            export PATH="$(go env GOPATH)/bin:${PATH}"
             echo ${GOPATH}
             echo ${PATH}
       - name: Install dependencies
