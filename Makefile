@@ -13,12 +13,15 @@ test:
 		exit 1; \
 	fi
 
-.PHONY: tools
-tools:
+.PHONY: setup
+setup:
 	go get -u github.com/fzipp/gocyclo/cmd/gocyclo
 	go get -u golang.org/x/lint/golint
 
-.PHONY: push-image
-push-image:
+.PHONY: build_image
+build_image:
 	docker build -t ${IMAGE}:latest .
+
+.PHONY: push_image
+push_image:
 	docker push ${IMAGE}:latest

@@ -1,0 +1,23 @@
+name: Main
+on: push
+jobs:
+  test_publish:
+    name: Test and publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: make setup
+      - name: Run tests
+        run: make test
+      - name: Build image
+        run: make build_image
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Publish image
+        if: startsWith(github.ref, 'refs/tags/') # Only publish for tagged commits.
+        run: |
+            make push_image
