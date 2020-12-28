@@ -1,4 +1,4 @@
-[![Build status](https://img.shields.io/travis/eikendev/pushbits/master)](https://travis-ci.com/github/eikendev/pushbits/builds/)
+[![Build status](https://img.shields.io/github/workflow/status/eikendev/pushbits/Main)](https://github.com/eikendev/pushbits/actions)
 [![Docker Pulls](https://img.shields.io/docker/pulls/eikendev/pushbits)](https://hub.docker.com/r/eikendev/pushbits)
 ![License](https://img.shields.io/github/license/eikendev/pushbits)
 
