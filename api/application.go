@@ -44,12 +44,18 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, name string, u 
 	application.Token = authentication.GenerateNotExistingToken(authentication.GenerateApplicationToken, h.applicationExists)
 	application.UserID = u.ID
 
-	if err := h.registerApplication(ctx, &application, u); err != nil {
+	err := h.DB.CreateApplication(&application)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return nil, err
 	}
 
-	err := h.DB.CreateApplication(&application)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if err := h.registerApplication(ctx, &application, u); err != nil {
+		err := h.DB.DeleteApplication(&application)
+
+		if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+			log.Printf("Cannot delete application with ID %d.\n", application.ID)
+		}
+
 		return nil, err
 	}
 
