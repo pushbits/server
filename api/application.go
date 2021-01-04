@@ -31,6 +31,7 @@ func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Appl
 	}
 
 	a.MatrixID = channelID
+	h.DB.UpdateApplication(a)
 
 	return nil
 }
