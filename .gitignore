@@ -1,7 +1,7 @@
+app
 *.db
 config.yml
 debugging/
-pushbits
 
 ### Go
 # Binaries for programs and plugins

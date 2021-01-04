@@ -1,5 +1,9 @@
 IMAGE := eikendev/pushbits
 
+.PHONY: build
+build:
+	go build -ldflags="-w -s" -o app .
+
 .PHONY: test
 test:
 	stdout=$$(gofmt -l . 2>&1); \
