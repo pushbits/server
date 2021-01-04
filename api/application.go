@@ -56,7 +56,7 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, name string, u 
 }
 
 func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
-	log.Printf("Deleting application %s.\n", a.Name)
+	log.Printf("Deleting application %s (ID %d).\n", a.Name, a.ID)
 
 	err := h.DP.DeregisterApplication(a, u)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {

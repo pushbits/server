@@ -36,7 +36,7 @@ func (d *Dispatcher) RegisterApplication(id uint, name, token, user string) (str
 
 // DeregisterApplication deletes a channel for an application.
 func (d *Dispatcher) DeregisterApplication(a *model.Application, u *model.User) error {
-	log.Printf("Deregistering application with ID %s.\n", a.MatrixID)
+	log.Printf("Deregistering application %s (ID %d) with Matrix ID %s.\n", a.Name, a.ID, a.MatrixID)
 
 	kickUser := &gomatrix.ReqKickUser{
 		Reason: "This application was deleted",
