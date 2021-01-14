@@ -11,7 +11,8 @@ This is similar to what [PushBullet](https://www.pushbullet.com/), [Pushover](ht
 The vision is to have compatibility with Gotify on the sending side, while on the receiving side an established service is used.
 This has the advantages that
 - sending plugins written for Gotify (like those for [Watchtower](https://containrrr.dev/watchtower/) and [Jellyfin](https://jellyfin.org/)) as well as
-- receiving clients written for the messaging service can be reused.
+- receiving clients written for the messaging service
+can be reused.
 
 ### Why Matrix instead of X?
 
