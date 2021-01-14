@@ -26,10 +26,6 @@ If you haven't tried it yet, I suggest you to check it out.
 PushBits is meant to be self-hosted.
 You are advised to install PushBits behind a reverse proxy and enable TLS.
 
-At the moment, there is no front-end implemented.
-New users and applications need to be created via the API.
-Details will be made available once the interface is more stable.
-
 To get started, here is a Docker Compose file you can use.
 ```yaml
 version: '2'
@@ -50,6 +46,13 @@ services:
             - /etc/timezone:/etc/timezone:ro
             - ./mount/data:/data
 ```
+
+Now, how can you interact with the server?
+At the time of writing, there is no fancy GUI built-in.
+I don't do much front end development myself, so if you want to contribute in this regard I'm happy if you reach out!
+
+Anyway, I wrote [a little CLI tool](https://github.com/PushBits/cli) to make basic API requests to the server.
+You will find further instructions in the linked repository.
 
 ## Development
 
