@@ -2,6 +2,11 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/eikendev/pushbits)](https://hub.docker.com/r/eikendev/pushbits)
 ![License](https://img.shields.io/github/license/eikendev/pushbits)
 
+# PushBits
+
+| :exclamation:  This software is currently in alpha phase.   |
+|-------------------------------------------------------------|
+
 ## About
 
 PushBits is a relay server for push notifications.
@@ -57,9 +62,12 @@ You will find further instructions in the linked repository.
 
 ## Development
 
-PushBits is currently in alpha stage.
-The API is neither stable, nor is provided functionality guaranteed to work.
-Stay tuned! 😉
+The source code is located on [GitHub](https://github.com/eikendev/pushbits).
+You can retrieve it by checking out the repository as follows.
+
+```bash
+git clone https://github.com/eikendev/pushbits.git
+```
 
 ## Acknowledgments
 
