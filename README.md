@@ -58,6 +58,7 @@ At the time of writing, there is no fancy GUI built-in.
 I don't do much front end development myself, so if you want to contribute in this regard I'm happy if you reach out!
 
 Anyway, I wrote [a little CLI tool](https://github.com/PushBits/cli) to make basic API requests to the server.
+It helps you to create new users and applications.
 You will find further instructions in the linked repository.
 
 ## Development
