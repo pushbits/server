@@ -1,0 +1,54 @@
+# A sample configuration for PushBits.
+
+# Populated fields contain their default value.
+
+# Required fields are marked with [required].
+
+debug: false
+
+http:
+    # The address to listen on. If empty, listens on all available IP addresses of the system.
+    listenaddress: ''
+
+    # The port to listen on.
+    port: 8080
+
+database:
+    # Currently sqlite3 and mysql are supported.
+    dialect: 'sqlite3'
+
+    # For sqlite3, specifies the database file. For mysql, specifies the connection string. Check out
+    # https://github.com/go-sql-driver/mysql#dsn-data-source-name for details.
+    connection: 'pushbits.db'
+
+admin:
+    # The username of the initial admin.
+    name: 'admin'
+
+    # The password of the initial admin.
+    password: 'admin'
+
+    # The Matrix ID of the initial admin, where notifications for that admin are sent to.
+    # [required]
+    matrixid: ''
+
+matrix:
+    # The Matrix server to use for sending notifications.
+    homeserver: 'https://matrix.org'
+
+    # The username of the Matrix account to send notifications from.
+    # [required]
+    username: ''
+
+    # The password of the Matrix account to send notifications from.
+    # [required]
+    password: ''
+
+crypto:
+    # Configuration of the KDF for password storage. Do not change unless you know what you are doing!
+    argon2:
+        memory: 131072
+        iterations: 4
+        parallelism: 4
+        saltlength: 16
+        keylength: 32
