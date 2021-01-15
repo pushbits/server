@@ -1,7 +1,6 @@
 app
 *.db
 config.yml
-debugging/
 
 ### Go
 # Binaries for programs and plugins
