@@ -70,11 +70,11 @@ Now, how can you interact with the server?
 At the time of writing, there is no fancy GUI built-in.
 I don't do much front end development myself, so if you want to contribute in this regard I'm happy if you reach out!
 
-Anyway, I wrote [a little CLI tool](https://github.com/PushBits/cli) to make basic API requests to the server.
+Anyway, I wrote [a little CLI tool called pbcli](https://github.com/PushBits/cli) to make basic API requests to the server.
 It helps you to create new users and applications.
 You will find further instructions in the linked repository.
 
-After you have setup a user and an application, you can use the API to send a push notification to your Matrix account.
+After you have created a user and an application, you can use the API to send a push notification to your Matrix account.
 
 ```bash
 curl \
@@ -82,6 +82,13 @@ curl \
 	--request POST \
 	--data '{"message":"my message","title":"my title"}' \
 	"https://pushbits.example.com/message?token=$TOKEN"
+```
+
+Note that the token is associated with your application and has to be kept secret.
+You can retrieve the token using [pbcli](https://github.com/PushBits/cli) by running following command.
+
+```bash
+pbcli application show myapplication --url https://pushbits.example.com --username myusername
 ```
 
 ## Acknowledgments
