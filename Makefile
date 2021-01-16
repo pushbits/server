@@ -10,6 +10,7 @@ test:
 	if [ "$$stdout" ]; then \
 		exit 1; \
 	fi
+	go vet ./...
 	gocyclo -over 10 $(shell find . -iname '*.go' -type f)
 	go test -v -cover ./...
 	stdout=$$(golint ./... 2>&1); \
