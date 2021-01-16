@@ -27,6 +27,11 @@ For now, only Matrix is supported, but support for different services like [Tele
 I am myself experimenting with Matrix currently because I like the idea of a federated, synchronized but still end-to-end encrypted protocol.
 If you haven't tried it yet, I suggest you to check it out.
 
+## Installation
+
+Currently, the only supported way of installing PushBits is via [Docker](https://www.docker.com/) or [Podman](https://podman.io/).
+The image is hosted [here on Docker Hub](https://hub.docker.com/r/eikendev/pushbits).
+
 ## Configuration
 
 PushBits is meant to be self-hosted.
