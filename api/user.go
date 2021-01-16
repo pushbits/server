@@ -90,7 +90,12 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 		u.Name = *updateUser.Name
 	}
 	if updateUser.Password != nil {
-		u.PasswordHash = h.CM.CreatePasswordHash(*updateUser.Password)
+		hash, err := h.CM.CreatePasswordHash(*updateUser.Password)
+		if success := successOrAbort(ctx, http.StatusBadRequest, err); !success {
+			return err
+		}
+
+		u.PasswordHash = hash
 	}
 	if updateUser.MatrixID != nil {
 		u.MatrixID = *updateUser.MatrixID

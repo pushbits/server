@@ -32,5 +32,5 @@ type Dispatcher interface {
 
 // The CredentialsManager interface for updating credentials.
 type CredentialsManager interface {
-	CreatePasswordHash(password string) []byte
+	CreatePasswordHash(password string) ([]byte, error)
 }

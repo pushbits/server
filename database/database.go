@@ -84,7 +84,10 @@ func (d *Database) Populate(name, password, matrixID string) error {
 	query := d.gormdb.Where("name = ?", name).First(&user)
 
 	if errors.Is(query.Error, gorm.ErrRecordNotFound) {
-		user := model.NewUser(d.credentialsManager, name, password, true, matrixID)
+		user, err := model.NewUser(d.credentialsManager, name, password, true, matrixID)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		if err := d.gormdb.Create(&user).Error; err != nil {
 			return errors.New("user cannot be created")

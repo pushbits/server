@@ -10,11 +10,12 @@ import (
 
 // Manager holds information for managing credentials.
 type Manager struct {
+	checkHIBP    bool
 	argon2Params *argon2id.Params
 }
 
 // CreateManager instanciates a credential manager.
-func CreateManager(c configuration.CryptoConfig) *Manager {
+func CreateManager(checkHIBP bool, c configuration.CryptoConfig) *Manager {
 	log.Println("Setting up credential manager.")
 
 	argon2Params := &argon2id.Params{
@@ -25,5 +26,8 @@ func CreateManager(c configuration.CryptoConfig) *Manager {
 		KeyLength:   c.Argon2.KeyLength,
 	}
 
-	return &Manager{argon2Params: argon2Params}
+	return &Manager{
+		checkHIBP:    checkHIBP,
+		argon2Params: argon2Params,
+	}
 }

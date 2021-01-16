@@ -44,6 +44,10 @@ matrix:
     # [required]
     password: ''
 
+security:
+    # Wether or not to check for weak passwords using HIBP.
+    checkhibp: false
+
 crypto:
     # Configuration of the KDF for password storage. Do not change unless you know what you are doing!
     argon2:

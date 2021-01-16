@@ -36,25 +36,35 @@ type CreateUser struct {
 }
 
 // NewUser creates a new user.
-func NewUser(cm *credentials.Manager, name, password string, isAdmin bool, matrixID string) *User {
+func NewUser(cm *credentials.Manager, name, password string, isAdmin bool, matrixID string) (*User, error) {
 	log.Printf("Creating user %s.\n", name)
+
+	passwordHash, err := cm.CreatePasswordHash(password)
+	if err != nil {
+		return nil, err
+	}
 
 	return &User{
 		Name:         name,
-		PasswordHash: cm.CreatePasswordHash(password),
+		PasswordHash: passwordHash,
 		IsAdmin:      isAdmin,
 		MatrixID:     matrixID,
-	}
+	}, nil
 }
 
 // IntoInternalUser converts a CreateUser into a User.
-func (u *CreateUser) IntoInternalUser(cm *credentials.Manager) *User {
+func (u *CreateUser) IntoInternalUser(cm *credentials.Manager) (*User, error) {
+	passwordHash, err := cm.CreatePasswordHash(u.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	return &User{
 		Name:         u.Name,
-		PasswordHash: cm.CreatePasswordHash(u.Password),
+		PasswordHash: passwordHash,
 		IsAdmin:      u.IsAdmin,
 		MatrixID:     u.MatrixID,
-	}
+	}, nil
 }
 
 // IntoExternalUser converts a User into a ExternalUser.

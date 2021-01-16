@@ -35,7 +35,7 @@ func main() {
 		log.Printf("%+v\n", c)
 	}
 
-	cm := credentials.CreateManager(c.Crypto)
+	cm := credentials.CreateManager(c.Security.CheckHIBP, c.Crypto)
 
 	db, err := database.Create(cm, c.Database.Dialect, c.Database.Connection)
 	if err != nil {

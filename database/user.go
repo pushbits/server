@@ -11,7 +11,10 @@ import (
 
 // CreateUser creates a user.
 func (d *Database) CreateUser(createUser model.CreateUser) (*model.User, error) {
-	user := createUser.IntoInternalUser(d.credentialsManager)
+	user, err := createUser.IntoInternalUser(d.credentialsManager)
+	if err != nil {
+		return nil, err
+	}
 
 	return user, d.gormdb.Create(user).Error
 }
