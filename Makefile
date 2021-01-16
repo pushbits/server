@@ -2,7 +2,7 @@ IMAGE := eikendev/pushbits
 
 .PHONY: build
 build:
-	go build -ldflags="-w -s" -o app .
+	go build -ldflags="-w -s" -o app ./cmd/pushbits
 
 .PHONY: test
 test:

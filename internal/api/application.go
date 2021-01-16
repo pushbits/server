@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/pushbits/server/authentication"
-	"github.com/pushbits/server/model"
+	"github.com/pushbits/server/internal/authentication"
+	"github.com/pushbits/server/internal/model"
 
 	"github.com/gin-gonic/gin"
 )

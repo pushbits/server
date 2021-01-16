@@ -3,11 +3,11 @@ package router
 import (
 	"log"
 
-	"github.com/pushbits/server/api"
-	"github.com/pushbits/server/authentication"
-	"github.com/pushbits/server/authentication/credentials"
-	"github.com/pushbits/server/database"
-	"github.com/pushbits/server/dispatcher"
+	"github.com/pushbits/server/internal/api"
+	"github.com/pushbits/server/internal/authentication"
+	"github.com/pushbits/server/internal/authentication/credentials"
+	"github.com/pushbits/server/internal/database"
+	"github.com/pushbits/server/internal/dispatcher"
 
 	"github.com/gin-contrib/location"
 	"github.com/gin-gonic/gin"

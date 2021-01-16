@@ -12,7 +12,7 @@ RUN set -ex \
 	&& update-ca-certificates \
 	&& go mod download \
 	&& go mod verify \
-	&& GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o app . \
+	&& make build \
 	&& chmod +x /build/app
 
 FROM alpine

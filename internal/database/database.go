@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/pushbits/server/authentication/credentials"
-	"github.com/pushbits/server/model"
+	"github.com/pushbits/server/internal/authentication/credentials"
+	"github.com/pushbits/server/internal/model"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"

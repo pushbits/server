@@ -6,12 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/pushbits/server/authentication/credentials"
-	"github.com/pushbits/server/configuration"
-	"github.com/pushbits/server/database"
-	"github.com/pushbits/server/dispatcher"
-	"github.com/pushbits/server/router"
-	"github.com/pushbits/server/runner"
+	"github.com/pushbits/server/internal/authentication/credentials"
+	"github.com/pushbits/server/internal/configuration"
+	"github.com/pushbits/server/internal/database"
+	"github.com/pushbits/server/internal/dispatcher"
+	"github.com/pushbits/server/internal/router"
+	"github.com/pushbits/server/internal/runner"
 )
 
 func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {

@@ -3,7 +3,7 @@ package model
 import (
 	"log"
 
-	"github.com/pushbits/server/authentication/credentials"
+	"github.com/pushbits/server/internal/authentication/credentials"
 )
 
 // User holds information like the name, the secret, and the applications of a user.

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/pushbits/server/model"
+	"github.com/pushbits/server/internal/model"
 )
 
 // The Database interface for encapsulating database access.
