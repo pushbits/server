@@ -3,11 +3,11 @@ package router
 import (
 	"log"
 
-	"github.com/eikendev/pushbits/api"
-	"github.com/eikendev/pushbits/authentication"
-	"github.com/eikendev/pushbits/authentication/credentials"
-	"github.com/eikendev/pushbits/database"
-	"github.com/eikendev/pushbits/dispatcher"
+	"github.com/pushbits/server/api"
+	"github.com/pushbits/server/authentication"
+	"github.com/pushbits/server/authentication/credentials"
+	"github.com/pushbits/server/database"
+	"github.com/pushbits/server/dispatcher"
 
 	"github.com/gin-contrib/location"
 	"github.com/gin-gonic/gin"

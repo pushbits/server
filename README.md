@@ -1,6 +1,6 @@
-[![Build status](https://img.shields.io/github/workflow/status/eikendev/pushbits/Main)](https://github.com/eikendev/pushbits/actions)
+[![Build status](https://img.shields.io/github/workflow/status/pushbits/server/Main)](https://github.com/pushbits/server/actions)
 [![Docker Pulls](https://img.shields.io/docker/pulls/eikendev/pushbits)](https://hub.docker.com/r/eikendev/pushbits)
-![License](https://img.shields.io/github/license/eikendev/pushbits)
+![License](https://img.shields.io/github/license/pushbits/server)
 
 # PushBits
 
@@ -98,9 +98,9 @@ Many thanks to [jmattheis](https://jmattheis.de/) for his well-structured code.
 
 ## Development
 
-The source code is located on [GitHub](https://github.com/eikendev/pushbits).
+The source code is located on [GitHub](https://github.com/pushbits/server).
 You can retrieve it by checking out the repository as follows.
 
 ```bash
-git clone https://github.com/eikendev/pushbits.git
+git clone https://github.com/pushbits/server.git
 ```

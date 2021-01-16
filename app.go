@@ -6,12 +6,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/eikendev/pushbits/authentication/credentials"
-	"github.com/eikendev/pushbits/configuration"
-	"github.com/eikendev/pushbits/database"
-	"github.com/eikendev/pushbits/dispatcher"
-	"github.com/eikendev/pushbits/router"
-	"github.com/eikendev/pushbits/runner"
+	"github.com/pushbits/server/authentication/credentials"
+	"github.com/pushbits/server/configuration"
+	"github.com/pushbits/server/database"
+	"github.com/pushbits/server/dispatcher"
+	"github.com/pushbits/server/router"
+	"github.com/pushbits/server/runner"
 )
 
 func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/eikendev/pushbits/authentication"
+	"github.com/pushbits/server/authentication"
 
 	"github.com/gin-gonic/gin"
 )

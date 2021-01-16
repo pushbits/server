@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/eikendev/pushbits/model"
+	"github.com/pushbits/server/model"
 )
 
 // SendNotification sends a notification to the specified user.

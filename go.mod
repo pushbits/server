@@ -1,4 +1,4 @@
-module github.com/eikendev/pushbits
+module github.com/pushbits/server
 
 go 1.14
 

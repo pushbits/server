@@ -3,7 +3,7 @@ package credentials
 import (
 	"log"
 
-	"github.com/eikendev/pushbits/configuration"
+	"github.com/pushbits/server/configuration"
 
 	"github.com/alexedwards/argon2id"
 )

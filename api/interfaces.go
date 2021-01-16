@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/eikendev/pushbits/model"
+	"github.com/pushbits/server/model"
 )
 
 // The Database interface for encapsulating database access.

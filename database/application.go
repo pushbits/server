@@ -3,8 +3,8 @@ package database
 import (
 	"errors"
 
-	"github.com/eikendev/pushbits/assert"
-	"github.com/eikendev/pushbits/model"
+	"github.com/pushbits/server/assert"
+	"github.com/pushbits/server/model"
 
 	"gorm.io/gorm"
 )

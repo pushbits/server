@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/eikendev/pushbits/authentication/credentials"
-	"github.com/eikendev/pushbits/model"
+	"github.com/pushbits/server/authentication/credentials"
+	"github.com/pushbits/server/model"
 
 	"github.com/gin-gonic/gin"
 )
