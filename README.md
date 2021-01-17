@@ -39,7 +39,7 @@ Still, if you haven't tried it yet, I suggest you to check it out.
 - [x] Deliver messages via Matrix
 - [x] CLI for managing users and applications
 - [x] Check for weak passwords using [HIBP](https://haveibeenpwned.com/)
-- [x] Argon2 as KDF for password storage
+- [x] Use Argon2 as KDF for password storage
 
 ## Installation
 
