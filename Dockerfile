@@ -5,17 +5,15 @@ WORKDIR /build
 COPY . .
 
 RUN set -ex \
-	&& apk update \
-	&& apk upgrade \
 	&& apk add --no-cache build-base \
-	&& apk add --no-cache ca-certificates \
-	&& update-ca-certificates \
 	&& go mod download \
 	&& go mod verify \
 	&& make build \
 	&& chmod +x /build/app
 
 FROM alpine
+
+ARG USER_ID=1000
 
 ENV PUSHBITS_HTTP_PORT="8080"
 
@@ -27,11 +25,13 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /build/app ./run
 
 RUN set -ex \
+	&& apk add --no-cache ca-certificates curl \
+	&& update-ca-certificates \
 	&& mkdir -p /data \
 	&& ln -s /data/pushbits.db /app/pushbits.db \
 	&& ln -s /data/config.yml /app/config.yml
 
-USER 1000
+USER ${USER_ID}
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s CMD curl --fail http://localhost:$PUSHBITS_HTTP_PORT/health || exit 1
 

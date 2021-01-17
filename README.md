@@ -1,5 +1,6 @@
 [![Build status](https://img.shields.io/github/workflow/status/pushbits/server/Main)](https://github.com/pushbits/server/actions)
-[![Docker Pulls](https://img.shields.io/docker/pulls/eikendev/pushbits)](https://hub.docker.com/r/eikendev/pushbits)
+[![Docker Hub pulls](https://img.shields.io/docker/pulls/eikendev/pushbits)](https://hub.docker.com/r/eikendev/pushbits)
+[![Image size](https://img.shields.io/docker/image-size/eikendev/pushbits)](https://hub.docker.com/r/eikendev/pushbits)
 ![License](https://img.shields.io/github/license/pushbits/server)
 
 # PushBits
