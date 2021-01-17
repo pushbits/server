@@ -34,13 +34,11 @@ Still, if you haven't tried it yet, I suggest you to check it out.
 
 ### Features
 
-- [x] Multiple users
-- [x] Multiple channels (applications) per user
-- [x] Compatibility with Gotify's API for sending messages
-- [x] Deliver messages via Matrix
-- [x] CLI for managing users and applications
-- [x] Check for weak passwords using [HIBP](https://haveibeenpwned.com/)
-- [x] Use Argon2 as KDF for password storage
+- [x] Supports multiple users and multiple channels (applications) per user
+- [x] Offers compatibility with Gotify's API for sending messages
+- [x] Comes with an API and a CLI for managing users and applications
+- [x] Optionally checks for weak passwords using [HIBP](https://haveibeenpwned.com/)
+- [x] Uses Argon2 as KDF for password storage
 
 ## Installation
 
