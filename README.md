@@ -21,11 +21,15 @@ can be reused.
 
 ### Why Matrix instead of X?
 
-For now, only Matrix is supported, but support for different services like [Telegram](https://telegram.org/) could be added in the future.
-[WhatsApp](https://www.whatsapp.com/) and [Signal](https://signal.org/) unfortunately do not have an API through which PushBits can interact.
+I would totally do this with Signal if there was a proper API.
+Unfortunately, neither [Signal](https://signal.org/) nor [WhatsApp](https://www.whatsapp.com/) come with an API through which PushBits could interact.
 
-I am myself experimenting with Matrix currently because I like the idea of a federated, synchronized but still end-to-end encrypted protocol.
-If you haven't tried it yet, I suggest you to check it out.
+In [Telegram](https://telegram.org/) there is an API to run bots, but these are limited in that they cannot create chats by themselves.
+If you insist on going with Telegram, have a look at [webhook2telegram](https://github.com/muety/webhook2telegram).
+
+I myself started using Matrix only for this project.
+The idea of a federated, synchronized but yet end-to-end encrypted protocol is awesome, but its clients simply aren't really there yet.
+Still, if you haven't tried it yet, I suggest you to check it out.
 
 ## Installation
 
