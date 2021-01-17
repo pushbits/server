@@ -10,13 +10,13 @@
 ## About
 
 PushBits is a relay server for push notifications.
-It enables your services to send notifications via a simple web API, and delivers them to you through [Matrix](https://matrix.org/).
+It enables you to send notifications via a simple web API, and delivers them to you through [Matrix](https://matrix.org/).
 This is similar to what [Pushover](https://pushover.net/) and [Gotify](https://gotify.net/) offer, but it does not require an additional app.
 
 The vision is to have compatibility with Gotify on the sending side, while on the receiving side an established service is used.
 This has the advantages that
 - sending plugins written for Gotify (like those for [Watchtower](https://containrrr.dev/watchtower/) and [Jellyfin](https://jellyfin.org/)) as well as
-- receiving clients written for the messaging service
+- receiving clients written for Matrix
 can be reused.
 
 ### Why Matrix instead of X?
@@ -31,6 +31,16 @@ I myself started using Matrix only for this project.
 The idea of a federated, synchronized but yet end-to-end encrypted protocol is awesome, but its clients simply aren't really there yet.
 Still, if you haven't tried it yet, I suggest you to check it out.
 
+### Features
+
+- [x] Multiple users
+- [x] Multiple channels (applications) per user
+- [x] Compatibility with Gotify's API for sending messages
+- [x] Deliver messages via Matrix
+- [x] CLI for managing users and applications
+- [x] Check for weak passwords using [HIBP](https://haveibeenpwned.com/)
+- [x] Argon2 as KDF for password storage
+
 ## Installation
 
 PushBits is meant to be self-hosted.
@@ -39,7 +49,8 @@ That means you have to install it on your own server.
 Currently, the only supported way of installing PushBits is via [Docker](https://www.docker.com/) or [Podman](https://podman.io/).
 The image is hosted [here on Docker Hub](https://hub.docker.com/r/eikendev/pushbits).
 
-You are advised to install PushBits behind a reverse proxy and enable TLS.
+**You are advised to install PushBits behind a reverse proxy and enable TLS.**
+Otherwise, all API requests will be sent unencrypted.
 
 ## Configuration
 
