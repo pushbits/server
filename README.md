@@ -33,17 +33,19 @@ Still, if you haven't tried it yet, I suggest you to check it out.
 
 ## Installation
 
+PushBits is meant to be self-hosted.
+That means you have to install it on your own server.
+
 Currently, the only supported way of installing PushBits is via [Docker](https://www.docker.com/) or [Podman](https://podman.io/).
 The image is hosted [here on Docker Hub](https://hub.docker.com/r/eikendev/pushbits).
 
-## Configuration
-
-PushBits is meant to be self-hosted.
 You are advised to install PushBits behind a reverse proxy and enable TLS.
+
+## Configuration
 
 To see what can be configured, have a look at the `config.sample.yml` file inside the root of the repository.
 
-Settings can optionally be provided via the environment.
+Settings can optionally be provided via environment variables.
 The name of the environment variable is composed of a starting `PUSHBITS_`, followed by the keys of the setting, all
 joined with `_`.
 As an example, the HTTP port can be provided as an environment variable called `PUSHBITS_HTTP_PORT`.
@@ -76,12 +78,12 @@ The SQLite database would be written to `./data/pushbits.db`.
 ## Usage
 
 Now, how can you interact with the server?
-At the time of writing, there is no fancy GUI built-in.
-I don't do much front end development myself, so if you want to contribute in this regard I'm happy if you reach out!
-
-Anyway, I wrote [a little CLI tool called pbcli](https://github.com/PushBits/cli) to make basic API requests to the server.
+I wrote [a little CLI tool called pbcli](https://github.com/PushBits/cli) to make basic API requests to the server.
 It helps you to create new users and applications.
 You will find further instructions in the linked repository.
+
+At the time of writing, there is no fancy GUI built-in, and I'm not sure if this is necessary at all.
+I don't do much front end development myself, so if you want to contribute in this regard I'm happy if you reach out!
 
 After you have created a user and an application, you can use the API to send a push notification to your Matrix account.
 
@@ -90,14 +92,14 @@ curl \
 	--header "Content-Type: application/json" \
 	--request POST \
 	--data '{"message":"my message","title":"my title"}' \
-	"https://pushbits.example.com/message?token=$TOKEN"
+	"https://pushbits.example.com/message?token=$PB_TOKEN"
 ```
 
 Note that the token is associated with your application and has to be kept secret.
 You can retrieve the token using [pbcli](https://github.com/PushBits/cli) by running following command.
 
 ```bash
-pbcli application show myapplication --url https://pushbits.example.com --username myusername
+pbcli application show $PB_APPLICATION --url https://pushbits.example.com --username $PB_USERNAME
 ```
 
 ## Acknowledgments
