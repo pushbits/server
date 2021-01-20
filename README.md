@@ -5,8 +5,8 @@
 
 # PushBits
 
-| :exclamation:  This software is currently in alpha phase.   |
-|-------------------------------------------------------------|
+| :exclamation:  **This software is currently in alpha phase.**   |
+|-----------------------------------------------------------------|
 
 ## About
 
@@ -48,8 +48,8 @@ That means you have to install it on your own server.
 Currently, the only supported way of installing PushBits is via [Docker](https://www.docker.com/) or [Podman](https://podman.io/).
 The image is hosted [here on Docker Hub](https://hub.docker.com/r/eikendev/pushbits).
 
-**You are advised to install PushBits behind a reverse proxy and enable TLS.**
-Otherwise, all API requests will be sent unencrypted.
+| :warning:  **You are advised to install PushBits behind a reverse proxy and enable TLS.** Otherwise, your credentials will be transmitted unencrypted.   |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 ## Configuration
 
