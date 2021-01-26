@@ -39,8 +39,8 @@ Still, if you haven't tried it yet, I suggest you to check it out.
 - [x] API and CLI for managing users and applications
 - [x] Optional check for weak passwords using [HIBP](https://haveibeenpwned.com/)
 - [x] Argon2 as KDF for password storage
-- [ ] Two-factor authentication
-- [ ] Bi-directional key verification
+- [ ] Two-factor authentication, [issue](https://github.com/pushbits/server/issues/19)
+- [ ] Bi-directional key verification, [issue](https://github.com/pushbits/server/issues/20)
 
 ## Installation
 
