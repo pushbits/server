@@ -127,3 +127,5 @@ You can retrieve it by checking out the repository as follows.
 ```bash
 git clone https://github.com/pushbits/server.git
 ```
+
+[![Stargazers over time](https://starchart.cc/pushbits/server.svg)](https://starchart.cc/pushbits/server)
