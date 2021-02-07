@@ -19,6 +19,9 @@ func successOrAbort(ctx *gin.Context, code int, err error) bool {
 
 func isCurrentUser(ctx *gin.Context, ID uint) bool {
 	user := authentication.GetUser(ctx)
+	if user == nil {
+		return false
+	}
 
 	if user.ID != ID {
 		ctx.AbortWithError(http.StatusForbidden, errors.New("only owner can delete application"))

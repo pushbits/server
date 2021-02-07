@@ -205,7 +205,7 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	}
 
 	var updateUser model.UpdateUser
-	if err := ctx.BindUri(&updateUser); err != nil {
+	if err := ctx.Bind(&updateUser); err != nil {
 		return
 	}
 

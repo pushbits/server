@@ -11,10 +11,13 @@ type Application struct {
 
 // CreateApplication is used to process queries for creating applications.
 type CreateApplication struct {
-	Name string `form:"name" query:"name" json:"name" binding:"required"`
+	Name                string `form:"name" query:"name" json:"name" binding:"required"`
+	StrictCompatibility bool   `form:"strict_compatibility" query:"strict_compatibility" json:"strict_compatibility"`
 }
 
 // UpdateApplication is used to process queries for updating applications.
 type UpdateApplication struct {
-	Name *string `json:"name"`
+	Name                *string `form:"new_name" query:"new_name" json:"new_name"`
+	RefreshToken        *bool   `form:"refresh_token" query:"refresh_token" json:"refresh_token"`
+	StrictCompatibility *bool   `form:"strict_compatibility" query:"strict_compatibility" json:"strict_compatibility"`
 }

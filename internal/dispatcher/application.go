@@ -9,23 +9,25 @@ import (
 	"github.com/matrix-org/gomatrix"
 )
 
+func buildRoomTopic(id uint) string {
+	return fmt.Sprintf("Application %d", id)
+}
+
 // RegisterApplication creates a channel for an application.
 func (d *Dispatcher) RegisterApplication(id uint, name, token, user string) (string, error) {
 	log.Printf("Registering application %s, notifications will be relayed to user %s.\n", name, user)
-
-	topic := fmt.Sprintf("Application %d, Token %s", id, token)
 
 	response, err := d.client.CreateRoom(&gomatrix.ReqCreateRoom{
 		Invite:     []string{user},
 		IsDirect:   true,
 		Name:       name,
 		Preset:     "private_chat",
-		Topic:      topic,
+		Topic:      buildRoomTopic(id),
 		Visibility: "private",
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return "", err
 	}
 
@@ -44,17 +46,49 @@ func (d *Dispatcher) DeregisterApplication(a *model.Application, u *model.User) 
 	}
 
 	if _, err := d.client.KickUser(a.MatrixID, kickUser); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return err
 	}
 
 	if _, err := d.client.LeaveRoom(a.MatrixID); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return err
 	}
 
 	if _, err := d.client.ForgetRoom(a.MatrixID); err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return err
+	}
+
+	return nil
+}
+
+func (d *Dispatcher) sendRoomEvent(roomID, eventType string, content interface{}) error {
+	if _, err := d.client.SendStateEvent(roomID, eventType, "", content); err != nil {
+		log.Print(err)
+		return err
+	}
+
+	return nil
+}
+
+// UpdateApplication updates a channel for an application.
+func (d *Dispatcher) UpdateApplication(a *model.Application, u *model.User) error {
+	log.Printf("Updating application %s (ID %d) with Matrix ID %s.\n", a.Name, a.ID, a.MatrixID)
+
+	content := map[string]interface{}{
+		"name": a.Name,
+	}
+
+	if err := d.sendRoomEvent(a.MatrixID, "m.room.name", content); err != nil {
+		return err
+	}
+
+	content = map[string]interface{}{
+		"topic": buildRoomTopic(a.ID),
+	}
+
+	if err := d.sendRoomEvent(a.MatrixID, "m.room.topic", content); err != nil {
 		return err
 	}
 

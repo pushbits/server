@@ -22,6 +22,10 @@ func (h *ApplicationHandler) applicationExists(token string) bool {
 	return application != nil
 }
 
+func (h *ApplicationHandler) generateToken(compat bool) string {
+	return authentication.GenerateNotExistingToken(authentication.GenerateApplicationToken, compat, h.applicationExists)
+}
+
 func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
 	log.Printf("Registering application %s.\n", a.Name)
 
@@ -36,12 +40,12 @@ func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Appl
 	return nil
 }
 
-func (h *ApplicationHandler) createApplication(ctx *gin.Context, name string, u *model.User) (*model.Application, error) {
+func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, name string, compat bool) (*model.Application, error) {
 	log.Printf("Creating application %s.\n", name)
 
 	application := model.Application{}
 	application.Name = name
-	application.Token = authentication.GenerateNotExistingToken(authentication.GenerateApplicationToken, h.applicationExists)
+	application.Token = h.generateToken(compat)
 	application.UserID = u.ID
 
 	err := h.DB.CreateApplication(&application)
@@ -78,14 +82,26 @@ func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Applic
 	return nil
 }
 
-func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Application, updateApplication *model.UpdateApplication) error {
-	log.Printf("Updating application %s.\n", a.Name)
+func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Application, u *model.User, updateApplication *model.UpdateApplication) error {
+	log.Printf("Updating application %s (ID %d).\n", a.Name, a.ID)
 
 	if updateApplication.Name != nil {
+		log.Printf("Updating application name to '%s'.", *updateApplication.Name)
 		a.Name = *updateApplication.Name
 	}
 
+	if updateApplication.RefreshToken != nil && (*updateApplication.RefreshToken) {
+		log.Print("Updating application token.")
+		compat := updateApplication.StrictCompatibility != nil && (*updateApplication.StrictCompatibility)
+		a.Token = h.generateToken(compat)
+	}
+
 	err := h.DB.UpdateApplication(a)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return err
+	}
+
+	err = h.DP.UpdateApplication(a, u)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
@@ -106,7 +122,7 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 		return
 	}
 
-	application, err := h.createApplication(ctx, createApplication.Name, user)
+	application, err := h.createApplication(ctx, user, createApplication.Name, createApplication.StrictCompatibility)
 	if err != nil {
 		return
 	}
@@ -180,11 +196,16 @@ func (h *ApplicationHandler) UpdateApplication(ctx *gin.Context) {
 	}
 
 	var updateApplication model.UpdateApplication
-	if err := ctx.BindUri(&updateApplication); err != nil {
+	if err := ctx.Bind(&updateApplication); err != nil {
 		return
 	}
 
-	if err := h.updateApplication(ctx, application, &updateApplication); err != nil {
+	user := authentication.GetUser(ctx)
+	if user == nil {
+		return
+	}
+
+	if err := h.updateApplication(ctx, application, user, &updateApplication); err != nil {
 		return
 	}
 
