@@ -26,7 +26,7 @@ func IsPasswordPwned(password string) (bool, error) {
 	lookup := hashStr[0:5]
 	match := hashStr[5:]
 
-	log.Printf("Checking HIBP for hashes starting with '%s'.\n", lookup)
+	log.Printf("Checking HIBP for hashes starting with '%s'.", lookup)
 
 	resp, err := http.Get(pwnedHashesURL + lookup)
 	if err != nil {

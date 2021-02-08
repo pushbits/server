@@ -36,7 +36,7 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	}
 
 	application := authentication.GetApplication(ctx)
-	log.Printf("Sending notification for application %s.\n", application.Name)
+	log.Printf("Sending notification for application %s.", application.Name)
 
 	notification.ID = 0
 	notification.ApplicationID = application.ID

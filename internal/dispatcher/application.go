@@ -25,7 +25,6 @@ func (d *Dispatcher) RegisterApplication(id uint, name, token, user string) (str
 		Topic:      buildRoomTopic(id),
 		Visibility: "private",
 	})
-
 	if err != nil {
 		log.Print(err)
 		return "", err
@@ -45,9 +44,9 @@ func (d *Dispatcher) DeregisterApplication(a *model.Application, u *model.User) 
 		UserID: u.MatrixID,
 	}
 
+	// The user might have left the channel, but we can still try to remove them.
 	if _, err := d.client.KickUser(a.MatrixID, kickUser); err != nil {
 		log.Print(err)
-		return err
 	}
 
 	if _, err := d.client.LeaveRoom(a.MatrixID); err != nil {
@@ -73,7 +72,7 @@ func (d *Dispatcher) sendRoomEvent(roomID, eventType string, content interface{}
 }
 
 // UpdateApplication updates a channel for an application.
-func (d *Dispatcher) UpdateApplication(a *model.Application, u *model.User) error {
+func (d *Dispatcher) UpdateApplication(a *model.Application) error {
 	log.Printf("Updating application %s (ID %d) with Matrix ID %s.\n", a.Name, a.ID, a.MatrixID)
 
 	content := map[string]interface{}{
@@ -89,6 +88,34 @@ func (d *Dispatcher) UpdateApplication(a *model.Application, u *model.User) erro
 	}
 
 	if err := d.sendRoomEvent(a.MatrixID, "m.room.topic", content); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// IsOrphan checks if the user is still connected to the channel.
+func (d *Dispatcher) IsOrphan(a *model.Application, u *model.User) (bool, error) {
+	resp, err := d.client.JoinedMembers(a.MatrixID)
+	if err != nil {
+		return false, err
+	}
+
+	found := false
+
+	for userID := range resp.Joined {
+		found = found || (userID == u.MatrixID)
+	}
+
+	return !found, nil
+}
+
+// RepairApplication re-invites the user to the channel.
+func (d *Dispatcher) RepairApplication(a *model.Application, u *model.User) error {
+	_, err := d.client.InviteUser(a.MatrixID, &gomatrix.ReqInviteUser{
+		UserID: u.MatrixID,
+	})
+	if err != nil {
 		return err
 	}
 

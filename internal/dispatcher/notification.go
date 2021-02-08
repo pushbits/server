@@ -11,7 +11,7 @@ import (
 
 // SendNotification sends a notification to the specified user.
 func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) error {
-	log.Printf("Sending notification to room %s.\n", a.MatrixID)
+	log.Printf("Sending notification to room %s.", a.MatrixID)
 
 	plainTitle := strings.TrimSpace(n.Title)
 	plainMessage := strings.TrimSpace(n.Message)

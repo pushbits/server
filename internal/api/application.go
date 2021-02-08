@@ -27,7 +27,7 @@ func (h *ApplicationHandler) generateToken(compat bool) string {
 }
 
 func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
-	log.Printf("Registering application %s.\n", a.Name)
+	log.Printf("Registering application %s.", a.Name)
 
 	channelID, err := h.DP.RegisterApplication(a.ID, a.Name, a.Token, u.MatrixID)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
@@ -41,7 +41,7 @@ func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Appl
 }
 
 func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, name string, compat bool) (*model.Application, error) {
-	log.Printf("Creating application %s.\n", name)
+	log.Printf("Creating application %s.", name)
 
 	application := model.Application{}
 	application.Name = name
@@ -57,7 +57,7 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, 
 		err := h.DB.DeleteApplication(&application)
 
 		if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
-			log.Printf("Cannot delete application with ID %d.\n", application.ID)
+			log.Printf("Cannot delete application with ID %d.", application.ID)
 		}
 
 		return nil, err
@@ -67,7 +67,7 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, 
 }
 
 func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
-	log.Printf("Deleting application %s (ID %d).\n", a.Name, a.ID)
+	log.Printf("Deleting application %s (ID %d).", a.Name, a.ID)
 
 	err := h.DP.DeregisterApplication(a, u)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
@@ -82,8 +82,8 @@ func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Applic
 	return nil
 }
 
-func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Application, u *model.User, updateApplication *model.UpdateApplication) error {
-	log.Printf("Updating application %s (ID %d).\n", a.Name, a.ID)
+func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Application, updateApplication *model.UpdateApplication) error {
+	log.Printf("Updating application %s (ID %d).", a.Name, a.ID)
 
 	if updateApplication.Name != nil {
 		log.Printf("Updating application name to '%s'.", *updateApplication.Name)
@@ -101,7 +101,7 @@ func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Applic
 		return err
 	}
 
-	err = h.DP.UpdateApplication(a, u)
+	err = h.DP.UpdateApplication(a)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
@@ -200,12 +200,7 @@ func (h *ApplicationHandler) UpdateApplication(ctx *gin.Context) {
 		return
 	}
 
-	user := authentication.GetUser(ctx)
-	if user == nil {
-		return
-	}
-
-	if err := h.updateApplication(ctx, application, user, &updateApplication); err != nil {
+	if err := h.updateApplication(ctx, application, &updateApplication); err != nil {
 		return
 	}
 

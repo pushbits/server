@@ -84,7 +84,7 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 		}
 	}
 
-	log.Printf("Updating user %s.\n", u.Name)
+	log.Printf("Updating user %s.", u.Name)
 
 	if updateUser.Name != nil {
 		u.Name = *updateUser.Name
@@ -126,7 +126,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	log.Printf("Creating user %s.\n", createUser.Name)
+	log.Printf("Creating user %s.", createUser.Name)
 
 	user, err := h.DB.CreateUser(createUser)
 
@@ -181,7 +181,7 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 		}
 	}
 
-	log.Printf("Deleting user %s.\n", user.Name)
+	log.Printf("Deleting user %s.", user.Name)
 
 	if err := h.deleteApplications(ctx, user); err != nil {
 		return

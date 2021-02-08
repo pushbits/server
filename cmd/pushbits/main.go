@@ -32,28 +32,33 @@ func main() {
 	c := configuration.Get()
 
 	if c.Debug {
-		log.Printf("%+v\n", c)
+		log.Printf("%+v", c)
 	}
 
 	cm := credentials.CreateManager(c.Security.CheckHIBP, c.Crypto)
 
 	db, err := database.Create(cm, c.Database.Dialect, c.Database.Connection)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer db.Close()
 
 	if err := db.Populate(c.Admin.Name, c.Admin.Password, c.Admin.MatrixID); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	dp, err := dispatcher.Create(db, c.Matrix.Homeserver, c.Matrix.Username, c.Matrix.Password)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer dp.Close()
 
 	setupCleanup(db, dp)
+
+	err = db.RepairChannels(dp)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	engine := router.Create(c.Debug, cm, db, dp)
 

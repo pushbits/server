@@ -28,7 +28,7 @@ type Database interface {
 type Dispatcher interface {
 	RegisterApplication(id uint, name, token, user string) (string, error)
 	DeregisterApplication(a *model.Application, u *model.User) error
-	UpdateApplication(a *model.Application, u *model.User) error
+	UpdateApplication(a *model.Application) error
 }
 
 // The CredentialsManager interface for updating credentials.

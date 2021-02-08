@@ -45,8 +45,10 @@ func Create(db Database, homeserver, username, password string) (*Dispatcher, er
 
 // Close closes the dispatcher connection.
 func (d *Dispatcher) Close() {
-	log.Printf("Logging out.\n")
+	log.Printf("Logging out.")
 
 	d.client.Logout()
 	d.client.ClearCredentials()
+
+	log.Printf("Successfully logged out.")
 }

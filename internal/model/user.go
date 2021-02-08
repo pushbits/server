@@ -37,7 +37,7 @@ type CreateUser struct {
 
 // NewUser creates a new user.
 func NewUser(cm *credentials.Manager, name, password string, isAdmin bool, matrixID string) (*User, error) {
-	log.Printf("Creating user %s.\n", name)
+	log.Printf("Creating user %s.", name)
 
 	passwordHash, err := cm.CreatePasswordHash(password)
 	if err != nil {
