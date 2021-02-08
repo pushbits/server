@@ -2,7 +2,9 @@ package dispatcher
 
 import (
 	"fmt"
+	"html"
 	"log"
+	"strings"
 
 	"github.com/pushbits/server/internal/model"
 )
@@ -11,9 +13,15 @@ import (
 func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) error {
 	log.Printf("Sending notification to room %s.\n", a.MatrixID)
 
-	text := fmt.Sprintf("%s\n\n%s", n.Title, n.Message)
+	plainTitle := strings.TrimSpace(n.Title)
+	plainMessage := strings.TrimSpace(n.Message)
+	escapedTitle := html.EscapeString(plainTitle)
+	escapedMessage := html.EscapeString(plainMessage)
 
-	_, err := d.client.SendText(a.MatrixID, text)
+	text := fmt.Sprintf("%s\n\n%s", plainTitle, plainMessage)
+	formattedText := fmt.Sprintf("<b>%s</b><br /><br />%s", escapedTitle, escapedMessage)
+
+	_, err := d.client.SendFormattedText(a.MatrixID, text, formattedText)
 
 	return err
 }
