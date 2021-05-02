@@ -14,10 +14,39 @@ import (
 func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) error {
 	log.Printf("Sending notification to room %s.", a.MatrixID)
 
-	plainTitle := strings.TrimSpace(n.Title)
 	plainMessage := strings.TrimSpace(n.Message)
-	escapedTitle := html.EscapeString(plainTitle)
-	message := html.EscapeString(plainMessage) // default to text/plain
+	plainTitle := strings.TrimSpace(n.Title)
+	message := d.getFormattedMessage(n)
+	title := d.getFormattedTitle(n)
+
+	text := fmt.Sprintf("%s\n\n%s", plainTitle, plainMessage)
+	formattedText := fmt.Sprintf("%s %s", title, message)
+
+	_, err := d.client.SendFormattedText(a.MatrixID, text, formattedText)
+
+	return err
+}
+
+// HTML-formats the title
+func (d *Dispatcher) getFormattedTitle(n *model.Notification) string {
+	trimmedTitle := strings.TrimSpace(n.Title)
+	title := html.EscapeString(trimmedTitle)
+
+	if valueRaw, ok := d.settings["coloredtitle"]; ok {
+		value, ok := valueRaw.(bool)
+
+		if ok && value {
+			title = d.coloredText(d.priorityToColor(n.Priority), title)
+		}
+	}
+
+	return "<b>" + title + "</b><br /><br />"
+}
+
+// Converts different syntaxes to a HTML-formatted message
+func (d *Dispatcher) getFormattedMessage(n *model.Notification) string {
+	trimmedMessage := strings.TrimSpace(n.Message)
+	message := strings.Replace(html.EscapeString(trimmedMessage), "\n", "<br />", -1) // default to text/plain
 
 	if optionsDisplayRaw, ok := n.Extras["client::display"]; ok {
 		optionsDisplay, ok := optionsDisplayRaw.(map[string]interface{})
@@ -30,25 +59,47 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 
 				switch contentType {
 				case "html", "text/html":
-					message = plainMessage
+					message = strings.Replace(trimmedMessage, "\n", "<br />", -1)
 				case "markdown", "md", "text/md", "text/markdown":
-					message = string(markdown.ToHTML([]byte(plainMessage), nil, nil))
+					// allow HTML in Markdown
+					message = string(markdown.ToHTML([]byte(trimmedMessage), nil, nil))
 				}
 			}
 		}
 	}
 
-	// TODO cubicroot: add colors for priority https://spec.matrix.org/unstable/client-server-api/#mroommessage-msgtypes
-	// maybe make this optional in the settings or so
+	return message
+}
 
-	// TODO cubicroot: check if we somehow can handle \n or other methods of line breaks
+// Maps priorities to hex colors
+func (d *Dispatcher) priorityToColor(prio int) string {
+	switch prio {
+	case 0: // emergency - dark red
+		return "#cc0000"
+	case 1: // alert - red
+		return "#ed1f11"
+	case 2: // critical - dark orange
+		return "#ed6d11"
+	case 3: // error - orange
+		return "#edab11"
+	case 4: // warning - yellow
+		return "#edd711"
+	case 5: // notice - green
+		return "#70ed11"
+	case 6: // informational - blue
+		return "#118eed"
+	case 7: // debug - grey
+		return "#828282"
+	}
 
-	// TODO cubicroot: add docu
+	return ""
+}
 
-	text := fmt.Sprintf("%s\n\n%s", plainTitle, plainMessage)
-	formattedText := fmt.Sprintf("<b>%s</b><br /><br />%s", escapedTitle, message)
+// Maps a priority to a color tag
+func (d *Dispatcher) coloredText(color string, text string) string {
+	if color == "" {
+		return text
+	}
 
-	_, err := d.client.SendFormattedText(a.MatrixID, text, formattedText)
-
-	return err
+	return "<font data-mx-color='" + color + "'>" + text + "</font>"
 }

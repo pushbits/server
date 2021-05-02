@@ -56,3 +56,7 @@ crypto:
         parallelism: 4
         saltlength: 16
         keylength: 32
+
+message: 
+    # add coloring to the title according to syslog priorities
+    # coloredtitle: true

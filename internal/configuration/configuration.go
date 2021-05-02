@@ -42,7 +42,8 @@ type Configuration struct {
 	Security struct {
 		CheckHIBP bool `default:"false"`
 	}
-	Crypto CryptoConfig
+	Crypto  CryptoConfig
+	Message map[string]interface{}
 }
 
 func configFiles() []string {

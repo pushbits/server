@@ -47,7 +47,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	dp, err := dispatcher.Create(db, c.Matrix.Homeserver, c.Matrix.Username, c.Matrix.Password)
+	dp, err := dispatcher.Create(db, c.Matrix.Homeserver, c.Matrix.Username, c.Matrix.Password, c.Message)
 	if err != nil {
 		log.Fatal(err)
 	}

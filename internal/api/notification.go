@@ -30,6 +30,7 @@ type NotificationHandler struct {
 // CreateNotification is used to create a new notification for a user.
 func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	var notification model.Notification
+	notification.Priority = 8 // set a default value
 
 	if err := ctx.Bind(&notification); err != nil {
 		return

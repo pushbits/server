@@ -16,12 +16,13 @@ type Database interface {
 
 // Dispatcher holds information for sending notifications to clients.
 type Dispatcher struct {
-	db     Database
-	client *gomatrix.Client
+	db       Database
+	client   *gomatrix.Client
+	settings map[string]interface{}
 }
 
 // Create instanciates a dispatcher connection.
-func Create(db Database, homeserver, username, password string) (*Dispatcher, error) {
+func Create(db Database, homeserver, username, password string, settings map[string]interface{}) (*Dispatcher, error) {
 	log.Println("Setting up dispatcher.")
 
 	client, err := gomatrix.NewClient(homeserver, "", "")
@@ -40,7 +41,7 @@ func Create(db Database, homeserver, username, password string) (*Dispatcher, er
 
 	client.SetCredentials(response.UserID, response.AccessToken)
 
-	return &Dispatcher{client: client}, nil
+	return &Dispatcher{client: client, settings: settings}, nil
 }
 
 // Close closes the dispatcher connection.
