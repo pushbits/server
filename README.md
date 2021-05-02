@@ -116,19 +116,19 @@ pbcli application show $PB_APPLICATION --url https://pushbits.example.com --user
 
 ### Message options
 
-Messages are supporting thre different syntaxes:
+Messages are supporting three different syntaxes:
 
 * text/plain
 * text/html
 * text/markdown
 
-To set a specific syntax you need to set the `extras`:
+To set a specific syntax you need to set the `extras` ([inspired by Gotifys message extras](https://gotify.net/docs/msgextras#clientdisplay)):
 
 ```bash
 curl \
 	--header "Content-Type: application/json" \
 	--request POST \
-	--data '{"message":"my message with\n\n**Markdown** _support_.","title":"my title","extras":{"client::display":{"contentType": "text/html"}}}' \
+	--data '{"message":"my message with\n\n**Markdown** _support_.","title":"my title","extras":{"client::display":{"contentType": "text/markdown"}}}' \
 	"https://pushbits.example.com/message?token=$PB_TOKEN"
 ```
 

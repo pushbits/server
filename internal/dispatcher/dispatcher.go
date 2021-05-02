@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/matrix-org/gomatrix"
+	"github.com/pushbits/server/internal/configuration"
 )
 
 var (
@@ -16,13 +17,13 @@ type Database interface {
 
 // Dispatcher holds information for sending notifications to clients.
 type Dispatcher struct {
-	db       Database
-	client   *gomatrix.Client
-	settings map[string]interface{}
+	db         Database
+	client     *gomatrix.Client
+	formatting configuration.Formatting
 }
 
 // Create instanciates a dispatcher connection.
-func Create(db Database, homeserver, username, password string, settings map[string]interface{}) (*Dispatcher, error) {
+func Create(db Database, homeserver, username, password string, formatting configuration.Formatting) (*Dispatcher, error) {
 	log.Println("Setting up dispatcher.")
 
 	client, err := gomatrix.NewClient(homeserver, "", "")
@@ -41,7 +42,7 @@ func Create(db Database, homeserver, username, password string, settings map[str
 
 	client.SetCredentials(response.UserID, response.AccessToken)
 
-	return &Dispatcher{client: client, settings: settings}, nil
+	return &Dispatcher{client: client, formatting: formatting}, nil
 }
 
 // Close closes the dispatcher connection.

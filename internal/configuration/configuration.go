@@ -18,6 +18,11 @@ type CryptoConfig struct {
 	Argon2 Argon2Config
 }
 
+// Formatting holds additional parameters used for formatting messages
+type Formatting struct {
+	ColoredTitle bool `default:"false"`
+}
+
 // Configuration holds values that can be configured by the user.
 type Configuration struct {
 	Debug bool `default:"false"`
@@ -42,8 +47,8 @@ type Configuration struct {
 	Security struct {
 		CheckHIBP bool `default:"false"`
 	}
-	Crypto  CryptoConfig
-	Message map[string]interface{}
+	Crypto     CryptoConfig
+	Formatting Formatting
 }
 
 func configFiles() []string {

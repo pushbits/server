@@ -57,6 +57,6 @@ crypto:
         saltlength: 16
         keylength: 32
 
-message: 
-    # add coloring to the title according to syslog priorities
-    # coloredtitle: true
+formatting: 
+    # Whether to use colored titles based on the message priority.
+    coloredtitle: false

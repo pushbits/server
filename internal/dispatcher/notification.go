@@ -32,12 +32,8 @@ func (d *Dispatcher) getFormattedTitle(n *model.Notification) string {
 	trimmedTitle := strings.TrimSpace(n.Title)
 	title := html.EscapeString(trimmedTitle)
 
-	if valueRaw, ok := d.settings["coloredtitle"]; ok {
-		value, ok := valueRaw.(bool)
-
-		if ok && value {
-			title = d.coloredText(d.priorityToColor(n.Priority), title)
-		}
+	if d.formatting.ColoredTitle {
+		title = d.coloredText(d.priorityToColor(n.Priority), title)
 	}
 
 	return "<b>" + title + "</b><br /><br />"
