@@ -46,7 +46,6 @@ func (d *Dispatcher) getFormattedMessage(n *model.Notification) string {
 
 	if optionsDisplayRaw, ok := n.Extras["client::display"]; ok {
 		optionsDisplay, ok := optionsDisplayRaw.(map[string]interface{})
-		log.Printf("%s", optionsDisplay)
 
 		if ok {
 			if contentTypeRaw, ok := optionsDisplay["contentType"]; ok {
@@ -69,23 +68,18 @@ func (d *Dispatcher) getFormattedMessage(n *model.Notification) string {
 
 // Maps priorities to hex colors
 func (d *Dispatcher) priorityToColor(prio int) string {
-	switch prio {
-	case 0: // emergency - dark red
-		return "#cc0000"
-	case 1: // alert - red
-		return "#ed1f11"
-	case 2: // critical - dark orange
-		return "#ed6d11"
-	case 3: // error - orange
-		return "#edab11"
-	case 4: // warning - yellow
-		return "#edd711"
-	case 5: // notice - green
-		return "#70ed11"
-	case 6: // informational - blue
-		return "#118eed"
-	case 7: // debug - grey
+	log.Printf("Prio: %d", prio)
+	switch {
+	case prio < 0:
 		return "#828282"
+	case prio <= 3: // info - default color
+		return ""
+	case prio <= 10: // low - yellow
+		return "#edd711"
+	case prio <= 20: // mid - orange
+		return "#ed6d11"
+	case prio > 20: // high - red
+		return "#ed1f11"
 	}
 
 	return ""
