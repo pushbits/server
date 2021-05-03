@@ -114,6 +114,26 @@ You can retrieve the token using [pbcli](https://github.com/PushBits/cli) by run
 pbcli application show $PB_APPLICATION --url https://pushbits.example.com --username $PB_USERNAME
 ```
 
+### Message options
+
+Messages are supporting three different syntaxes:
+
+* text/plain
+* text/html
+* text/markdown
+
+To set a specific syntax you need to set the `extras` ([inspired by Gotifys message extras](https://gotify.net/docs/msgextras#clientdisplay)):
+
+```bash
+curl \
+	--header "Content-Type: application/json" \
+	--request POST \
+	--data '{"message":"my message with\n\n**Markdown** _support_.","title":"my title","extras":{"client::display":{"contentType": "text/markdown"}}}' \
+	"https://pushbits.example.com/message?token=$PB_TOKEN"
+```
+
+HTML-Content might not be fully rendered in your Matrix-Client - see the corresponding [Matrix specs](https://spec.matrix.org/unstable/client-server-api/#mroommessage-msgtypes). This also holds for Markdown, as it is transfered to the corresponding HTML-syntax.
+
 ## Acknowledgments
 
 The idea for this software and most parts of the initial source are heavily inspired by [Gotify](https://gotify.net/).
