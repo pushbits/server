@@ -68,7 +68,6 @@ func (d *Dispatcher) getFormattedMessage(n *model.Notification) string {
 
 // Maps priorities to hex colors
 func (d *Dispatcher) priorityToColor(prio int) string {
-	log.Printf("Prio: %d", prio)
 	switch {
 	case prio < 0:
 		return "#828282"
