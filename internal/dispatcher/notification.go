@@ -24,8 +24,6 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 
 	_, err := d.client.SendFormattedText(a.MatrixID, text, formattedText)
 
-	//testing
-
 	return err
 }
 
