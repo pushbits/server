@@ -4,6 +4,7 @@ import (
 	ginserver "github.com/go-oauth2/gin-server"
 	mysql "github.com/imrenagi/go-oauth2-mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/pushbits/server/internal/database"
 
 	"gopkg.in/oauth2.v3/manage"
 	"gopkg.in/oauth2.v3/models"
@@ -13,11 +14,15 @@ import (
 )
 
 // InitializeOauth sets up the basics for oauth authentication
-func InitializeOauth() error {
+func InitializeOauth(db *database.Database) error {
 	// Initialize the database
-	dbOauth, err := sqlx.Connect("mysql", "root:FqqVnitR8jkuZZeq8j94@tcp(db-pushbitsdev:3306)/pushbits?parseTime=true") // TODO cubicroot add more options and move to settings
+	dbOauth, err := sqlx.Connect("mysql", "?parseTime=true") // TODO cubicroot add more options and move to settings
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	auth := Authenticator{
+		DB: db,
 	}
 
 	manager := manage.NewDefaultManager()
@@ -37,7 +42,7 @@ func InitializeOauth() error {
 	ginserver.SetAllowGetAccessRequest(true)
 	ginserver.SetClientInfoHandler(server.ClientFormHandler)
 	ginserver.SetUserAuthorizationHandler(UserAuthHandler())
-	ginserver.SetPasswordAuthorizationHandler(PasswordAuthorizationHandler())
+	ginserver.SetPasswordAuthorizationHandler(auth.PasswordAuthorizationHandler())
 
 	return nil
 }

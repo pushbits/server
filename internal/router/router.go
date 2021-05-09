@@ -37,7 +37,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	// Good Tutorial: https://tutorialedge.net/golang/go-oauth2-tutorial/
 
 	if authMethod == "oauth" {
-		oauth.InitializeOauth()
+		oauth.InitializeOauth(db)
 
 		oauthGroup := r.Group("/oauth2")
 		{
