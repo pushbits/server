@@ -45,7 +45,8 @@ type Configuration struct {
 		Password   string `required:"true"`
 	}
 	Security struct {
-		CheckHIBP bool `default:"false"`
+		CheckHIBP      bool   `default:"false"`
+		Authentication string `default:"basic"`
 	}
 	Crypto     CryptoConfig
 	Formatting Formatting

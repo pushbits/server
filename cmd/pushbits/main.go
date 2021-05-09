@@ -60,7 +60,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	engine := router.Create(c.Debug, cm, db, dp)
+	engine := router.Create(c.Debug, cm, db, dp, c.Security.Authentication)
 
 	runner.Run(engine, c.HTTP.ListenAddress, c.HTTP.Port)
 }

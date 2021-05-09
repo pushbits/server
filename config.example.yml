@@ -47,6 +47,8 @@ matrix:
 security:
     # Wether or not to check for weak passwords using HIBP.
     checkhibp: false
+    # The authentication method to use
+    authentication: basic
 
 crypto:
     # Configuration of the KDF for password storage. Do not change unless you know what you are doing!
