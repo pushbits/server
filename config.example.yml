@@ -47,8 +47,6 @@ matrix:
 security:
     # Wether or not to check for weak passwords using HIBP.
     checkhibp: false
-    # The authentication method to use
-    authentication: basic
 
 crypto:
     # Configuration of the KDF for password storage. Do not change unless you know what you are doing!
@@ -62,3 +60,12 @@ crypto:
 formatting: 
     # Whether to use colored titles based on the message priority (<0: grey, 0-3: default, 4-10: yellow, 10-20: orange, >20: red).
     coloredtitle: false
+
+authentication:
+    # The authentication method to use
+    method: basic
+    oauth:
+        # The storage used for tokens
+        storage: "file"
+        # The connection to the storage
+        connection: "pushbits_token.db"

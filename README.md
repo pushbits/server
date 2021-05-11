@@ -137,7 +137,7 @@ security:
 For [basic authentication](https://de.wikipedia.org/wiki/HTTP-Authentifizierung) you have to provide your username and password in each request to the server. For example in curl you can do this with the `--user` flag:
 
 ```bash
-curl --username myusername:totalysecretpassword
+curl -u myusername:totalysecretpassword
 ```
 
 #### Oauth 2

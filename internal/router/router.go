@@ -7,6 +7,7 @@ import (
 	"github.com/pushbits/server/internal/authentication"
 	"github.com/pushbits/server/internal/authentication/credentials"
 	"github.com/pushbits/server/internal/authentication/oauth"
+	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"
 	"github.com/pushbits/server/internal/dispatcher"
 
@@ -16,14 +17,17 @@ import (
 )
 
 // Create a Gin engine and setup all routes.
-func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher, authMethod string) *gin.Engine {
+func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher, authConfig configuration.Authentication) *gin.Engine {
 	log.Println("Setting up HTTP routes.")
 
 	if !debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	auth := authentication.Authenticator{DB: db}
+	auth := authentication.Authenticator{
+		DB:     db,
+		Config: authConfig,
+	}
 
 	applicationHandler := api.ApplicationHandler{DB: db, DP: dp}
 	healthHandler := api.HealthHandler{DB: db}
@@ -36,8 +40,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	// Example from the library: https://github.com/go-oauth2/oauth2/blob/master/example/server/server.go
 	// Good Tutorial: https://tutorialedge.net/golang/go-oauth2-tutorial/
 
-	if authMethod == "oauth" {
-		oauth.InitializeOauth(db)
+	if authConfig.Method == "oauth" {
+		oauth.InitializeOauth(db, authConfig)
 
 		oauthGroup := r.Group("/oauth2")
 		{
@@ -48,10 +52,12 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		}
 
 		// TODO cubicroot remove - currently only for testing
-		api := r.Group("/oauthtest")
+		oauthtest := r.Group("/oauthtest")
+
+		oauthtest.Use(auth.RequireValidAuthentication())
+		oauthtest.Use(auth.RequireUser())
 		{
-			api.Use(ginserver.HandleTokenVerify())
-			api.GET("/info", func(c *gin.Context) {
+			oauthtest.GET("/info", func(c *gin.Context) {
 				ti, exists := c.Get(ginserver.DefaultConfig.TokenKey)
 				if exists {
 					c.JSON(200, ti)
@@ -59,6 +65,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 				}
 				c.String(200, "not found")
 			})
+			oauthtest.GET("", api.RequireIDFromToken(), applicationHandler.GetApplications)
 		}
 	} else {
 		// TODO cubicroot add other auth methods here
