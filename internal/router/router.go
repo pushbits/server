@@ -47,17 +47,10 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		{
 			oauthGroup.GET("/token", ginserver.HandleTokenRequest)
 			// GET TOKEN with client: curl "https://domain.tld/oauth2/token?grant_type=client_credentials&client_id=000000&client_secret=999999&scope=read" -X GET
-			// GET TOKEN with password: curl "https://domain.tld/oauth2/token?grant_type=password&client_id=000000&client_secret=999999&scope=read&user_id=2&username=alex&password=123" -X GET -i
+			// GET TOKEN with password: curl "https://domain.tld/oauth2/token?grant_type=password&client_id=000000&client_secret=999999&scope=read&user_id=2&username=admin&password=123" -X GET -i
+			// GET TOKEN with refresh token:  curl "https://domain.tld/oauth2/token?grant_type=refresh_token&client_id=000000&client_secret=999999&user_id=1&refresh_token=OKLLQOOLWP2IFVFBLJVIAA" -X GET
 			oauthGroup.GET("/auth", ginserver.HandleAuthorizeRequest)
-		}
-
-		// TODO cubicroot remove - currently only for testing
-		oauthtest := r.Group("/oauthtest")
-
-		oauthtest.Use(auth.RequireValidAuthentication())
-		oauthtest.Use(auth.RequireUser())
-		{
-			oauthtest.GET("/info", func(c *gin.Context) {
+			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), func(c *gin.Context) {
 				ti, exists := c.Get(ginserver.DefaultConfig.TokenKey)
 				if exists {
 					c.JSON(200, ti)
@@ -65,13 +58,14 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 				}
 				c.String(200, "not found")
 			})
-			oauthtest.GET("", api.RequireIDFromToken(), applicationHandler.GetApplications)
+
+			// TODO cubicroot: refresh handling
+			// revoking
 		}
-	} else {
-		// TODO cubicroot add other auth methods here
 	}
 
 	applicationGroup := r.Group("/application")
+	applicationGroup.Use(auth.RequireValidAuthentication())
 	applicationGroup.Use(auth.RequireUser())
 	{
 		applicationGroup.POST("", applicationHandler.CreateApplication)
@@ -87,6 +81,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	r.POST("/message", auth.RequireApplicationToken(), notificationHandler.CreateNotification)
 
 	userGroup := r.Group("/user")
+	userGroup.Use(auth.RequireValidAuthentication())
 	userGroup.Use(auth.RequireAdmin())
 	{
 		userGroup.POST("", userHandler.CreateUser)

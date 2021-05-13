@@ -8,6 +8,7 @@ import (
 	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"
 
+	"gopkg.in/oauth2.v3"
 	"gopkg.in/oauth2.v3/manage"
 	"gopkg.in/oauth2.v3/models"
 	"gopkg.in/oauth2.v3/server"
@@ -43,7 +44,7 @@ func InitializeOauth(db *database.Database, config configuration.Authentication)
 		return errors.New("Unknown oauth storage")
 	}
 
-	auth := Authenticator{
+	auth := Oauth{
 		DB: db,
 	}
 
@@ -52,6 +53,14 @@ func InitializeOauth(db *database.Database, config configuration.Authentication)
 	ginserver.SetClientInfoHandler(server.ClientFormHandler)
 	ginserver.SetUserAuthorizationHandler(UserAuthHandler())
 	ginserver.SetPasswordAuthorizationHandler(auth.PasswordAuthorizationHandler())
+	ginserver.SetAllowedGrantType(
+		//oauth2.AuthorizationCode,
+		oauth2.PasswordCredentials,
+		//oauth2.ClientCredentials,
+		oauth2.Refreshing,
+	)
+	ginserver.SetClientScopeHandler(ClientScopeHandler())
+	ginserver.SetAccessTokenExpHandler(AccessTokenExpHandler())
 
 	return nil
 }

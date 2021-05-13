@@ -10,7 +10,7 @@ type Database interface {
 	GetUserByName(name string) (*model.User, error)
 }
 
-// Authenticator is the provider for authentication
-type Authenticator struct {
+// Oauth is the oauth provider for authentication
+type Oauth struct {
 	DB Database
 }
