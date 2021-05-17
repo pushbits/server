@@ -5,6 +5,7 @@ import (
 
 	"github.com/pushbits/server/internal/api"
 	"github.com/pushbits/server/internal/authentication"
+	"github.com/pushbits/server/internal/authentication/basicauth"
 	"github.com/pushbits/server/internal/authentication/credentials"
 	"github.com/pushbits/server/internal/authentication/oauth"
 	"github.com/pushbits/server/internal/configuration"
@@ -29,6 +30,18 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		Config: authConfig,
 	}
 
+	switch authConfig.Method {
+	case "oauth":
+		authHandler := oauth.AuthHandler{}
+		authHandler.Initialize(db, authConfig)
+		auth.SetAuthenticationValidator(authHandler.AuthenticationValidator)
+	default:
+		authHandler := basicauth.Handler{
+			DB: db,
+		}
+		auth.SetAuthenticationValidator(authHandler.AuthenticationValidator)
+	}
+
 	applicationHandler := api.ApplicationHandler{DB: db, DP: dp}
 	healthHandler := api.HealthHandler{DB: db}
 	notificationHandler := api.NotificationHandler{DB: db, DP: dp}
@@ -41,15 +54,15 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	// Good Tutorial: https://tutorialedge.net/golang/go-oauth2-tutorial/
 
 	if authConfig.Method == "oauth" {
-		oauth.InitializeOauth(db, authConfig)
 
 		oauthGroup := r.Group("/oauth2")
 		{
 			oauthGroup.GET("/token", ginserver.HandleTokenRequest)
 			// GET TOKEN with client: curl "https://domain.tld/oauth2/token?grant_type=client_credentials&client_id=000000&client_secret=999999&scope=read" -X GET
-			// GET TOKEN with password: curl "https://domain.tld/oauth2/token?grant_type=password&client_id=000000&client_secret=999999&scope=read&user_id=2&username=admin&password=123" -X GET -i
+			// GET TOKEN with password: curl "https://domain.tld/oauth2/token?grant_type=password&client_id=000000&client_secret=999999&scope=read&username=admin&password=123" -X GET -i
 			// GET TOKEN with refresh token:  curl "https://domain.tld/oauth2/token?grant_type=refresh_token&client_id=000000&client_secret=999999&user_id=1&refresh_token=OKLLQOOLWP2IFVFBLJVIAA" -X GET
-			oauthGroup.GET("/auth", ginserver.HandleAuthorizeRequest)
+			oauthGroup.GET("/auth", ginserver.HandleAuthorizeRequest) // Not very convenient for cli tools as it uses redirects
+			// Use auth: curl "https://domain.tld/oauth2/auth?grant_type=password&client_id=000000&client_secret=999999&username=admin&password=21132&response_type=token" -X GET
 			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), func(c *gin.Context) {
 				ti, exists := c.Get(ginserver.DefaultConfig.TokenKey)
 				if exists {

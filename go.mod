@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/alexedwards/argon2id v0.0.0-20201228115903-cf543ebc1f7b
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gin-contrib/location v0.0.2
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-oauth2/gin-server v1.0.0

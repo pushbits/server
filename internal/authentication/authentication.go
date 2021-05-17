@@ -18,6 +18,10 @@ const (
 	headerName = "X-Gotify-Key"
 )
 
+type (
+	AuthenticationValidator func() gin.HandlerFunc
+)
+
 // The Database interface for encapsulating database access.
 type Database interface {
 	GetApplicationByToken(token string) (*model.Application, error)
@@ -27,8 +31,9 @@ type Database interface {
 
 // Authenticator is the provider for authentication middleware.
 type Authenticator struct {
-	DB     Database
-	Config configuration.Authentication
+	DB                      Database
+	Config                  configuration.Authentication
+	AuthenticationValidator AuthenticationValidator
 }
 
 type hasUserProperty func(user *model.User) bool
@@ -44,7 +49,7 @@ func (a *Authenticator) userFromBasicAuth(ctx *gin.Context) (*model.User, error)
 		}
 	}
 
-	return nil, errors.New("no credentials were supplied")
+	return nil, errors.New("no credentials were supplied 1")
 }
 
 func (a *Authenticator) userFromToken(ctx *gin.Context) (*model.User, error) {
@@ -146,13 +151,10 @@ func (a *Authenticator) RequireApplicationToken() gin.HandlerFunc {
 
 // RequireValidAuthentication returns a Gin middleware which requires a valid authentication
 func (a *Authenticator) RequireValidAuthentication() gin.HandlerFunc {
-	switch a.Config.Method {
-	case "oauth":
-		return ginserver.HandleTokenVerify() // TODO cubicroot move to own config and set error handler to display same errors as for basic auth
-	default:
-		// TODO cubicroot: not very nice to have duplicated code here - but we need the HandleTokenVerify somewhere
-		return a.requireUserProperty(func(user *model.User) bool {
-			return true
-		})
-	}
+	return a.AuthenticationValidator()
+}
+
+// SetAuthenticationValidator sets a function for handling authentication
+func (a *Authenticator) SetAuthenticationValidator(f AuthenticationValidator) {
+	a.AuthenticationValidator = f
 }

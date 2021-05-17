@@ -1,12 +1,12 @@
 package oauth
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/pushbits/server/internal/authentication/credentials"
+	"github.com/gin-gonic/gin"
+	ginserver "github.com/go-oauth2/gin-server"
 	"gopkg.in/oauth2.v3/server"
 )
 
@@ -17,25 +17,6 @@ func UserAuthHandler() server.UserAuthorizationHandler {
 		log.Println("UserAuthorizationHandler")
 
 		return "1", nil
-	}
-}
-
-// PasswordAuthorizationHandler returns a PasswordAuthorizationHandler that handles username and password based authentication for access tokens
-func (a *Oauth) PasswordAuthorizationHandler() server.PasswordAuthorizationHandler {
-	return func(username string, password string) (string, error) {
-		log.Println("Received password based authentication request")
-
-		user, err := a.DB.GetUserByName(username)
-
-		if err != nil || user == nil {
-			return "", nil
-		}
-
-		if !credentials.ComparePassword(user.PasswordHash, []byte(password)) {
-			return "", nil
-		}
-
-		return fmt.Sprintf("%d", user.ID), nil
 	}
 }
 
@@ -66,4 +47,9 @@ func AccessTokenExpHandler() server.AccessTokenExpHandler {
 
 		return time.Duration(24) * time.Hour, nil // TODO cubicroot -> that is not displayed correctly?
 	}
+}
+
+func (a *AuthHandler) AuthenticationValidator() gin.HandlerFunc {
+	log.Println("Oauth handling this here :D")
+	return ginserver.HandleTokenVerify()
 }
