@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -25,6 +26,7 @@ import (
 type Database interface {
 	GetApplicationByToken(token string) (*model.Application, error)
 	GetUserByName(name string) (*model.User, error)
+	GetUserByID(id uint) (*model.User, error)
 }
 
 // AuthHandler is the oauth provider for authentication
@@ -39,16 +41,18 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 	a.db = db
 	a.config = config
 
+	// The manager handles the tokens
 	a.manager = manage.NewDefaultManager()
 	a.manager.SetAuthorizeCodeExp(time.Duration(24) * time.Hour)
 	// TODO cubicroot add more token configs
 	a.manager.SetPasswordTokenCfg(&manage.Config{
-		AccessTokenExp:    time.Duration(24) * time.Hour * 12,
-		RefreshTokenExp:   time.Duration(24) * time.Hour * 24 * 30,
+		AccessTokenExp:    time.Duration(24) * time.Hour,      // 1 day
+		RefreshTokenExp:   time.Duration(24) * time.Hour * 30, // 30 days
 		IsGenerateRefresh: true,
 	})
 	a.manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("dfhgdfhfg"), jwt.SigningMethodHS256)) // TODO cubicroot get RS256 to work
 
+	// Define a storage for the tokens
 	if a.config.Oauth.Storage == "mysql" {
 		dbOauth, err := sqlx.Connect("mysql", a.config.Oauth.Connection+"?parseTime=true") // TODO cubicroot add more options and move to settings
 		if err != nil {
@@ -71,6 +75,7 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 		return errors.New("Unknown oauth storage")
 	}
 
+	// Initialize and configure the token server
 	ginserver.InitServer(a.manager)
 	ginserver.SetAllowGetAccessRequest(true)
 	ginserver.SetClientInfoHandler(server.ClientFormHandler)
@@ -103,5 +108,44 @@ func (a *AuthHandler) passwordAuthorizationHandler() server.PasswordAuthorizatio
 		}
 
 		return fmt.Sprintf("%d", user.ID), nil
+	}
+}
+
+// UserAuthHandler extracts user information from the query
+func UserAuthHandler() server.UserAuthorizationHandler {
+	return func(w http.ResponseWriter, r *http.Request) (string, error) {
+		// TODO cubicroot check if we need a check here already
+		log.Println("UserAuthorizationHandler")
+
+		return "1", nil
+	}
+}
+
+// ClientScopeHandler returns a ClientScopeHandler that allows or disallows scopes for access tokens
+func ClientScopeHandler() server.ClientScopeHandler {
+	return func(clientID, scope string) (allowed bool, err error) {
+		if scope == "all" || scope == "" { // For now only allow generic scopes so there is place for future expansion
+			return true, nil
+		}
+
+		return false, nil
+	}
+}
+
+// AccessTokenExpHandler returns an AccessTokenExpHandler that sets the expiration time of access tokens
+func AccessTokenExpHandler() server.AccessTokenExpHandler {
+	return func(w http.ResponseWriter, r *http.Request) (exp time.Duration, err error) {
+		tokenTypeRaw, ok := r.URL.Query()["token_type"]
+
+		if ok && len(tokenTypeRaw[0]) > 0 {
+			tokenType := tokenTypeRaw[0]
+
+			switch tokenType {
+			case "longterm", "long":
+				return time.Duration(24*365*2) * time.Hour, nil
+			}
+		}
+
+		return time.Duration(24) * time.Hour, nil // TODO cubicroot -> that is not displayed correctly?
 	}
 }

@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -19,7 +20,10 @@ const (
 )
 
 type (
+	// AuthenticationValidator defines a type for authenticating a user
 	AuthenticationValidator func() gin.HandlerFunc
+	// UserSetter defines a type for setting a user object
+	UserSetter func() gin.HandlerFunc
 )
 
 // The Database interface for encapsulating database access.
@@ -34,6 +38,7 @@ type Authenticator struct {
 	DB                      Database
 	Config                  configuration.Authentication
 	AuthenticationValidator AuthenticationValidator
+	UserSetter              UserSetter
 }
 
 type hasUserProperty func(user *model.User) bool
@@ -78,17 +83,20 @@ func (a *Authenticator) userFromToken(ctx *gin.Context) (*model.User, error) {
 
 func (a *Authenticator) requireUserProperty(has hasUserProperty) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var user *model.User
-		err := errors.New("No authentication method")
+		err := errors.New("User not found")
 
-		switch a.Config.Method {
-		case "oauth":
-			user, err = a.userFromToken(ctx)
-		default:
-			user, err = a.userFromBasicAuth(ctx)
+		u, exists := ctx.Get("user")
+
+		if !exists {
+			log.Println("No user object in context")
+			ctx.AbortWithError(http.StatusForbidden, err)
+			return
 		}
 
-		if err != nil {
+		user, ok := u.(*model.User)
+
+		if !ok {
+			log.Println("User object from context has wrong format")
 			ctx.AbortWithError(http.StatusForbidden, err)
 			return
 		}
@@ -97,16 +105,12 @@ func (a *Authenticator) requireUserProperty(has hasUserProperty) gin.HandlerFunc
 			ctx.AbortWithError(http.StatusForbidden, errors.New("authentication failed"))
 			return
 		}
-
-		ctx.Set("user", user)
 	}
 }
 
 // RequireUser returns a Gin middleware which requires valid user credentials to be supplied with the request.
 func (a *Authenticator) RequireUser() gin.HandlerFunc {
-	return a.requireUserProperty(func(user *model.User) bool {
-		return true
-	})
+	return a.UserSetter()
 }
 
 // RequireAdmin returns a Gin middleware which requires valid admin credentials to be supplied with the request.
@@ -157,4 +161,9 @@ func (a *Authenticator) RequireValidAuthentication() gin.HandlerFunc {
 // SetAuthenticationValidator sets a function for handling authentication
 func (a *Authenticator) SetAuthenticationValidator(f AuthenticationValidator) {
 	a.AuthenticationValidator = f
+}
+
+// SetUserSetter sets a function that sets the user object in gin context
+func (a *Authenticator) SetUserSetter(f UserSetter) {
+	a.UserSetter = f
 }

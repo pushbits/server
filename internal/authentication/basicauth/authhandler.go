@@ -15,12 +15,33 @@ type Database interface {
 	GetUserByName(name string) (*model.User, error)
 }
 
-// Handler is the basic auth provider for authentication
-type Handler struct {
+// AuthHandler is the basic auth provider for authentication
+type AuthHandler struct {
 	DB Database
 }
 
-func (h *Handler) AuthenticationValidator() gin.HandlerFunc {
+// AuthenticationValidator returns a gin HandlerFunc that takes the basic auth credentials and validates them
+func (h *AuthHandler) AuthenticationValidator() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var user *model.User
+		err := errors.New("No authentication method")
+
+		user, err = h.userFromBasicAuth(ctx)
+
+		if err != nil {
+			ctx.AbortWithError(http.StatusForbidden, err)
+			return
+		}
+
+		if user == nil {
+			ctx.AbortWithError(http.StatusForbidden, errors.New("authentication failed"))
+			return
+		}
+	}
+}
+
+// UserSetter returns a gin HandlerFunc that takes the basic auth credentials and sets the corresponding user object
+func (h *AuthHandler) UserSetter() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var user *model.User
 		err := errors.New("No authentication method")
@@ -41,7 +62,7 @@ func (h *Handler) AuthenticationValidator() gin.HandlerFunc {
 	}
 }
 
-func (h *Handler) userFromBasicAuth(ctx *gin.Context) (*model.User, error) {
+func (h *AuthHandler) userFromBasicAuth(ctx *gin.Context) (*model.User, error) {
 	if name, password, ok := ctx.Request.BasicAuth(); ok {
 		if user, err := h.DB.GetUserByName(name); err != nil {
 			return nil, err

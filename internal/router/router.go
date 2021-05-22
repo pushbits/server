@@ -25,6 +25,11 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	// Initialize gin
+	r := gin.Default()
+	r.Use(location.Default())
+
+	// Set up authentication and handler
 	auth := authentication.Authenticator{
 		DB:     db,
 		Config: authConfig,
@@ -32,29 +37,13 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 
 	switch authConfig.Method {
 	case "oauth":
+		// TODO cubicroot add a method to auth that takes the authhandler and magically sets all handlers
 		authHandler := oauth.AuthHandler{}
 		authHandler.Initialize(db, authConfig)
 		auth.SetAuthenticationValidator(authHandler.AuthenticationValidator)
-	default:
-		authHandler := basicauth.Handler{
-			DB: db,
-		}
-		auth.SetAuthenticationValidator(authHandler.AuthenticationValidator)
-	}
+		auth.SetUserSetter(authHandler.UserSetter)
 
-	applicationHandler := api.ApplicationHandler{DB: db, DP: dp}
-	healthHandler := api.HealthHandler{DB: db}
-	notificationHandler := api.NotificationHandler{DB: db, DP: dp}
-	userHandler := api.UserHandler{AH: &applicationHandler, CM: cm, DB: db, DP: dp}
-
-	r := gin.Default()
-
-	r.Use(location.Default())
-	// Example from the library: https://github.com/go-oauth2/oauth2/blob/master/example/server/server.go
-	// Good Tutorial: https://tutorialedge.net/golang/go-oauth2-tutorial/
-
-	if authConfig.Method == "oauth" {
-
+		// Register oauth endpoints
 		oauthGroup := r.Group("/oauth2")
 		{
 			oauthGroup.GET("/token", ginserver.HandleTokenRequest)
@@ -63,19 +52,25 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 			// GET TOKEN with refresh token:  curl "https://domain.tld/oauth2/token?grant_type=refresh_token&client_id=000000&client_secret=999999&user_id=1&refresh_token=OKLLQOOLWP2IFVFBLJVIAA" -X GET
 			oauthGroup.GET("/auth", ginserver.HandleAuthorizeRequest) // Not very convenient for cli tools as it uses redirects
 			// Use auth: curl "https://domain.tld/oauth2/auth?grant_type=password&client_id=000000&client_secret=999999&username=admin&password=21132&response_type=token" -X GET
-			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), func(c *gin.Context) {
-				ti, exists := c.Get(ginserver.DefaultConfig.TokenKey)
-				if exists {
-					c.JSON(200, ti)
-					return
-				}
-				c.String(200, "not found")
-			})
+			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), oauth.TokenInfoHandler())
 
-			// TODO cubicroot: refresh handling
-			// revoking
+			// TODO cubicroot: revoking
 		}
+	default:
+		authHandler := basicauth.AuthHandler{
+			DB: db,
+		}
+		auth.SetAuthenticationValidator(authHandler.AuthenticationValidator)
+		auth.SetUserSetter(authHandler.UserSetter)
 	}
+
+	applicationHandler := api.ApplicationHandler{DB: db, DP: dp}
+	healthHandler := api.HealthHandler{DB: db}
+	notificationHandler := api.NotificationHandler{DB: db, DP: dp}
+	userHandler := api.UserHandler{AH: &applicationHandler, CM: cm, DB: db, DP: dp}
+
+	// Example from the library: https://github.com/go-oauth2/oauth2/blob/master/example/server/server.go
+	// Good Tutorial: https://tutorialedge.net/golang/go-oauth2-tutorial/
 
 	applicationGroup := r.Group("/application")
 	applicationGroup.Use(auth.RequireValidAuthentication())
@@ -95,7 +90,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 
 	userGroup := r.Group("/user")
 	userGroup.Use(auth.RequireValidAuthentication())
-	userGroup.Use(auth.RequireAdmin())
+	userGroup.Use(auth.RequireUser())
+	userGroup.Use(auth.RequireAdmin()) // TODO cubicroot: stack them so they depend on the lower level ones
 	{
 		userGroup.POST("", userHandler.CreateUser)
 		userGroup.GET("", userHandler.GetUsers)
