@@ -46,7 +46,7 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 	a.manager = manage.NewDefaultManager()
 	a.manager.SetAuthorizeCodeExp(time.Duration(24) * time.Hour)
 	// TODO cubicroot add more token configs
-	a.manager.SetPasswordTokenCfg(&manage.Config{
+	a.manager.SetAuthorizeCodeTokenCfg(&manage.Config{
 		AccessTokenExp:    time.Duration(24) * time.Hour,      // 1 day
 		RefreshTokenExp:   time.Duration(24) * time.Hour * 30, // 30 days
 		IsGenerateRefresh: true,

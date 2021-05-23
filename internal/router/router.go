@@ -51,15 +51,14 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 			// GET TOKEN with refresh token:  curl "https://domain.tld/oauth2/token?grant_type=refresh_token&client_id=000000&client_secret=999999&refresh_token=OKLLQOOLWP2IFVFBLJVIAA" -X GET
 			// GET TOKEN with code: curl "https://domain.tld/oauth2/token?grant_type=authorization_code&client_id=000000&client_secret=999999&code=4T1TJXMBPTOS4NNGILBDYW&redirect_uri=localhost" -X GET -i
 			oauthGroup.GET("/auth", ginserver.HandleAuthorizeRequest) // Not very convenient for cli tools as it uses redirects
-			// Use auth: curl "https://domain.tld/oauth2/authclient_id=000000&username=admin&password=21132&response_type=token" -X GET
+			// Use auth: curl "https://domain.tld/oauth2/auth?client_id=000000&username=admin&password=21132&response_type=token" -X GET
 			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), oauth.GetTokenInfo)
 			// curl "https://domain.tld/oauth2/revoke" -X POST -i -H "Authorization: Bearer $token" -d '{"access_token": "$revoke_token"}'
-			oauthGroup.POST("/revoke", auth.RequireValidAuthentication(), auth.RequireUser(), auth.RequireAdmin(), authHandler.RevokeAccess)
+			oauthGroup.POST("/revoke", append(auth.RequireAdmin(), authHandler.RevokeAccess)...)
 		}
 	default:
-		authHandler := basicauth.AuthHandler{
-			DB: db,
-		}
+		authHandler := basicauth.AuthHandler{}
+		authHandler.Initialize(db)
 		auth.SetAuthenticationValidator(authHandler.AuthenticationValidator)
 		auth.SetUserSetter(authHandler.UserSetter)
 	}
@@ -70,8 +69,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	userHandler := api.UserHandler{AH: &applicationHandler, CM: cm, DB: db, DP: dp}
 
 	applicationGroup := r.Group("/application")
-	applicationGroup.Use(auth.RequireValidAuthentication())
-	applicationGroup.Use(auth.RequireUser())
+	applicationGroup.Use(auth.RequireUser()...)
 	{
 		applicationGroup.POST("", applicationHandler.CreateApplication)
 		applicationGroup.GET("", applicationHandler.GetApplications)
@@ -86,9 +84,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	r.POST("/message", auth.RequireApplicationToken(), notificationHandler.CreateNotification)
 
 	userGroup := r.Group("/user")
-	userGroup.Use(auth.RequireValidAuthentication())
-	userGroup.Use(auth.RequireUser())
-	userGroup.Use(auth.RequireAdmin()) // TODO cubicroot: stack them so they depend on the lower level ones
+	userGroup.Use(auth.RequireAdmin()...)
 	{
 		userGroup.POST("", userHandler.CreateUser)
 		userGroup.GET("", userHandler.GetUsers)

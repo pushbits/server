@@ -109,15 +109,23 @@ func (a *Authenticator) requireUserProperty(has hasUserProperty) gin.HandlerFunc
 }
 
 // RequireUser returns a Gin middleware which requires valid user credentials to be supplied with the request.
-func (a *Authenticator) RequireUser() gin.HandlerFunc {
-	return a.UserSetter()
+func (a *Authenticator) RequireUser() []gin.HandlerFunc {
+	funcs := make([]gin.HandlerFunc, 0)
+	funcs = append(funcs, a.RequireValidAuthentication())
+	funcs = append(funcs, a.UserSetter())
+	return funcs
 }
 
 // RequireAdmin returns a Gin middleware which requires valid admin credentials to be supplied with the request.
-func (a *Authenticator) RequireAdmin() gin.HandlerFunc {
-	return a.requireUserProperty(func(user *model.User) bool {
+func (a *Authenticator) RequireAdmin() []gin.HandlerFunc {
+	funcs := make([]gin.HandlerFunc, 0)
+	funcs = append(funcs, a.RequireValidAuthentication())
+	funcs = append(funcs, a.UserSetter())
+	funcs = append(funcs, a.requireUserProperty(func(user *model.User) bool {
 		return user.IsAdmin
-	})
+	}))
+
+	return funcs
 }
 
 func (a *Authenticator) tokenFromQueryOrHeader(ctx *gin.Context) string {

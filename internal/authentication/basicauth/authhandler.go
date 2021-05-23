@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pushbits/server/internal/authentication/credentials"
+	"github.com/pushbits/server/internal/database"
 	"github.com/pushbits/server/internal/model"
 )
 
@@ -17,16 +18,22 @@ type Database interface {
 
 // AuthHandler is the basic auth provider for authentication
 type AuthHandler struct {
-	DB Database
+	db Database
+}
+
+// Initialize prepares the AuthHandler
+func (a *AuthHandler) Initialize(db *database.Database) error {
+	a.db = db
+	return nil
 }
 
 // AuthenticationValidator returns a gin HandlerFunc that takes the basic auth credentials and validates them
-func (h *AuthHandler) AuthenticationValidator() gin.HandlerFunc {
+func (a *AuthHandler) AuthenticationValidator() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var user *model.User
 		err := errors.New("No authentication method")
 
-		user, err = h.userFromBasicAuth(ctx)
+		user, err = a.userFromBasicAuth(ctx)
 
 		if err != nil {
 			ctx.AbortWithError(http.StatusForbidden, err)
@@ -41,12 +48,12 @@ func (h *AuthHandler) AuthenticationValidator() gin.HandlerFunc {
 }
 
 // UserSetter returns a gin HandlerFunc that takes the basic auth credentials and sets the corresponding user object
-func (h *AuthHandler) UserSetter() gin.HandlerFunc {
+func (a *AuthHandler) UserSetter() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var user *model.User
 		err := errors.New("No authentication method")
 
-		user, err = h.userFromBasicAuth(ctx)
+		user, err = a.userFromBasicAuth(ctx)
 
 		if err != nil {
 			ctx.AbortWithError(http.StatusForbidden, err)
@@ -62,9 +69,9 @@ func (h *AuthHandler) UserSetter() gin.HandlerFunc {
 	}
 }
 
-func (h *AuthHandler) userFromBasicAuth(ctx *gin.Context) (*model.User, error) {
+func (a *AuthHandler) userFromBasicAuth(ctx *gin.Context) (*model.User, error) {
 	if name, password, ok := ctx.Request.BasicAuth(); ok {
-		if user, err := h.DB.GetUserByName(name); err != nil {
+		if user, err := a.db.GetUserByName(name); err != nil {
 			return nil, err
 		} else if user != nil && credentials.ComparePassword(user.PasswordHash, []byte(password)) {
 			return user, nil
