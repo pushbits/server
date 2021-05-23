@@ -15,6 +15,7 @@ import (
 	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"
 	"github.com/pushbits/server/internal/model"
+
 	"gopkg.in/oauth2.v3"
 	"gopkg.in/oauth2.v3/generates"
 	"gopkg.in/oauth2.v3/manage"
@@ -68,24 +69,26 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 		clientStore.Create(&models.Client{
 			ID:     "000000",
 			Secret: "999999",
-			Domain: "http://localhost",
+			Domain: "https://localhost", // TODO cubicroot move redirect uri to settings
 		})
 	} else {
 		// TODO cubicroot add more storage options
-		return errors.New("Unknown oauth storage")
+		log.Panicln("Unknown oauth storage")
 	}
 
 	// Initialize and configure the token server
 	ginserver.InitServer(a.manager)
 	ginserver.SetAllowGetAccessRequest(true)
 	ginserver.SetClientInfoHandler(server.ClientFormHandler)
-	ginserver.SetUserAuthorizationHandler(UserAuthHandler())
+	ginserver.SetUserAuthorizationHandler(a.UserAuthHandler())
 	ginserver.SetPasswordAuthorizationHandler(a.passwordAuthorizationHandler())
 	ginserver.SetAllowedGrantType(
-		//oauth2.AuthorizationCode,
-		oauth2.PasswordCredentials,
-		//oauth2.ClientCredentials,
+		oauth2.AuthorizationCode,
+		//oauth2.PasswordCredentials,
 		oauth2.Refreshing,
+	)
+	ginserver.SetAllowedResponseType(
+		oauth2.Code,
 	)
 	ginserver.SetClientScopeHandler(ClientScopeHandler())
 	ginserver.SetAccessTokenExpHandler(AccessTokenExpHandler())
@@ -111,13 +114,18 @@ func (a *AuthHandler) passwordAuthorizationHandler() server.PasswordAuthorizatio
 	}
 }
 
-// UserAuthHandler extracts user information from the query
-func UserAuthHandler() server.UserAuthorizationHandler {
+// UserAuthHandler extracts user information from an auth request
+func (a *AuthHandler) UserAuthHandler() server.UserAuthorizationHandler {
 	return func(w http.ResponseWriter, r *http.Request) (string, error) {
-		// TODO cubicroot check if we need a check here already
-		log.Println("UserAuthorizationHandler")
+		username := r.URL.Query().Get("username")
+		password := r.URL.Query().Get("password")
 
-		return "1", nil
+		if user, err := a.db.GetUserByName(username); err != nil {
+			return "", err
+		} else if user != nil && credentials.ComparePassword(user.PasswordHash, []byte(password)) {
+			return fmt.Sprint(user.ID), nil
+		}
+		return "", errors.New("No credentials provided")
 	}
 }
 

@@ -144,6 +144,14 @@ curl -u myusername:totalysecretpassword
 
 [Oauth 2](https://de.wikipedia.org/wiki/OAuth) is a token based authentication method. Instead of passing your password with each request you request a token from an authorization server. With this token you are then able to authenticate yourself against the pushbits server. 
 
+The basic flow of oauth authentication:
+
+1. Authenticate user at `/oauth2/auth`, this will redirect you with an onetime authentication code as parameter
+2. With this authentication code, the client id and the client secret get a new short lived access token together with a long lived refresh token at `/oauth2/token`
+3. Whenever the access token expired, renew it with the refresh token
+
+Unfortunately this process is not very suitable for the command line, we need to extract the authentication code from the redirect url parameters.
+
 ### Message options
 
 Messages are supporting three different syntaxes:
