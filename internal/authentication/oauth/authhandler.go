@@ -51,6 +51,14 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 		RefreshTokenExp:   time.Duration(24) * time.Hour * 30, // 30 days
 		IsGenerateRefresh: true,
 	})
+	a.manager.SetRefreshTokenCfg(&manage.RefreshingConfig{
+		AccessTokenExp:     time.Duration(24) * time.Hour,      // 1 day
+		RefreshTokenExp:    time.Duration(24) * time.Hour * 30, // 30 days
+		IsGenerateRefresh:  true,
+		IsResetRefreshTime: true,
+		IsRemoveAccess:     false,
+		IsRemoveRefreshing: true,
+	})
 	a.manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("dfhgdfhfg"), jwt.SigningMethodHS256)) // TODO cubicroot get RS256 to work
 
 	// Define a storage for the tokens
