@@ -31,8 +31,11 @@ type Authentication struct {
 
 // Oauth holds information about the oauth server
 type Oauth struct {
-	Connection string `default:""`
-	Storage    string `default:"file"`
+	Connection     string `default:"pushbits_token.db"`
+	Storage        string `default:"file"`
+	ClientID       string `default:"000000"`
+	ClientSecret   string `default:"123456"`
+	ClientRedirect string `default:"http://localhost"`
 }
 
 // Configuration holds values that can be configured by the user.

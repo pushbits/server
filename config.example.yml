@@ -62,10 +62,18 @@ formatting:
     coloredtitle: false
 
 authentication:
-    # The authentication method to use
+    # The authentication method to use.
     method: basic
+    # Only needed if you choose oauth method.
     oauth:
-        # The storage used for tokens
+        # The storage used for tokens.
         storage: "file"
-        # The connection to the storage
+        # The connection to the storage. For file: the filename, ending with .db. For mysql: the connection string. Check out
+        # https://github.com/go-sql-driver/mysql#dsn-data-source-name for details.
         connection: "pushbits_token.db"
+        # Oauth client identifier (random string).
+        clientid: "03MG7MZJFF4566HNSW"
+        # Oauth client secret.
+        clientsecret: "fl#djhglj#daigert054w_342"
+        # Oauth redirect url after successful auth. Can be overwritten in the authentication request.
+        clientredirect: "http://localhost"

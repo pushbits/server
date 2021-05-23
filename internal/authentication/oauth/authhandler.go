@@ -21,6 +21,7 @@ import (
 	"gopkg.in/oauth2.v3/manage"
 	"gopkg.in/oauth2.v3/models"
 	"gopkg.in/oauth2.v3/server"
+	"gopkg.in/oauth2.v3/store"
 )
 
 // The Database interface for encapsulating database access.
@@ -45,7 +46,6 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 	// The manager handles the tokens
 	a.manager = manage.NewDefaultManager()
 	a.manager.SetAuthorizeCodeExp(time.Duration(24) * time.Hour)
-	// TODO cubicroot add more token configs
 	a.manager.SetAuthorizeCodeTokenCfg(&manage.Config{
 		AccessTokenExp:    time.Duration(24) * time.Hour,      // 1 day
 		RefreshTokenExp:   time.Duration(24) * time.Hour * 30, // 30 days
@@ -59,11 +59,12 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 		IsRemoveAccess:     false,
 		IsRemoveRefreshing: true,
 	})
-	a.manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("dfhgdfhfg"), jwt.SigningMethodHS256)) // TODO cubicroot get RS256 to work
+	a.manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("dfhgdfhfg"), jwt.SigningMethodHS512)) // unfortunately only symmetric algorithms seem to be supported
 
 	// Define a storage for the tokens
-	if a.config.Oauth.Storage == "mysql" {
-		dbOauth, err := sqlx.Connect("mysql", a.config.Oauth.Connection+"?parseTime=true") // TODO cubicroot add more options and move to settings
+	switch a.config.Oauth.Storage {
+	case "mysql":
+		dbOauth, err := sqlx.Connect("mysql", a.config.Oauth.Connection+"?parseTime=true")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -73,17 +74,24 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 		clientStore, _ := mysql.NewClientStore(dbOauth, mysql.WithClientStoreTableName("oauth_clients"))
 		a.manager.MapClientStorage(clientStore)
 
-		// TODO cubicroot better only store the secret as hashed value and autogenerate?
 		clientStore.Create(&models.Client{
-			ID:     "000000",
-			Secret: "999999",
-			Domain: "https://localhost", // TODO cubicroot move redirect uri to settings
+			ID:     a.config.Oauth.ClientID,
+			Secret: a.config.Oauth.ClientSecret,
+			Domain: a.config.Oauth.ClientRedirect,
 		})
-	} else {
-		// TODO cubicroot add more storage options
+	case "file":
+		// TODO cubicroot test it better :D
+		a.manager.MustTokenStorage(store.NewFileTokenStore(a.config.Oauth.Connection))
+		clientStore := store.NewClientStore() // memory store
+		a.manager.MapClientStorage(clientStore)
+		clientStore.Set(a.config.Oauth.ClientID, &models.Client{
+			ID:     a.config.Oauth.ClientID,
+			Secret: a.config.Oauth.ClientSecret,
+			Domain: a.config.Oauth.ClientRedirect,
+		})
+	default:
 		log.Panicln("Unknown oauth storage")
 	}
-
 	// Initialize and configure the token server
 	ginserver.InitServer(a.manager)
 	ginserver.SetAllowGetAccessRequest(true)
