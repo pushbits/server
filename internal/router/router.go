@@ -46,14 +46,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		oauthGroup := r.Group("/oauth2")
 		{
 			oauthGroup.GET("/token", ginserver.HandleTokenRequest)
-			// GET TOKEN with client: curl "https://domain.tld/oauth2/token?grant_type=client_credentials&client_id=000000&client_secret=999999&scope=read" -X GET
-			// GET TOKEN with password: curl "https://domain.tld/oauth2/token?grant_type=password&client_id=000000&client_secret=999999&scope=read&username=admin&password=123" -X GET -i
-			// GET TOKEN with refresh token:  curl "https://domain.tld/oauth2/token?grant_type=refresh_token&client_id=000000&client_secret=999999&refresh_token=OKLLQOOLWP2IFVFBLJVIAA" -X GET
-			// GET TOKEN with code: curl "https://domain.tld/oauth2/token?grant_type=authorization_code&client_id=000000&client_secret=999999&code=4T1TJXMBPTOS4NNGILBDYW&redirect_uri=localhost" -X GET -i
-			oauthGroup.GET("/auth", ginserver.HandleAuthorizeRequest) // Not very convenient for cli tools as it uses redirects
-			// Use auth: curl "https://domain.tld/oauth2/auth?client_id=000000&username=admin&password=21132&response_type=token" -X GET
+			oauthGroup.GET("/auth", ginserver.HandleAuthorizeRequest)
 			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), oauth.GetTokenInfo)
-			// curl "https://domain.tld/oauth2/revoke" -X POST -i -H "Authorization: Bearer $token" -d '{"access_token": "$revoke_token"}'
 			oauthGroup.POST("/revoke", append(auth.RequireAdmin(), authHandler.RevokeAccess)...)
 		}
 	default:

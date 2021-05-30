@@ -144,6 +144,8 @@ curl -u myusername:totalysecretpassword
 
 [Oauth 2](https://de.wikipedia.org/wiki/OAuth) is a token based authentication method. Instead of passing your password with each request you request a token from an authorization server. With this token you are then able to authenticate yourself against the pushbits server. 
 
+Make sure to setup the "oauth" section in the config file correctly.
+
 ##### Authenticating
 
 For authentication use the ``/oauth2/auth` endpoint. E.g.:
@@ -168,7 +170,7 @@ Your app then needs to use this code to trade it for a access token.
 
 **Hint for command line users:** you can extract the authentication code from the redirect without the need of a running webserver.
 
-##### Receiving a access token
+##### Receiving an access token
 
 You can get an access token from the `/oauth/token` endpoint. There are several methods, so called "grant types" for receiving a token. Pushbits currently supports the following one's:
 

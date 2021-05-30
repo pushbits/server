@@ -36,6 +36,7 @@ type Oauth struct {
 	ClientID       string `default:"000000"`
 	ClientSecret   string `default:"123456"`
 	ClientRedirect string `default:"http://localhost"`
+	TokenKey       string `default:"123456"`
 }
 
 // Configuration holds values that can be configured by the user.

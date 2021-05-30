@@ -17,6 +17,7 @@ import (
 	"github.com/pushbits/server/internal/model"
 
 	"gopkg.in/oauth2.v3"
+	oauth_error "gopkg.in/oauth2.v3/errors"
 	"gopkg.in/oauth2.v3/generates"
 	"gopkg.in/oauth2.v3/manage"
 	"gopkg.in/oauth2.v3/models"
@@ -59,7 +60,7 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 		IsRemoveAccess:     false,
 		IsRemoveRefreshing: true,
 	})
-	a.manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte("dfhgdfhfg"), jwt.SigningMethodHS512)) // unfortunately only symmetric algorithms seem to be supported
+	a.manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte(a.config.Oauth.TokenKey), jwt.SigningMethodHS512)) // unfortunately only symmetric algorithms seem to be supported
 
 	// Define a storage for the tokens
 	switch a.config.Oauth.Storage {
@@ -80,7 +81,6 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 			Domain: a.config.Oauth.ClientRedirect,
 		})
 	case "file":
-		// TODO cubicroot test it better :D
 		a.manager.MustTokenStorage(store.NewFileTokenStore(a.config.Oauth.Connection))
 		clientStore := store.NewClientStore() // memory store
 		a.manager.MapClientStorage(clientStore)
@@ -98,6 +98,7 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 	ginserver.SetClientInfoHandler(server.ClientFormHandler)
 	ginserver.SetUserAuthorizationHandler(a.UserAuthHandler())
 	ginserver.SetPasswordAuthorizationHandler(a.passwordAuthorizationHandler())
+	ginserver.SetInternalErrorHandler(a.InternalErrorHandler())
 	ginserver.SetAllowedGrantType(
 		oauth2.AuthorizationCode,
 		//oauth2.PasswordCredentials,
@@ -159,17 +160,19 @@ func ClientScopeHandler() server.ClientScopeHandler {
 // AccessTokenExpHandler returns an AccessTokenExpHandler that sets the expiration time of access tokens
 func AccessTokenExpHandler() server.AccessTokenExpHandler {
 	return func(w http.ResponseWriter, r *http.Request) (exp time.Duration, err error) {
-		tokenTypeRaw, ok := r.URL.Query()["token_type"]
+		return time.Duration(24) * time.Hour, nil
+	}
+}
 
-		if ok && len(tokenTypeRaw[0]) > 0 {
-			tokenType := tokenTypeRaw[0]
+// InternalErrorHandler handles errors for authentication, it will always return a server_error
+func (a *AuthHandler) InternalErrorHandler() server.InternalErrorHandler {
+	return func(err error) *oauth_error.Response {
+		var re oauth_error.Response
+		log.Println(err)
 
-			switch tokenType {
-			case "longterm", "long":
-				return time.Duration(24*365*2) * time.Hour, nil
-			}
-		}
-
-		return time.Duration(24) * time.Hour, nil // TODO cubicroot -> that is not displayed correctly?
+		re.Error = oauth_error.ErrServerError
+		re.Description = oauth_error.Descriptions[oauth_error.ErrServerError]
+		re.StatusCode = oauth_error.StatusCodes[oauth_error.ErrServerError]
+		return &re
 	}
 }

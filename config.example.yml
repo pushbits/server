@@ -72,8 +72,10 @@ authentication:
         # https://github.com/go-sql-driver/mysql#dsn-data-source-name for details.
         connection: "pushbits_token.db"
         # Oauth client identifier (random string).
-        clientid: "03MG7MZJFF4566HNSW"
+        clientid: "000000"
         # Oauth client secret.
-        clientsecret: "fl#djhglj#daigert054w_342"
+        clientsecret: "123456"
         # Oauth redirect url after successful auth. Can be overwritten in the authentication request.
         clientredirect: "http://localhost"
+        # Key used for signing the access tokens (JWT with HS512)
+        tokenkey: "123456"
