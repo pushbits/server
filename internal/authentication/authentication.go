@@ -4,13 +4,9 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"strconv"
 
-	ginserver "github.com/go-oauth2/gin-server"
-	"github.com/pushbits/server/internal/authentication/credentials"
 	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/model"
-	"gopkg.in/oauth2.v3"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,44 +38,6 @@ type Authenticator struct {
 }
 
 type hasUserProperty func(user *model.User) bool
-
-func (a *Authenticator) userFromBasicAuth(ctx *gin.Context) (*model.User, error) {
-	if name, password, ok := ctx.Request.BasicAuth(); ok {
-		if user, err := a.DB.GetUserByName(name); err != nil {
-			return nil, err
-		} else if user != nil && credentials.ComparePassword(user.PasswordHash, []byte(password)) {
-			return user, nil
-		} else {
-			return nil, errors.New("credentials were invalid")
-		}
-	}
-
-	return nil, errors.New("no credentials were supplied 1")
-}
-
-func (a *Authenticator) userFromToken(ctx *gin.Context) (*model.User, error) {
-	ti, exists := ctx.Get(ginserver.DefaultConfig.TokenKey)
-	if !exists {
-		return nil, errors.New("No token available")
-	}
-
-	token, ok := ti.(oauth2.TokenInfo)
-	if !ok {
-		return nil, errors.New("Wrong token format")
-	}
-
-	userID, err := strconv.ParseUint(token.GetUserID(), 10, 64)
-	if err != nil {
-		return nil, errors.New("User information of wrong format")
-	}
-
-	user, err := a.DB.GetUserByID(uint(userID))
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
 
 func (a *Authenticator) requireUserProperty(has hasUserProperty) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
