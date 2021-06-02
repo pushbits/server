@@ -1,6 +1,7 @@
 package dispatcher
 
 import (
+	"encoding/json"
 	"fmt"
 	"html"
 	"log"
@@ -9,6 +10,16 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/pushbits/server/internal/model"
 )
+
+type ExampleEvent struct {
+	Body      string    `json:"body"`
+	Msgtype   string    `json:"msgtype"`
+	RelatesTo RelatesTo `json:"m.relates_to,omitempty"`
+}
+
+type RelatesTo struct {
+	InReplyTo map[string]string `json:"m.in_reply_to"`
+}
 
 // SendNotification sends a notification to the specified user.
 func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) error {
@@ -25,6 +36,38 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 	_, err := d.client.SendFormattedText(a.MatrixID, text, formattedText)
 
 	return err
+}
+
+func (d *Dispatcher) SendDeleteNotification(a *model.Application, n *model.DeleteNotification) error {
+	log.Printf("Sending delete notification to room %s", a.MatrixID)
+	event := ExampleEvent{
+		Body:    "Testmessage",
+		Msgtype: "m.text",
+	}
+
+	irt := make(map[string]string)
+
+	irt["event_id"] = "$uf5OLKPaefHTZhc2lxSIY7If7pLFcNHcMZLbMfS-7qw"
+
+	rt := RelatesTo{
+		InReplyTo: irt,
+	}
+
+	event.RelatesTo = rt
+
+	_, err := d.client.SendMessageEvent(a.MatrixID, "m.room.message", event)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	messages, _ := d.client.Messages(a.MatrixID, "", "", 'b', 10)
+
+	js, _ := json.Marshal(messages)
+
+	log.Println(string(js))
+
+	return nil
 }
 
 // HTML-formats the title

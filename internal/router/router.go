@@ -47,6 +47,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 
 	r.POST("/message", auth.RequireApplicationToken(), notificationHandler.CreateNotification)
 
+	r.GET("/test", auth.RequireApplicationToken(), notificationHandler.DeleteNotification)
+
 	userGroup := r.Group("/user")
 	userGroup.Use(auth.RequireAdmin())
 	{

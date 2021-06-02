@@ -19,6 +19,7 @@ type NotificationDatabase interface {
 // The NotificationDispatcher interface for relaying notifications.
 type NotificationDispatcher interface {
 	SendNotification(a *model.Application, n *model.Notification) error
+	SendDeleteNotification(a *model.Application, n *model.DeleteNotification) error
 }
 
 // NotificationHandler holds information for processing requests about notifications.
@@ -50,4 +51,12 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, &notification)
+}
+
+func (h *NotificationHandler) DeleteNotification(ctx *gin.Context) {
+	application := authentication.GetApplication(ctx)
+
+	n := model.DeleteNotification{}
+
+	h.DP.SendDeleteNotification(application, &n)
 }

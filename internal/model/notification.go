@@ -14,3 +14,14 @@ type Notification struct {
 	Extras        map[string]interface{} `json:"extras,omitempty" form:"-" query:"-"`
 	Date          time.Time              `json:"date"`
 }
+
+// DeleteNotification holds information like the message, the reply to message id and the priority of a deletion notification.
+type DeleteNotification struct {
+	ID            uint                   `json:"id"`
+	DeleteID      uint                   `json:"deleteid"`
+	ApplicationID uint                   `json:"appid"`
+	Message       string                 `json:"message" form:"message" query:"message" binding:"required"`
+	Priority      int                    `json:"priority" form:"priority" query:"priority"`
+	Extras        map[string]interface{} `json:"extras,omitempty" form:"-" query:"-"`
+	Date          time.Time              `json:"date"`
+}
