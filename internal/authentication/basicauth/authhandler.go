@@ -31,9 +31,7 @@ func (a *AuthHandler) Initialize(db *database.Database) error {
 func (a *AuthHandler) AuthenticationValidator() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var user *model.User
-		err := errors.New("No authentication method")
-
-		user, err = a.userFromBasicAuth(ctx)
+		user, err := a.userFromBasicAuth(ctx)
 
 		if err != nil {
 			ctx.AbortWithError(http.StatusForbidden, err)
@@ -51,9 +49,7 @@ func (a *AuthHandler) AuthenticationValidator() gin.HandlerFunc {
 func (a *AuthHandler) UserSetter() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var user *model.User
-		err := errors.New("No authentication method")
-
-		user, err = a.userFromBasicAuth(ctx)
+		user, err := a.userFromBasicAuth(ctx)
 
 		if err != nil {
 			ctx.AbortWithError(http.StatusForbidden, err)
