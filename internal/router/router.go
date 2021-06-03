@@ -44,8 +44,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		// Register oauth endpoints
 		oauthGroup := r.Group("/oauth2")
 		{
-			oauthGroup.GET("/token", ginserver.HandleTokenRequest)
-			oauthGroup.GET("/auth", ginserver.HandleAuthorizeRequest)
+			oauthGroup.POST("/token", ginserver.HandleTokenRequest)
+			oauthGroup.POST("/auth", ginserver.HandleAuthorizeRequest)
 			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), oauth.GetTokenInfo)
 			oauthGroup.POST("/revoke", append(auth.RequireAdmin(), authHandler.RevokeAccess)...)
 		}
