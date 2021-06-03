@@ -39,8 +39,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	case "oauth":
 		authHandler := oauth.AuthHandler{}
 		authHandler.Initialize(db, authConfig)
-		auth.SetAuthenticationValidator(authHandler.AuthenticationValidator)
-		auth.SetUserSetter(authHandler.UserSetter)
+		auth.RegisterHandler(authHandler)
 
 		// Register oauth endpoints
 		oauthGroup := r.Group("/oauth2")
@@ -53,8 +52,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	case "basic":
 		authHandler := basicauth.AuthHandler{}
 		authHandler.Initialize(db)
-		auth.SetAuthenticationValidator(authHandler.AuthenticationValidator)
-		auth.SetUserSetter(authHandler.UserSetter)
+		auth.RegisterHandler(authHandler)
 	default:
 		panic("Unknown authentication method set. Please use one of basic, oauth.")
 	}

@@ -22,6 +22,12 @@ type (
 	UserSetter func() gin.HandlerFunc
 )
 
+// AuthHandler defines the minimal interface for an auth handler
+type AuthHandler interface {
+	AuthenticationValidator() gin.HandlerFunc
+	UserSetter() gin.HandlerFunc
+}
+
 // The Database interface for encapsulating database access.
 type Database interface {
 	GetApplicationByToken(token string) (*model.Application, error)
@@ -124,12 +130,8 @@ func (a *Authenticator) RequireValidAuthentication() gin.HandlerFunc {
 	return a.AuthenticationValidator()
 }
 
-// SetAuthenticationValidator sets a function for handling authentication
-func (a *Authenticator) SetAuthenticationValidator(f AuthenticationValidator) {
-	a.AuthenticationValidator = f
-}
-
-// SetUserSetter sets a function that sets the user object in gin context
-func (a *Authenticator) SetUserSetter(f UserSetter) {
-	a.UserSetter = f
+// RegisterHandler registers an authentication handler
+func (a *Authenticator) RegisterHandler(handler AuthHandler) {
+	a.UserSetter = handler.UserSetter
+	a.AuthenticationValidator = handler.AuthenticationValidator
 }

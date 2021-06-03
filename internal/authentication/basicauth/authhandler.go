@@ -28,7 +28,7 @@ func (a *AuthHandler) Initialize(db *database.Database) error {
 }
 
 // AuthenticationValidator returns a gin HandlerFunc that takes the basic auth credentials and validates them
-func (a *AuthHandler) AuthenticationValidator() gin.HandlerFunc {
+func (a AuthHandler) AuthenticationValidator() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var user *model.User
 		user, err := a.userFromBasicAuth(ctx)
@@ -46,7 +46,7 @@ func (a *AuthHandler) AuthenticationValidator() gin.HandlerFunc {
 }
 
 // UserSetter returns a gin HandlerFunc that takes the basic auth credentials and sets the corresponding user object
-func (a *AuthHandler) UserSetter() gin.HandlerFunc {
+func (a AuthHandler) UserSetter() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var user *model.User
 		user, err := a.userFromBasicAuth(ctx)
