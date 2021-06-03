@@ -119,7 +119,7 @@ pbcli application show $PB_APPLICATION --url https://pushbits.example.com --user
 Pushbits offers you two methods of authenticating against the server:
 
 * Basic authentication (`basic`)
-* Oauth 2 (`oauth`)
+* [Oauth 2.0](https://oauth.net/2/) (`oauth`)
 
 You will find the corresponding setting in the security section.
 
@@ -134,15 +134,15 @@ security:
 
 #### Basic authentication
 
-For [basic authentication](https://de.wikipedia.org/wiki/HTTP-Authentifizierung) you have to provide your username and password in each request to the server. For example in curl you can do this with the `--user` flag:
+For [basic authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) you have to provide your username and password in each request to the server. For example in curl you can do this with the `--user` flag:
 
 ```bash
-curl -u myusername:totalysecretpassword
+curl -u myusername:totallysecretpassword
 ```
 
-#### Oauth 2
+#### Oauth 2.0
 
-[Oauth 2](https://de.wikipedia.org/wiki/OAuth) is a token based authentication method. Instead of passing your password with each request you request a token from an authorization server. With this token you are then able to authenticate yourself against the pushbits server. 
+[Oauth 2.0](https://en.wikipedia.org/wiki/OAuth) is a token based authentication method. Instead of passing your password with each request you request a token from an authorization server. With this token you are then able to authenticate yourself against the PushBits server. 
 
 Make sure to setup the "oauth" section in the config file correctly.
 
@@ -172,12 +172,12 @@ Your app then needs to use this code to trade it for a access token.
 
 ##### Receiving an access token
 
-You can get an access token from the `/oauth/token` endpoint. There are several methods, so called "grant types" for receiving a token. Pushbits currently supports the following one's:
+You can get an access token from the `/oauth/token` endpoint. There are several methods, so called "grant types" for receiving a token. PushBits currently supports the following one's:
 
 * Refresh 
 * Authentication code
 
-Oauth2 authentication is based on "clients", thus you need to provide identifieres for a client with your request. These are the `client_id` and the `client_secret`. 
+Oauth 2.0 authentication is based on "clients", thus you need to provide identifieres for a client with your request. These are the `client_id` and the `client_secret`. 
 
 For your first token you will need a authentication code, see the section above. Then use it like this: 
 
@@ -222,7 +222,7 @@ curl \
 
 ##### Revoking a token
 
-Admin users are eligable to revoke tokens. This should not be necessary in normal operation, as tokens are only short lived. But there might be situations where attackers might have gotten knowledge about a token. 
+Admin users are eligible to revoke tokens. This should not be necessary in normal operation, as tokens are only short lived. But there might be situations where attackers might have gotten knowledge about a token. 
 
 ```bash
 curl \
