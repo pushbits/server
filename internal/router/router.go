@@ -50,11 +50,13 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), oauth.GetTokenInfo)
 			oauthGroup.POST("/revoke", append(auth.RequireAdmin(), authHandler.RevokeAccess)...)
 		}
-	default:
+	case "basic":
 		authHandler := basicauth.AuthHandler{}
 		authHandler.Initialize(db)
 		auth.SetAuthenticationValidator(authHandler.AuthenticationValidator)
 		auth.SetUserSetter(authHandler.UserSetter)
+	default:
+		panic("Unknown authentication method set. Please use one of basic, oauth.")
 	}
 
 	applicationHandler := api.ApplicationHandler{DB: db, DP: dp}

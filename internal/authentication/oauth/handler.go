@@ -18,10 +18,16 @@ type RevokeAccessRequest struct {
 // GetTokenInfo answers with information about a access token
 func GetTokenInfo(c *gin.Context) {
 	data, exists := c.Get(ginserver.DefaultConfig.TokenKey)
-	ti, ok := data.(oauth2.TokenInfo)
+	if !exists {
+		err := errors.New("Token not found")
+		c.AbortWithError(http.StatusNotFound, err)
+		return
+	}
 
+	ti, ok := data.(oauth2.TokenInfo)
 	if !ok || !exists {
-		c.String(404, "Token not found")
+		err := errors.New("Token not found")
+		c.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 
@@ -44,8 +50,7 @@ func (a *AuthHandler) RevokeAccess(c *gin.Context) {
 
 	err = a.manager.RemoveAccessToken(request.Access)
 	if err != nil {
-		log.Println(err)
-		log.Println("Error when revoking")
+		log.Println("Error when revoking: ", err)
 		c.AbortWithError(http.StatusNotFound, errors.New("Unknown access token"))
 		return
 	}

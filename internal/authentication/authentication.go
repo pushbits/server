@@ -39,7 +39,7 @@ type Authenticator struct {
 
 type hasUserProperty func(user *model.User) bool
 
-func (a *Authenticator) requireUserProperty(has hasUserProperty) gin.HandlerFunc {
+func (a *Authenticator) requireUserProperty(has hasUserProperty, errorMessage string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := errors.New("User not found")
 
@@ -60,7 +60,7 @@ func (a *Authenticator) requireUserProperty(has hasUserProperty) gin.HandlerFunc
 		}
 
 		if !has(user) {
-			ctx.AbortWithError(http.StatusForbidden, errors.New("authentication failed"))
+			ctx.AbortWithError(http.StatusForbidden, errors.New(errorMessage))
 			return
 		}
 	}
@@ -81,7 +81,7 @@ func (a *Authenticator) RequireAdmin() []gin.HandlerFunc {
 	funcs = append(funcs, a.UserSetter())
 	funcs = append(funcs, a.requireUserProperty(func(user *model.User) bool {
 		return user.IsAdmin
-	}))
+	}, "User does not have permission: admin"))
 
 	return funcs
 }
