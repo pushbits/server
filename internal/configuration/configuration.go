@@ -34,9 +34,9 @@ type Oauth struct {
 	Connection     string `default:"pushbits_token.db"`
 	Storage        string `default:"file"`
 	ClientID       string `default:"000000"`
-	ClientSecret   string `default:"123456"`
+	ClientSecret   string `default:""`
 	ClientRedirect string `default:"http://localhost"`
-	TokenKey       string `default:"123456"`
+	TokenKey       string `default:""`
 }
 
 // Configuration holds values that can be configured by the user.

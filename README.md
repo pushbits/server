@@ -177,7 +177,7 @@ You can get an access token from the `/oauth/token` endpoint. There are several 
 * Refresh 
 * Authentication code
 
-Oauth 2.0 authentication is based on "clients", thus you need to provide identifieres for a client with your request. These are the `client_id` and the `client_secret`. 
+Oauth 2.0 authentication is based on "clients", thus you need to provide identifiers for a client with your request. These are the `client_id` and the `client_secret`. 
 
 For your first token you will need a authentication code, see the section above. Then use it like this: 
 
@@ -210,7 +210,7 @@ curl \
 
 ##### Getting information about a access token
 
-With a valid access token you can get information about it from `/oauth/tokeninfo`. This is ment for testing if a token is issued correctly.
+With a valid access token you can get information about it from `/oauth/tokeninfo`. This is meant for testing if a token is issued correctly.
 
 ```bash
 curl \

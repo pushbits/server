@@ -73,9 +73,9 @@ authentication:
         connection: "pushbits_token.db"
         # Oauth client identifier (random string).
         clientid: "000000"
-        # Oauth client secret.
-        clientsecret: "123456"
+        # Oauth client secret (random string).
+        clientsecret: ""
         # Oauth redirect url after successful auth. Can be overwritten in the authentication request.
         clientredirect: "http://localhost"
-        # Key used for signing the access tokens (JWT with HS512)
-        tokenkey: "123456"
+        # Key used for signing (JWT with HS512) the access tokens (random string).
+        tokenkey: ""

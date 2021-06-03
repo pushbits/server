@@ -44,6 +44,12 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 	a.db = db
 	a.config = config
 
+	if len(a.config.Oauth.ClientSecret) < 5 {
+		panic("Your Oauth 2.0 client secret is empty or not long enough to be secure. Please change it in the configuration file.")
+	} else if len(a.config.Oauth.TokenKey) < 5 {
+		panic("Your Oauth 2.0 token key is empty or not long enough to be secure. Please change it in the configuration file.")
+	}
+
 	// The manager handles the tokens
 	a.manager = manage.NewDefaultManager()
 	a.manager.SetAuthorizeCodeExp(time.Duration(24) * time.Hour)
