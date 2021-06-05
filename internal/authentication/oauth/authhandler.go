@@ -140,8 +140,8 @@ func (a *AuthHandler) passwordAuthorizationHandler() server.PasswordAuthorizatio
 // UserAuthHandler extracts user information from an auth request
 func (a *AuthHandler) UserAuthHandler() server.UserAuthorizationHandler {
 	return func(w http.ResponseWriter, r *http.Request) (string, error) {
-		username := r.URL.Query().Get("username")
-		password := r.URL.Query().Get("password")
+		username := r.FormValue("username")
+		password := r.FormValue("password")
 
 		if user, err := a.db.GetUserByName(username); err != nil {
 			return "", err
