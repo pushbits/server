@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	ginserver "github.com/go-oauth2/gin-server"
@@ -15,18 +16,15 @@ type RevokeAccessRequest struct {
 	Access string `json:"access_token"`
 }
 
-// GetTokenInfo answers with information about a access token
-func GetTokenInfo(c *gin.Context) {
-	data, exists := c.Get(ginserver.DefaultConfig.TokenKey)
-	if !exists {
-		err := errors.New("Token not found")
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	}
+type LongtermTokenRequest struct {
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+}
 
-	ti, ok := data.(oauth2.TokenInfo)
-	if !ok || !exists {
-		err := errors.New("Token not found")
+// GetTokenInfo answers with information about an access token
+func (a *AuthHandler) GetTokenInfo(c *gin.Context) {
+	ti, err := a.tokenFromContext(c)
+	if err != nil {
 		c.AbortWithError(http.StatusNotFound, err)
 		return
 	}
@@ -42,7 +40,7 @@ func (a *AuthHandler) RevokeAccess(c *gin.Context) {
 	var request RevokeAccessRequest
 
 	err := c.BindJSON(&request)
-	if err != nil {
+	if err != nil || request.Access == "" {
 		log.Println("Error when reading request.")
 		c.AbortWithError(http.StatusUnprocessableEntity, errors.New("Missing access_token"))
 		return
@@ -56,4 +54,59 @@ func (a *AuthHandler) RevokeAccess(c *gin.Context) {
 	}
 
 	c.JSON(200, request)
+}
+
+// LongtermToken handles request for longterm access tokens
+func (a *AuthHandler) LongtermToken(c *gin.Context) {
+	var tokenGenerateRequest oauth2.TokenGenerateRequest
+	var request LongtermTokenRequest
+	var ltdi LongtermTokenDisplayInfo
+
+	err := c.BindJSON(&request)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithError(http.StatusUnprocessableEntity, errors.New("Missing or malformated request"))
+		return
+	}
+
+	userTi, err := a.tokenFromContext(c)
+
+	if err != nil {
+		log.Println(err)
+		c.AbortWithError(http.StatusNotFound, err)
+		return
+	}
+
+	tokenGenerateRequest.UserID = userTi.GetUserID()
+	tokenGenerateRequest.Scope = userTi.GetScope()
+	tokenGenerateRequest.ClientID = request.ClientID
+	tokenGenerateRequest.ClientSecret = request.ClientSecret
+	tokenGenerateRequest.AccessTokenExp = time.Hour * 24 * 365 * 5 // 5 years
+
+	ti, err := a.manager.GenerateAccessToken(oauth2.Implicit, &tokenGenerateRequest)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	ltdi.ReadFromTi(ti)
+
+	c.JSON(200, ltdi)
+}
+
+func (a *AuthHandler) tokenFromContext(c *gin.Context) (oauth2.TokenInfo, error) {
+	err := errors.New("Token not found")
+
+	data, exists := c.Get(ginserver.DefaultConfig.TokenKey)
+	if !exists {
+		log.Println("Token does not exist in context.")
+		return nil, err
+	}
+
+	ti, ok := data.(oauth2.TokenInfo)
+	if !ok {
+		log.Println("Token from context has wrong format.")
+		return nil, err
+	}
+	return ti, nil
 }

@@ -46,8 +46,9 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		{
 			oauthGroup.POST("/token", ginserver.HandleTokenRequest)
 			oauthGroup.POST("/auth", ginserver.HandleAuthorizeRequest)
-			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), oauth.GetTokenInfo)
+			oauthGroup.GET("/tokeninfo", auth.RequireValidAuthentication(), authHandler.GetTokenInfo)
 			oauthGroup.POST("/revoke", append(auth.RequireAdmin(), authHandler.RevokeAccess)...)
+			oauthGroup.POST("/longtermtoken", auth.RequireValidAuthentication(), authHandler.LongtermToken)
 		}
 	case "basic":
 		authHandler := basicauth.AuthHandler{}
