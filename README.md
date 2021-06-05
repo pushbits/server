@@ -1,3 +1,6 @@
+| :exclamation:  **This software is currently in alpha phase.**   |
+|-----------------------------------------------------------------|
+
 <div align="center">
 	<h1>PushBits</h1>
 	<h4 align="center">
@@ -12,9 +15,6 @@
 	<a href="https://hub.docker.com/r/eikendev/pushbits"><img alt="Image size" src="https://img.shields.io/docker/image-size/eikendev/pushbits"/></a>&nbsp;
 	<a href="https://github.com/pushbits/server/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/pushbits/server"/></a>&nbsp;
 </p>
-
-| :exclamation:  **This software is currently in alpha phase.**   |
-|-----------------------------------------------------------------|
 
 ## 💡&nbsp;About
 
