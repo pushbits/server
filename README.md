@@ -1,14 +1,22 @@
-[![Build status](https://img.shields.io/github/workflow/status/pushbits/server/Main)](https://github.com/pushbits/server/actions)
-[![Docker Hub pulls](https://img.shields.io/docker/pulls/eikendev/pushbits)](https://hub.docker.com/r/eikendev/pushbits)
-[![Image size](https://img.shields.io/docker/image-size/eikendev/pushbits)](https://hub.docker.com/r/eikendev/pushbits)
-![License](https://img.shields.io/github/license/pushbits/server)
+<div align="center">
+	<h1>PushBits</h1>
+	<h4 align="center">
+		Receive your important notifications immediately, over <a href="https://matrix.org/">Matrix</a>.
+	</h4>
+	<p>PushBits enables you to send push notifications via a simple web API, and delivers them to your users.</p>
+</div>
 
-# PushBits
+<p align="center">
+	<a href="https://github.com/pushbits/server/actions"><img alt="Build status" src="https://img.shields.io/github/workflow/status/pushbits/server/Main"/></a>&nbsp;
+	<a href="https://hub.docker.com/r/eikendev/pushbits"><img alt="Downloads" src="https://img.shields.io/docker/pulls/eikendev/pushbits"/></a>&nbsp;
+	<a href="https://hub.docker.com/r/eikendev/pushbits"><img alt="Image size" src="https://img.shields.io/docker/image-size/eikendev/pushbits"/></a>&nbsp;
+	<a href="https://github.com/pushbits/server/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/pushbits/server"/></a>&nbsp;
+</p>
 
 | :exclamation:  **This software is currently in alpha phase.**   |
 |-----------------------------------------------------------------|
 
-## About
+## 💡&nbsp;About
 
 PushBits is a relay server for push notifications.
 It enables you to send notifications via a simple web API, and delivers them to you through [Matrix](https://matrix.org/).
@@ -32,7 +40,7 @@ I myself started using Matrix only for this project.
 The idea of a federated, synchronized but yet end-to-end encrypted protocol is awesome, but its clients simply aren't really there yet.
 Still, if you haven't tried it yet, I suggest you to check it out.
 
-### Features
+## 🤘&nbsp;Features
 
 - [x] Multiple users and multiple channels (applications) per user
 - [x] Compatibility with Gotify's API for sending messages
@@ -42,7 +50,7 @@ Still, if you haven't tried it yet, I suggest you to check it out.
 - [ ] Two-factor authentication, [issue](https://github.com/pushbits/server/issues/19)
 - [ ] Bi-directional key verification, [issue](https://github.com/pushbits/server/issues/20)
 
-## Installation
+## 🚀&nbsp;Installation
 
 PushBits is meant to be self-hosted.
 That means you have to install it on your own server.
@@ -53,7 +61,7 @@ The image is hosted [here on Docker Hub](https://hub.docker.com/r/eikendev/pushb
 | :warning:  **You are advised to install PushBits behind a reverse proxy and enable TLS.** Otherwise, your credentials will be transmitted unencrypted.   |
 |----------------------------------------------------------------------------------------------------------------------------------------------------------|
 
-## Configuration
+## ⚙&nbsp;Configuration
 
 To see what can be configured, have a look at the `config.sample.yml` file inside the root of the repository.
 
@@ -87,7 +95,7 @@ In this example, the configuration file would be located at `./data/config.yml` 
 The SQLite database would be written to `./data/pushbits.db`.
 **Don't forget to adjust the permissions** of the `./data` directory, otherwise PushBits will fail to operate.
 
-## Usage
+## 📄&nbsp;Usage
 
 Now, how can you interact with the server?
 I wrote [a little CLI tool called pbcli](https://github.com/PushBits/cli) to make basic API requests to the server.
@@ -134,12 +142,12 @@ curl \
 
 HTML-Content might not be fully rendered in your Matrix-Client - see the corresponding [Matrix specs](https://spec.matrix.org/unstable/client-server-api/#mroommessage-msgtypes). This also holds for Markdown, as it is transfered to the corresponding HTML-syntax.
 
-## Acknowledgments
+## 👮&nbsp;Acknowledgments
 
 The idea for this software and most parts of the initial source are heavily inspired by [Gotify](https://gotify.net/).
 Many thanks to [jmattheis](https://jmattheis.de/) for his well-structured code.
 
-## Development
+## 💻&nbsp;Development
 
 The source code is located on [GitHub](https://github.com/pushbits/server).
 You can retrieve it by checking out the repository as follows.
