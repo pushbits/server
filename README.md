@@ -153,8 +153,8 @@ For authentication use the ``/oauth2/auth` endpoint. E.g.:
 ```bash
 curl \
 	--header "Content-Type: application/json" \
-	--request GET \
-	"https://pushbits.example.com/oauth2/auth?client_id=000000&username=admin&password=1233456&response_type=code&redirect_uri=https://myapp.example.com"
+	--request POST \
+	"https://pushbits.example.com/oauth2/auth" -d "client_id=000000&username=admin&password=1233456&response_type=code&redirect_uri=https://myapp.example.com"
 ```
 
 This will return a HTTP redirect with the status code `302` and an authentication code set as parameter:
@@ -184,8 +184,8 @@ For your first token you will need a authentication code, see the section above.
 ```bash
 curl \
 	--header "Content-Type: application/json" \
-	--request GET \
-	"https://pushbits.example.com/oauth2/token?grant_type=authorization_code&client_id=000000&client_secret=49gjg4js9&response_type=token&redirect_uri=https://myapp.example.com&code=OP1Q2UJEVL-RPR9GZAUURA"
+	--request POST \
+	"https://pushbits.example.com/oauth2/token" -d "grant_type=authorization_code&client_id=000000&client_secret=49gjg4js9&response_type=token&redirect_uri=https://myapp.example.com&code=OP1Q2UJEVL-RPR9GZAUURA"
 ```
 
 This will then return an access token and refresh token for you. 
@@ -204,8 +204,8 @@ The access token is short lived, the refresh token is long lived, but can not be
 ```bash
 curl \
 	--header "Content-Type: application/json" \
-	--request GET \
-	"https://pushbits.example.com/oauth2/token?grant_type=refresh_token&client_id=000000&client_secret=49gjg4js9&response_type=token&refresh_token=OP1Q2UJEVL-RPR9GZAUURA"
+	--request POST \
+	"https://pushbits.example.com/oauth2/token" -d "grant_type=refresh_token&client_id=000000&client_secret=49gjg4js9&response_type=token&refresh_token=OP1Q2UJEVL-RPR9GZAUURA"
 ```
 
 ##### Getting information about a access token
@@ -216,7 +216,7 @@ With a valid access token you can get information about it from `/oauth/tokeninf
 curl \
 	--header "Content-Type: application/json" \
 	--request GET \
-    -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NTU3ODcsInN1YiI6IjEifQ.jMux7CBw6fY15Ohc8exEbcnUiMBVVgCowvq3rMrw7MQ" \
+    --header "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NTU3ODcsInN1YiI6IjEifQ.jMux7CBw6fY15Ohc8exEbcnUiMBVVgCowvq3rMrw7MQ" \
 	"https://pushbits.example.com/oauth2/tokeninfo"
 ```
 
@@ -228,9 +228,21 @@ Admin users are eligible to revoke tokens. This should not be necessary in norma
 curl \
 	--header "Content-Type: application/json" \
 	--request POST \
-    -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NTU3ODcsInN1YiI6IjEifQ.jMux7CBw6fY15Ohc8exEbcnUiMBVVgCowvq3rMrw7MQ" \
-    --data '{"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NDg1MDYsInN1YiI6IjEifQ.cO0_8fqsJDG4KswjC0CSzc_EznntH-FDQejdolPAISo"}'
+    --header "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NTU3ODcsInN1YiI6IjEifQ.jMux7CBw6fY15Ohc8exEbcnUiMBVVgCowvq3rMrw7MQ" \
+    --data '{"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NDg1MDYsInN1YiI6IjEifQ.cO0_8fqsJDG4KswjC0CSzc_EznntH-FDQejdolPAISo"}' \
 	"https://pushbits.example.com/oauth2/revoke"
+```
+
+##### Requesting a longterm token
+
+Longterm tokens are tokens that life for multiple years. They can be used for scripts and other software that access PushBits. So the other software does not need knowledge about the actuall password of the user. However be carefull with longterm tokens, if you loose one others might be able to perform actions on your user account.
+
+```bash
+curl \
+    --request POST \
+    --header "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NTU3ODcsInN1YiI6IjEifQ.jMux7CBw6fY15Ohc8exEbcnUiMBVVgCowvq3rMrw7MQ" \
+    --data '{"client_id": "000000", "client_secret": "49gjg4js9"}' \
+    "https://push.remote.alexanderebhart.de/oauth2/longtermtoken" 
 ```
 
 ### Message options
