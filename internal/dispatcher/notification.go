@@ -1,7 +1,6 @@
 package dispatcher
 
 import (
-	"encoding/json"
 	"fmt"
 	"html"
 	"log"
@@ -11,7 +10,7 @@ import (
 	"github.com/pushbits/server/internal/model"
 )
 
-type ExampleEvent struct {
+type ReplyEvent struct {
 	Body      string    `json:"body"`
 	Msgtype   string    `json:"msgtype"`
 	RelatesTo RelatesTo `json:"m.relates_to,omitempty"`
@@ -22,7 +21,7 @@ type RelatesTo struct {
 }
 
 // SendNotification sends a notification to the specified user.
-func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) error {
+func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) (id string, err error) {
 	log.Printf("Sending notification to room %s.", a.MatrixID)
 
 	plainMessage := strings.TrimSpace(n.Message)
@@ -33,41 +32,37 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 	text := fmt.Sprintf("%s\n\n%s", plainTitle, plainMessage)
 	formattedText := fmt.Sprintf("%s %s", title, message)
 
-	_, err := d.client.SendFormattedText(a.MatrixID, text, formattedText)
+	respSendEvent, err := d.client.SendFormattedText(a.MatrixID, text, formattedText)
 
-	return err
+	return respSendEvent.EventID, err
 }
 
-func (d *Dispatcher) SendDeleteNotification(a *model.Application, n *model.DeleteNotification) error {
+// DeleteNotification sends a notification to the specified user that another notificaion is deleted
+func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNotification) error {
 	log.Printf("Sending delete notification to room %s", a.MatrixID)
-	event := ExampleEvent{
-		Body:    "Testmessage",
+	event := ReplyEvent{
+		Body:    "<i>This message got deleted.</i>",
 		Msgtype: "m.text",
 	}
 
 	irt := make(map[string]string)
-
-	irt["event_id"] = "$uf5OLKPaefHTZhc2lxSIY7If7pLFcNHcMZLbMfS-7qw"
-
+	irt["event_id"] = n.ID
 	rt := RelatesTo{
 		InReplyTo: irt,
 	}
-
 	event.RelatesTo = rt
 
 	_, err := d.client.SendMessageEvent(a.MatrixID, "m.room.message", event)
 
-	if err != nil {
-		log.Println(err)
-	}
+	return err
 
-	messages, _ := d.client.Messages(a.MatrixID, "", "", 'b', 10)
+	/*
+		messages, _ := d.client.Messages(a.MatrixID, "", "", 'b', 10)
 
-	js, _ := json.Marshal(messages)
+		js, _ := json.Marshal(messages)
 
-	log.Println(string(js))
-
-	return nil
+		log.Println(string(js))
+	*/
 }
 
 // HTML-formats the title

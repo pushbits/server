@@ -18,8 +18,8 @@ type NotificationDatabase interface {
 
 // The NotificationDispatcher interface for relaying notifications.
 type NotificationDispatcher interface {
-	SendNotification(a *model.Application, n *model.Notification) error
-	SendDeleteNotification(a *model.Application, n *model.DeleteNotification) error
+	SendNotification(a *model.Application, n *model.Notification) (id string, err error)
+	DeleteNotification(a *model.Application, n *model.DeleteNotification) error
 }
 
 // NotificationHandler holds information for processing requests about notifications.
@@ -39,24 +39,36 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
 	log.Printf("Sending notification for application %s.", application.Name)
 
-	notification.ID = 0
 	notification.ApplicationID = application.ID
 	if strings.TrimSpace(notification.Title) == "" {
 		notification.Title = application.Name
 	}
 	notification.Date = time.Now()
 
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DP.SendNotification(application, &notification)); !success {
+	messageID, err := h.DP.SendNotification(application, &notification)
+
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
 	}
+
+	notification.ID = messageID
 
 	ctx.JSON(http.StatusOK, &notification)
 }
 
+// DeleteNotification is used to delete (or mark as deleted) a notification for a user
 func (h *NotificationHandler) DeleteNotification(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
+	id, err := getMessageID(ctx)
 
-	n := model.DeleteNotification{}
+	if success := successOrAbort(ctx, http.StatusUnprocessableEntity, err); !success {
+		return
+	}
 
-	h.DP.SendDeleteNotification(application, &n)
+	n := model.DeleteNotification{
+		ID:   id,
+		Date: time.Now(),
+	}
+
+	h.DP.DeleteNotification(application, &n)
 }
