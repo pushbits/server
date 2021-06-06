@@ -142,6 +142,18 @@ curl \
 
 HTML-Content might not be fully rendered in your Matrix-Client - see the corresponding [Matrix specs](https://spec.matrix.org/unstable/client-server-api/#mroommessage-msgtypes). This also holds for Markdown, as it is transfered to the corresponding HTML-syntax.
 
+### Deleting a Message
+
+You can delete a message, this will send a notification in response to the original message informing you that the message is "deleted". 
+
+You need the message ID for deleting a message. As it might contain characters not valid in uris we provide an additional `id_url_encoded` field for messages, use that value for deleting a message.
+
+```bash
+curl \
+	--request DELETE \
+	"https://pushbits.example.com/message/${MESSAGE_ID}?token=$PB_TOKEN"
+```
+
 ## 👮&nbsp;Acknowledgments
 
 The idea for this software and most parts of the initial source are heavily inspired by [Gotify](https://gotify.net/).

@@ -3,6 +3,7 @@ package api
 import (
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -52,6 +53,7 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	}
 
 	notification.ID = messageID
+	notification.UrlEncodedID = url.QueryEscape(messageID)
 
 	ctx.JSON(http.StatusOK, &notification)
 }
@@ -70,5 +72,9 @@ func (h *NotificationHandler) DeleteNotification(ctx *gin.Context) {
 		Date: time.Now(),
 	}
 
-	h.DP.DeleteNotification(application, &n)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DP.DeleteNotification(application, &n)); !success {
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }

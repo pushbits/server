@@ -7,6 +7,7 @@ import (
 // Notification holds information like the message, the title, and the priority of a notification.
 type Notification struct {
 	ID            string                 `json:"id"`
+	UrlEncodedID  string                 `json:"id_url_encoded"`
 	ApplicationID uint                   `json:"appid"`
 	Message       string                 `json:"message" form:"message" query:"message" binding:"required"`
 	Title         string                 `json:"title" form:"title" query:"title"`

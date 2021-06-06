@@ -46,7 +46,7 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	r.GET("/health", healthHandler.Health)
 
 	r.POST("/message", auth.RequireApplicationToken(), notificationHandler.CreateNotification)
-	r.DELETE("/message/:messageid", api.RequireIDInURI(), auth.RequireApplicationToken(), notificationHandler.DeleteNotification)
+	r.DELETE("/message/:messageid", api.RequireMessageIDInURI(), auth.RequireApplicationToken(), notificationHandler.DeleteNotification)
 
 	r.GET("/test", auth.RequireApplicationToken(), notificationHandler.DeleteNotification)
 

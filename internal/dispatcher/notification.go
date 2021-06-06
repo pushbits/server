@@ -1,19 +1,30 @@
 package dispatcher
 
 import (
+	"errors"
 	"fmt"
 	"html"
 	"log"
 	"strings"
 
 	"github.com/gomarkdown/markdown"
+	"github.com/matrix-org/gomatrix"
+	"github.com/pushbits/server/internal/api"
 	"github.com/pushbits/server/internal/model"
 )
 
+type MessageFormat string
+
+const (
+	FormatHTML = MessageFormat("org.matrix.custom.html")
+)
+
 type ReplyEvent struct {
-	Body      string    `json:"body"`
-	Msgtype   string    `json:"msgtype"`
-	RelatesTo RelatesTo `json:"m.relates_to,omitempty"`
+	Body          string        `json:"body"`
+	FormattedBody string        `json:"formatted_body"`
+	Msgtype       string        `json:"msgtype"`
+	RelatesTo     RelatesTo     `json:"m.relates_to,omitempty"`
+	Format        MessageFormat `json:"format"`
 }
 
 type RelatesTo struct {
@@ -39,30 +50,56 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 
 // DeleteNotification sends a notification to the specified user that another notificaion is deleted
 func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNotification) error {
+	var deleteMessageFormattedBody string
+	var deleteMessageBody string
 	log.Printf("Sending delete notification to room %s", a.MatrixID)
+
+	deleteMessage, err := d.getMessage(a, n.ID)
+
+	if err != nil {
+		log.Println(err)
+		return api.ErrorMessageNotFound
+	}
+
+	if val, ok := deleteMessage.Content["body"]; ok {
+		body, ok := val.(string)
+		if ok {
+			deleteMessageBody = body
+			deleteMessageFormattedBody = body
+		}
+	} else {
+		log.Println("Message to delete has wrong format")
+		return api.ErrorMessageNotFound
+	}
+
+	if val, ok := deleteMessage.Content["formatted_body"]; ok {
+		body, ok := val.(string)
+		if ok {
+			deleteMessageFormattedBody = body
+		}
+	}
+
+	// formatting according to https://matrix.org/docs/spec/client_server/latest#fallbacks-and-event-representation
+	formattedBody := fmt.Sprintf("<mx-reply><blockquote><a href='https://matrix.to/#/%s/%s'>In reply to</a> <a href='https://matrix.to/#/%s'>%s</a><br />%s</blockquote>\n</mx-reply><i>This message got deleted.</i>", deleteMessage.RoomID, deleteMessage.ID, deleteMessage.Sender, deleteMessage.Sender, deleteMessageFormattedBody)
+	body := fmt.Sprintf("> <%s>%s\n\nThis message got deleted", deleteMessage.Sender, deleteMessageBody)
+
 	event := ReplyEvent{
-		Body:    "<i>This message got deleted.</i>",
-		Msgtype: "m.text",
+		FormattedBody: formattedBody,
+		Body:          body,
+		Msgtype:       "m.text",
+		Format:        FormatHTML,
 	}
 
 	irt := make(map[string]string)
-	irt["event_id"] = n.ID
 	rt := RelatesTo{
 		InReplyTo: irt,
 	}
 	event.RelatesTo = rt
+	irt["event_id"] = deleteMessage.ID
 
-	_, err := d.client.SendMessageEvent(a.MatrixID, "m.room.message", event)
+	_, err = d.client.SendMessageEvent(a.MatrixID, "m.room.message", event)
 
 	return err
-
-	/*
-		messages, _ := d.client.Messages(a.MatrixID, "", "", 'b', 10)
-
-		js, _ := json.Marshal(messages)
-
-		log.Println(string(js))
-	*/
 }
 
 // HTML-formats the title
@@ -129,4 +166,22 @@ func (d *Dispatcher) coloredText(color string, text string) string {
 	}
 
 	return "<font data-mx-color='" + color + "'>" + text + "</font>"
+}
+
+// TODO cubicroot: find a way to only request on specific event
+func (d *Dispatcher) getMessage(a *model.Application, id string) (gomatrix.Event, error) {
+	start := ""
+	end := ""
+	maxPages := 10 // maximum pages to request (10 messages per page)
+
+	for i := 0; i < maxPages; i++ {
+		messages, _ := d.client.Messages(a.MatrixID, start, end, 'b', 10)
+		for _, event := range messages.Chunk {
+			if event.ID == id {
+				return event, nil
+			}
+		}
+		start = messages.End
+	}
+	return gomatrix.Event{}, errors.New("Message not found")
 }
