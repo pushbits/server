@@ -1,7 +1,6 @@
 package dispatcher
 
 import (
-	"errors"
 	"fmt"
 	"html"
 	"log"
@@ -13,22 +12,41 @@ import (
 	"github.com/pushbits/server/internal/model"
 )
 
+// MessageFormat is a matrix message format
 type MessageFormat string
 
+// MsgType is a matrix msgtype
+type MsgType string
+
+// Define matrix constants
 const (
-	FormatHTML = MessageFormat("org.matrix.custom.html")
+	MessageFormatHTML = MessageFormat("org.matrix.custom.html")
+	MsgTypeText       = MsgType("m.text")
 )
 
-type ReplyEvent struct {
+// MessageEvent is the content of a matrix message event
+type MessageEvent struct {
 	Body          string        `json:"body"`
 	FormattedBody string        `json:"formatted_body"`
-	Msgtype       string        `json:"msgtype"`
+	MsgType       MsgType       `json:"msgtype"`
 	RelatesTo     RelatesTo     `json:"m.relates_to,omitempty"`
 	Format        MessageFormat `json:"format"`
+	NewContent    NewContent    `json:"m.new_content,omitempty"`
 }
 
+// RelatesTo holds information about relations to other message events
 type RelatesTo struct {
-	InReplyTo map[string]string `json:"m.in_reply_to"`
+	InReplyTo map[string]string `json:"m.in_reply_to,omitempty"`
+	RelType   string            `json:"rel_type,omitempty"`
+	EventID   string            `json:"event_id,omitempty"`
+}
+
+// NewContent holds information about an updated message event
+type NewContent struct {
+	Body          string        `json:"body"`
+	FormattedBody string        `json:"formatted_body"`
+	MsgType       MsgType       `json:"msgtype"`
+	Format        MessageFormat `json:"format"`
 }
 
 // SendNotification sends a notification to the specified user.
@@ -50,10 +68,11 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 
 // DeleteNotification sends a notification to the specified user that another notificaion is deleted
 func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNotification) error {
-	var deleteMessageFormattedBody string
-	var deleteMessageBody string
 	log.Printf("Sending delete notification to room %s", a.MatrixID)
+	var oldFormattedBody string
+	var oldBody string
 
+	// get the message we want to delete
 	deleteMessage, err := d.getMessage(a, n.ID)
 
 	if err != nil {
@@ -64,8 +83,8 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 	if val, ok := deleteMessage.Content["body"]; ok {
 		body, ok := val.(string)
 		if ok {
-			deleteMessageBody = body
-			deleteMessageFormattedBody = body
+			oldBody = body
+			oldFormattedBody = body
 		}
 	} else {
 		log.Println("Message to delete has wrong format")
@@ -75,29 +94,63 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 	if val, ok := deleteMessage.Content["formatted_body"]; ok {
 		body, ok := val.(string)
 		if ok {
-			deleteMessageFormattedBody = body
+			oldFormattedBody = body
 		}
 	}
 
+	// update the message with strikethrough
+	newBody := fmt.Sprintf("<del>%s</del>\n- deleted", oldBody)
+	newFormattedBody := fmt.Sprintf("<del>%s</del><br>- deleted", oldFormattedBody)
+
+	newMessage := NewContent{
+		Body:          newBody,
+		FormattedBody: newFormattedBody,
+		MsgType:       MsgTypeText,
+		Format:        MessageFormatHTML,
+	}
+
+	replaceRelation := RelatesTo{
+		RelType: "m.replace",
+		EventID: deleteMessage.ID,
+	}
+
+	replaceEvent := MessageEvent{
+		Body:          oldBody,
+		FormattedBody: oldFormattedBody,
+		MsgType:       MsgTypeText,
+		NewContent:    newMessage,
+		RelatesTo:     replaceRelation,
+		Format:        MessageFormatHTML,
+	}
+
+	_, err = d.client.SendMessageEvent(a.MatrixID, "m.room.message", replaceEvent)
+
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// send a notification about the deletion
 	// formatting according to https://matrix.org/docs/spec/client_server/latest#fallbacks-and-event-representation
-	formattedBody := fmt.Sprintf("<mx-reply><blockquote><a href='https://matrix.to/#/%s/%s'>In reply to</a> <a href='https://matrix.to/#/%s'>%s</a><br />%s</blockquote>\n</mx-reply><i>This message got deleted.</i>", deleteMessage.RoomID, deleteMessage.ID, deleteMessage.Sender, deleteMessage.Sender, deleteMessageFormattedBody)
-	body := fmt.Sprintf("> <%s>%s\n\nThis message got deleted", deleteMessage.Sender, deleteMessageBody)
+	notificationFormattedBody := fmt.Sprintf("<mx-reply><blockquote><a href='https://matrix.to/#/%s/%s'>In reply to</a> <a href='https://matrix.to/#/%s'>%s</a><br />%s</blockquote>\n</mx-reply><i>This message got deleted.</i>", deleteMessage.RoomID, deleteMessage.ID, deleteMessage.Sender, deleteMessage.Sender, oldFormattedBody)
+	notificationBody := fmt.Sprintf("> <%s>%s\n\nThis message got deleted", deleteMessage.Sender, oldBody)
 
-	event := ReplyEvent{
-		FormattedBody: formattedBody,
-		Body:          body,
-		Msgtype:       "m.text",
-		Format:        FormatHTML,
+	notificationEvent := MessageEvent{
+		FormattedBody: notificationFormattedBody,
+		Body:          notificationBody,
+		MsgType:       MsgTypeText,
+		Format:        MessageFormatHTML,
 	}
 
-	irt := make(map[string]string)
-	rt := RelatesTo{
-		InReplyTo: irt,
-	}
-	event.RelatesTo = rt
-	irt["event_id"] = deleteMessage.ID
+	notificationReply := make(map[string]string)
+	notificationReply["event_id"] = deleteMessage.ID
 
-	_, err = d.client.SendMessageEvent(a.MatrixID, "m.room.message", event)
+	notificationRelation := RelatesTo{
+		InReplyTo: notificationReply,
+	}
+	notificationEvent.RelatesTo = notificationRelation
+
+	_, err = d.client.SendMessageEvent(a.MatrixID, "m.room.message", notificationEvent)
 
 	return err
 }
@@ -168,7 +221,7 @@ func (d *Dispatcher) coloredText(color string, text string) string {
 	return "<font data-mx-color='" + color + "'>" + text + "</font>"
 }
 
-// TODO cubicroot: find a way to only request on specific event
+// Searches in the messages list for the given id
 func (d *Dispatcher) getMessage(a *model.Application, id string) (gomatrix.Event, error) {
 	start := ""
 	end := ""
@@ -183,5 +236,5 @@ func (d *Dispatcher) getMessage(a *model.Application, id string) (gomatrix.Event
 		}
 		start = messages.End
 	}
-	return gomatrix.Event{}, errors.New("Message not found")
+	return gomatrix.Event{}, api.ErrorMessageNotFound
 }
