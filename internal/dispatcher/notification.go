@@ -80,82 +80,23 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 		return api.ErrorMessageNotFound
 	}
 
-	if val, ok := deleteMessage.Content["body"]; ok {
-		body, ok := val.(string)
+	oldBody, oldFormattedBody, err = bodiesFromMessage(deleteMessage)
 
-		if !ok {
-			log.Println("Event does not have a body")
-			return api.ErrorMessageNotFound
-		}
-
-		oldBody = body
-		oldFormattedBody = body
-
-	} else {
-		log.Println("Message to delete has wrong format")
-		return api.ErrorMessageNotFound
-	}
-
-	if val, ok := deleteMessage.Content["formatted_body"]; ok {
-		body, ok := val.(string)
-		if ok {
-			oldFormattedBody = body
-		}
+	if err != nil {
+		return err
 	}
 
 	// update the message with strikethrough
 	newBody := fmt.Sprintf("<del>%s</del>\n- deleted", oldBody)
 	newFormattedBody := fmt.Sprintf("<del>%s</del><br>- deleted", oldFormattedBody)
 
-	newMessage := NewContent{
-		Body:          newBody,
-		FormattedBody: newFormattedBody,
-		MsgType:       MsgTypeText,
-		Format:        MessageFormatHTML,
-	}
-
-	replaceRelation := RelatesTo{
-		RelType: "m.replace",
-		EventID: deleteMessage.ID,
-	}
-
-	replaceEvent := MessageEvent{
-		Body:          oldBody,
-		FormattedBody: oldFormattedBody,
-		MsgType:       MsgTypeText,
-		NewContent:    newMessage,
-		RelatesTo:     replaceRelation,
-		Format:        MessageFormatHTML,
-	}
-
-	_, err = d.client.SendMessageEvent(a.MatrixID, "m.room.message", replaceEvent)
+	_, err = d.replaceMessage(a, newBody, newFormattedBody, deleteMessage.ID, oldBody, oldFormattedBody)
 
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
-	// send a notification about the deletion
-	// formatting according to https://matrix.org/docs/spec/client_server/latest#fallbacks-and-event-representation
-	notificationFormattedBody := fmt.Sprintf("<mx-reply><blockquote><a href='https://matrix.to/#/%s/%s'>In reply to</a> <a href='https://matrix.to/#/%s'>%s</a><br />%s</blockquote>\n</mx-reply><i>This message got deleted.</i>", deleteMessage.RoomID, deleteMessage.ID, deleteMessage.Sender, deleteMessage.Sender, oldFormattedBody)
-	notificationBody := fmt.Sprintf("> <%s>%s\n\nThis message got deleted", deleteMessage.Sender, oldBody)
-
-	notificationEvent := MessageEvent{
-		FormattedBody: notificationFormattedBody,
-		Body:          notificationBody,
-		MsgType:       MsgTypeText,
-		Format:        MessageFormatHTML,
-	}
-
-	notificationReply := make(map[string]string)
-	notificationReply["event_id"] = deleteMessage.ID
-
-	notificationRelation := RelatesTo{
-		InReplyTo: notificationReply,
-	}
-	notificationEvent.RelatesTo = notificationRelation
-
-	_, err = d.client.SendMessageEvent(a.MatrixID, "m.room.message", notificationEvent)
+	_, err = d.respondToMessage(a, "This message got deleted", "<i>This message got deleted.</i>", deleteMessage)
 
 	return err
 }
@@ -242,4 +183,92 @@ func (d *Dispatcher) getMessage(a *model.Application, id string) (gomatrix.Event
 		start = messages.End
 	}
 	return gomatrix.Event{}, api.ErrorMessageNotFound
+}
+
+// Replaces the content of a matrix message
+func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedBody string, messageID string, oldBody, oldFormattedBody string) (*gomatrix.RespSendEvent, error) {
+	newMessage := NewContent{
+		Body:          newBody,
+		FormattedBody: newFormattedBody,
+		MsgType:       MsgTypeText,
+		Format:        MessageFormatHTML,
+	}
+
+	replaceRelation := RelatesTo{
+		RelType: "m.replace",
+		EventID: messageID,
+	}
+
+	replaceEvent := MessageEvent{
+		Body:          oldBody,
+		FormattedBody: oldFormattedBody,
+		MsgType:       MsgTypeText,
+		NewContent:    newMessage,
+		RelatesTo:     replaceRelation,
+		Format:        MessageFormatHTML,
+	}
+
+	sendEvent, err := d.client.SendMessageEvent(a.MatrixID, "m.room.message", replaceEvent)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return sendEvent, nil
+}
+
+// Sends a notification in response to another matrix message event
+func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody string, respondMessage gomatrix.Event) (*gomatrix.RespSendEvent, error) {
+	oldBody, oldFormattedBody, err := bodiesFromMessage(respondMessage)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// formatting according to https://matrix.org/docs/spec/client_server/latest#fallbacks-and-event-representation
+	newFormattedBody := fmt.Sprintf("<mx-reply><blockquote><a href='https://matrix.to/#/%s/%s'>In reply to</a> <a href='https://matrix.to/#/%s'>%s</a><br />%s</blockquote>\n</mx-reply>%s", respondMessage.RoomID, respondMessage.ID, respondMessage.Sender, respondMessage.Sender, oldFormattedBody, formattedBody)
+	newBody := fmt.Sprintf("> <%s>%s\n\n%s", respondMessage.Sender, oldBody, body)
+
+	notificationEvent := MessageEvent{
+		FormattedBody: newFormattedBody,
+		Body:          newBody,
+		MsgType:       MsgTypeText,
+		Format:        MessageFormatHTML,
+	}
+
+	notificationReply := make(map[string]string)
+	notificationReply["event_id"] = respondMessage.ID
+
+	notificationRelation := RelatesTo{
+		InReplyTo: notificationReply,
+	}
+	notificationEvent.RelatesTo = notificationRelation
+
+	return d.client.SendMessageEvent(a.MatrixID, "m.room.message", notificationEvent)
+}
+
+// Extracts body and formatted body from a matrix message event
+func bodiesFromMessage(message gomatrix.Event) (body, formattedBody string, err error) {
+	if val, ok := message.Content["body"]; ok {
+		body, ok := val.(string)
+
+		if !ok {
+			return "", "", api.ErrorMessageNotFound
+		}
+
+		formattedBody = body
+
+	} else {
+		return "", "", api.ErrorMessageNotFound
+	}
+
+	if val, ok := message.Content["formatted_body"]; ok {
+		body, ok := val.(string)
+		if ok {
+			formattedBody = body
+		}
+	}
+
+	return body, formattedBody, nil
 }
