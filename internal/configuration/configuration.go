@@ -23,6 +23,13 @@ type Formatting struct {
 	ColoredTitle bool `default:"false"`
 }
 
+// Matrix holds credentials for a matrix account
+type Matrix struct {
+	Homeserver string `default:"https://matrix.org"`
+	Username   string `required:"true"`
+	Password   string `required:"true"`
+}
+
 // Configuration holds values that can be configured by the user.
 type Configuration struct {
 	Debug bool `default:"false"`
@@ -39,11 +46,7 @@ type Configuration struct {
 		Password string `default:"admin"`
 		MatrixID string `required:"true"`
 	}
-	Matrix struct {
-		Homeserver string `default:"https://matrix.org"`
-		Username   string `required:"true"`
-		Password   string `required:"true"`
-	}
+	Matrix   Matrix
 	Security struct {
 		CheckHIBP bool `default:"false"`
 	}

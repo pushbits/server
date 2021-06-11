@@ -114,6 +114,7 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	var createApplication model.CreateApplication
 
 	if err := ctx.Bind(&createApplication); err != nil {
+		log.Println(err)
 		return
 	}
 
