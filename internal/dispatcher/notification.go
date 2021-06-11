@@ -82,10 +82,15 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 
 	if val, ok := deleteMessage.Content["body"]; ok {
 		body, ok := val.(string)
-		if ok {
-			oldBody = body
-			oldFormattedBody = body
+
+		if !ok {
+			log.Println("Event does not have a body")
+			return api.ErrorMessageNotFound
 		}
+
+		oldBody = body
+		oldFormattedBody = body
+
 	} else {
 		log.Println("Message to delete has wrong format")
 		return api.ErrorMessageNotFound

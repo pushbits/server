@@ -16,7 +16,7 @@ type Notification struct {
 	Date          time.Time              `json:"date"`
 }
 
-// DeleteNotification holds information like the message, the reply to message id and the priority of a deletion notification.
+// DeleteNotification holds information like the message ID of a deletion notification.
 type DeleteNotification struct {
 	ID   string    `json:"id" form:"id"`
 	Date time.Time `json:"date"`
