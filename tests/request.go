@@ -11,11 +11,12 @@ import (
 
 // Request holds information for a HTTP request
 type Request struct {
-	Name     string
-	Method   string
-	Endpoint string
-	Data     interface{}
-	Headers  map[string]string
+	Name         string
+	Method       string
+	Endpoint     string
+	Data         interface{}
+	Headers      map[string]string
+	ShouldStatus int
 }
 
 // GetRequest returns a ResponseRecorder and gin context according to the data set in the Request.
