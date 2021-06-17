@@ -265,9 +265,11 @@ func bodiesFromMessage(message gomatrix.Event) (body, formattedBody string, err 
 
 	if val, ok := message.Content["formatted_body"]; ok {
 		body, ok := val.(string)
-		if ok {
-			formattedBody = body
+		if !ok {
+			return "", "", api.ErrorMessageNotFound
 		}
+
+		formattedBody = body
 	}
 
 	return body, formattedBody, nil
