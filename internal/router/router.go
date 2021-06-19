@@ -18,7 +18,7 @@ import (
 )
 
 // Create a Gin engine and setup all routes.
-func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher, authConfig configuration.Authentication) *gin.Engine {
+func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher, config *configuration.Configuration) *gin.Engine {
 	log.Println("Setting up HTTP routes.")
 
 	if !debug {
@@ -32,13 +32,13 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	// Set up authentication and handler
 	auth := authentication.Authenticator{
 		DB:     db,
-		Config: authConfig,
+		Config: config.Authentication,
 	}
 
-	switch authConfig.Method {
+	switch config.Authentication.Method {
 	case "oauth":
 		authHandler := oauth.AuthHandler{}
-		authHandler.Initialize(db, authConfig)
+		authHandler.Initialize(db, config.Authentication, config.Database)
 		auth.RegisterHandler(authHandler)
 
 		// Register oauth endpoints

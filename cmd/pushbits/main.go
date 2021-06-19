@@ -37,6 +37,7 @@ func main() {
 
 	cm := credentials.CreateManager(c.Security.CheckHIBP, c.Crypto)
 
+	log.Println(c.Database.Dialect)
 	db, err := database.Create(cm, c.Database.Dialect, c.Database.Connection)
 	if err != nil {
 		log.Fatal(err)
@@ -60,7 +61,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	engine := router.Create(c.Debug, cm, db, dp, c.Authentication)
+	engine := router.Create(c.Debug, cm, db, dp, c)
 
 	runner.Run(engine, c.HTTP.ListenAddress, c.HTTP.Port)
 }

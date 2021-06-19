@@ -139,3 +139,8 @@ func (d *Database) RepairChannels(dp Dispatcher) error {
 
 	return nil
 }
+
+// GetSqldb returns the databases sql.DB object
+func (d *Database) GetSqldb() *sql.DB {
+	return d.sqldb
+}

@@ -40,9 +40,9 @@ type AuthHandler struct {
 }
 
 // Initialize prepares the AuthHandler
-func (a *AuthHandler) Initialize(db *database.Database, config configuration.Authentication) error {
+func (a *AuthHandler) Initialize(db *database.Database, configAuth configuration.Authentication, configDatabase configuration.Database) error {
 	a.db = db
-	a.config = config
+	a.config = configAuth
 
 	if len(a.config.Oauth.ClientSecret) < 5 {
 		panic("Your Oauth 2.0 client secret is empty or not long enough to be secure. Please change it in the configuration file.")
@@ -69,12 +69,9 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 	a.manager.MapAccessGenerate(generates.NewJWTAccessGenerate([]byte(a.config.Oauth.TokenKey), jwt.SigningMethodHS512)) // unfortunately only symmetric algorithms seem to be supported
 
 	// Define a storage for the tokens
-	switch a.config.Oauth.Storage {
+	switch configDatabase.Dialect {
 	case "mysql":
-		dbOauth, err := sqlx.Connect("mysql", a.config.Oauth.Connection+"?parseTime=true")
-		if err != nil {
-			log.Fatal(err)
-		}
+		dbOauth := sqlx.NewDb(db.GetSqldb(), "mysql")
 
 		a.manager.MustTokenStorage(mysql.NewTokenStore(dbOauth))
 
@@ -86,8 +83,8 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 			Secret: a.config.Oauth.ClientSecret,
 			Domain: a.config.Oauth.ClientRedirect,
 		})
-	case "file":
-		a.manager.MustTokenStorage(store.NewFileTokenStore(a.config.Oauth.Connection))
+	case "sqlite3":
+		a.manager.MustTokenStorage(store.NewFileTokenStore("pushbits_tokens.db"))
 		clientStore := store.NewClientStore() // memory store
 		a.manager.MapClientStorage(clientStore)
 		clientStore.Set(a.config.Oauth.ClientID, &models.Client{
@@ -96,7 +93,7 @@ func (a *AuthHandler) Initialize(db *database.Database, config configuration.Aut
 			Domain: a.config.Oauth.ClientRedirect,
 		})
 	default:
-		log.Panicln("Unknown oauth storage")
+		log.Panicln("Unknown (oauth) storage dialect")
 	}
 	// Initialize and configure the token server
 	ginserver.InitServer(a.manager)

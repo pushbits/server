@@ -31,12 +31,16 @@ type Authentication struct {
 
 // Oauth holds information about the oauth server
 type Oauth struct {
-	Connection     string `default:"pushbits_token.db"`
-	Storage        string `default:"file"`
 	ClientID       string `default:"000000"`
 	ClientSecret   string `default:""`
 	ClientRedirect string `default:"http://localhost"`
 	TokenKey       string `default:""`
+}
+
+// Database holds information about the used database type
+type Database struct {
+	Dialect    string `default:"sqlite3"`
+	Connection string `default:"pushbits.db"`
 }
 
 // Configuration holds values that can be configured by the user.
@@ -46,11 +50,8 @@ type Configuration struct {
 		ListenAddress string `default:""`
 		Port          int    `default:"8080"`
 	}
-	Database struct {
-		Dialect    string `default:"sqlite3"`
-		Connection string `default:"pushbits.db"`
-	}
-	Admin struct {
+	Database Database
+	Admin    struct {
 		Name     string `default:"admin"`
 		Password string `default:"admin"`
 		MatrixID string `required:"true"`

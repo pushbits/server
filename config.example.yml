@@ -66,11 +66,6 @@ authentication:
     method: basic
     # Only needed if you choose oauth method.
     oauth:
-        # The storage used for tokens.
-        storage: "file"
-        # The connection to the storage. For file: the filename, ending with .db. For mysql: the connection string. Check out
-        # https://github.com/go-sql-driver/mysql#dsn-data-source-name for details.
-        connection: "pushbits_token.db"
         # Oauth client identifier (random string).
         clientid: "000000"
         # Oauth client secret (random string).
