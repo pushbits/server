@@ -6,8 +6,8 @@ import (
 )
 
 // GetMatrixDispatcher creates and returns a matrix dispatcher
-func GetMatrixDispatcher(homeserver, username, password string) (*dispatcher.Dispatcher, error) {
-	db, err := GetEmptyDatabase()
+func GetMatrixDispatcher(homeserver, username, password string, confCrypto configuration.CryptoConfig) (*dispatcher.Dispatcher, error) {
+	db, err := GetEmptyDatabase(confCrypto)
 
 	if err != nil {
 		return nil, err

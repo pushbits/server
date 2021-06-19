@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pushbits/server/internal/configuration"
+	"github.com/pushbits/server/internal/database"
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/tests"
 	"github.com/pushbits/server/tests/mockups"
@@ -18,6 +19,7 @@ import (
 
 var TestApplicationHandler *ApplicationHandler
 var TestUsers []*model.User
+var TestDatabase *database.Database
 
 // Collect all created applications to check & delete them later
 var SuccessAplications map[uint][]model.Application
@@ -35,7 +37,15 @@ func TestMain(m *testing.M) {
 	config.Database.Dialect = "sqlite3"
 
 	// Set up test environment
-	appHandler, err := getApplicationHandler(&config.Matrix)
+	db, err := mockups.GetEmptyDatabase(config.Crypto)
+	if err != nil {
+		cleanUp()
+		log.Println("Can not set up database: ", err)
+		os.Exit(1)
+	}
+	TestDatabase = db
+
+	appHandler, err := getApplicationHandler(config)
 	if err != nil {
 		cleanUp()
 		log.Println("Can not set up application handler: ", err)
@@ -46,6 +56,7 @@ func TestMain(m *testing.M) {
 	TestUsers = mockups.GetUsers(config)
 	SuccessAplications = make(map[uint][]model.Application)
 
+	// Run
 	m.Run()
 	cleanUp()
 }
@@ -300,18 +311,13 @@ func TestApi_DeleteApplication(t *testing.T) {
 }
 
 // GetApplicationHandler creates and returns an application handler
-func getApplicationHandler(c *configuration.Matrix) (*ApplicationHandler, error) {
-	db, err := mockups.GetEmptyDatabase()
-	if err != nil {
-		return nil, err
-	}
-
-	dispatcher, err := mockups.GetMatrixDispatcher(c.Homeserver, c.Username, c.Password)
+func getApplicationHandler(c *configuration.Configuration) (*ApplicationHandler, error) {
+	dispatcher, err := mockups.GetMatrixDispatcher(c.Matrix.Homeserver, c.Matrix.Username, c.Matrix.Password, c.Crypto)
 	if err != nil {
 		return nil, err
 	}
 	return &ApplicationHandler{
-		DB: db,
+		DB: TestDatabase,
 		DP: dispatcher,
 	}, nil
 }
@@ -321,9 +327,9 @@ func validateAllApplications(user *model.User, apps []model.Application) bool {
 	if _, ok := SuccessAplications[user.ID]; !ok {
 		if len(apps) == 0 {
 			return true
-		} else {
-			return false
 		}
+
+		return false
 	}
 
 	for _, successApp := range SuccessAplications[user.ID] {
