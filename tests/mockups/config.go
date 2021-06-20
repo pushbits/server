@@ -14,12 +14,12 @@ func ReadConfig(filename string, removeFile bool) (config *configuration.Configu
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println(r)
-			err = errors.New("Paniced while reading config")
+			err = errors.New("paniced while reading config")
 		}
 	}()
 
 	if filename == "" {
-		return nil, errors.New("Empty filename")
+		return nil, errors.New("empty filename")
 	}
 
 	file, err := ioutil.ReadFile(filename)
