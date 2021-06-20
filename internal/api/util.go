@@ -11,7 +11,13 @@ import (
 
 func successOrAbort(ctx *gin.Context, code int, err error) bool {
 	if err != nil {
-		ctx.AbortWithError(code, err)
+		// If we know the error force error code
+		switch err {
+		case ErrorMessageNotFound:
+			ctx.AbortWithError(http.StatusNotFound, err)
+		default:
+			ctx.AbortWithError(code, err)
+		}
 	}
 
 	return err == nil

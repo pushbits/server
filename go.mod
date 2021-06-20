@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/alexedwards/argon2id v0.0.0-20201228115903-cf543ebc1f7b
+	github.com/fzipp/gocyclo v0.3.1 // indirect
 	github.com/gin-contrib/location v0.0.2
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
@@ -25,4 +26,5 @@ require (
 	gorm.io/driver/mysql v1.0.4
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.20.12
+	honnef.co/go/tools v0.2.0 // indirect
 )

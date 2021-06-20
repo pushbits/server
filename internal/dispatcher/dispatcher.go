@@ -11,19 +11,14 @@ var (
 	loginType = "m.login.password"
 )
 
-// The Database interface for encapsulating database access.
-type Database interface {
-}
-
 // Dispatcher holds information for sending notifications to clients.
 type Dispatcher struct {
-	db         Database
 	client     *gomatrix.Client
 	formatting configuration.Formatting
 }
 
 // Create instanciates a dispatcher connection.
-func Create(db Database, homeserver, username, password string, formatting configuration.Formatting) (*Dispatcher, error) {
+func Create(homeserver, username, password string, formatting configuration.Formatting) (*Dispatcher, error) {
 	log.Println("Setting up dispatcher.")
 
 	client, err := gomatrix.NewClient(homeserver, "", "")
