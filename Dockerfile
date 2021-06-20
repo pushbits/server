@@ -9,7 +9,7 @@ RUN set -ex \
 	&& go mod download \
 	&& go mod verify \
 	&& make build \
-	&& chmod +x /build/app
+	&& chmod +x /build/out/pushbits
 
 FROM alpine
 
@@ -22,7 +22,7 @@ EXPOSE 8080
 WORKDIR /app
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /build/app ./run
+COPY --from=builder /build/out/pushbits ./run
 
 RUN set -ex \
 	&& apk add --no-cache ca-certificates curl \

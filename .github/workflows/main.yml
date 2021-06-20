@@ -1,25 +1,34 @@
 name: Main
-on: push
+on: [push, pull_request]
 jobs:
-  test_publish:
-    name: Test and publish
+  test_build_publish:
+    name: Test, build, and publish
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Install dependencies
         run: make setup
+      - name: Export GOBIN
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
       - name: Run tests
-        run: |
-            export PATH="$PATH:$(go env GOPATH)/bin" # Currently the path needs to be set manually.
-            make test
+        run: make test
       - name: Build image
         run: make build_image
+      - name: Get Branch # Needed to evaluate env.BRANCH.
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' }} # Otherwise will fail on pull requests.
+        run: |
+          raw=$(git branch -r --contains ${{ github.ref }})
+          branch=${raw##*/}
+          echo "BRANCH=$branch" >> $GITHUB_ENV
       - name: Login to Docker Hub
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' && env.BRANCH == 'master' }} # Only login for tagged commits pushed to master.
         uses: docker/login-action@v1
-        with:
+        with: # Secrets are not exposed to pull request contexts.
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Publish image
-        if: startsWith(github.ref, 'refs/tags/') # Only publish for tagged commits.
-        run: |
-            make push_image
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' && env.BRANCH == 'master' }} # Only publish for tagged commits pushed to master.
+        run: make push_image
