@@ -20,6 +20,7 @@ type Pair struct {
 func TestMain(m *testing.M) {
 	m.Run()
 	cleanUp()
+	os.Exit(0)
 }
 
 func TestConfiguration_GetMinimal(t *testing.T) {

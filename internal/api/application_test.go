@@ -178,7 +178,7 @@ func TestApi_GetApplicationErrors(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	// Arbitrary test cases
-	testCases := make(map[uint]tests.Request, 0)
+	testCases := make(map[uint]tests.Request)
 	testCases[0] = tests.Request{Name: "Requesting unknown application 0", Method: "GET", Endpoint: "/application/0", ShouldStatus: 404}
 	testCases[5555] = tests.Request{Name: "Requesting unknown application 5555", Method: "GET", Endpoint: "/application/5555", ShouldStatus: 404}
 	testCases[99999999999999999] = tests.Request{Name: "Requesting unknown application 99999999999999999", Method: "GET", Endpoint: "/application/99999999999999999", ShouldStatus: 404}
@@ -325,11 +325,7 @@ func getApplicationHandler(c *configuration.Configuration) (*ApplicationHandler,
 // True if all created applications are in list
 func validateAllApplications(user *model.User, apps []model.Application) bool {
 	if _, ok := SuccessAplications[user.ID]; !ok {
-		if len(apps) == 0 {
-			return true
-		}
-
-		return false
+		return len(apps) == 0
 	}
 
 	for _, successApp := range SuccessAplications[user.ID] {
