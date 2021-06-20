@@ -21,7 +21,7 @@ require (
 	github.com/ugorji/go v1.2.4 // indirect
 	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
 	golang.org/x/tools v0.1.3 // indirect
-	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/driver/mysql v1.0.4
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.20.12
