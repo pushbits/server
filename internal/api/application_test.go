@@ -26,15 +26,15 @@ var SuccessAplications map[uint][]model.Application
 
 func TestMain(m *testing.M) {
 	// Get main config and adapt
-	config, err := mockups.ReadConfig("../../config.yml", true)
-	if err != nil {
-		cleanUp()
-		log.Println("Can not read config: ", err)
-		os.Exit(1)
-	}
+	config := &configuration.Configuration{}
 
 	config.Database.Connection = "pushbits-test.db"
 	config.Database.Dialect = "sqlite3"
+	config.Crypto.Argon2.Iterations = 4
+	config.Crypto.Argon2.Parallelism = 4
+	config.Crypto.Argon2.Memory = 131072
+	config.Crypto.Argon2.SaltLength = 16
+	config.Crypto.Argon2.KeyLength = 32
 
 	// Set up test environment
 	db, err := mockups.GetEmptyDatabase(config.Crypto)
@@ -312,10 +312,8 @@ func TestApi_DeleteApplication(t *testing.T) {
 
 // GetApplicationHandler creates and returns an application handler
 func getApplicationHandler(c *configuration.Configuration) (*ApplicationHandler, error) {
-	dispatcher, err := mockups.GetMatrixDispatcher(c.Matrix.Homeserver, c.Matrix.Username, c.Matrix.Password, c.Crypto)
-	if err != nil {
-		return nil, err
-	}
+	dispatcher := &mockups.MockDispatcher{}
+
 	return &ApplicationHandler{
 		DB: TestDatabase,
 		DP: dispatcher,

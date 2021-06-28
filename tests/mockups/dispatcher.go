@@ -1,11 +1,23 @@
 package mockups
 
 import (
-	"github.com/pushbits/server/internal/configuration"
-	"github.com/pushbits/server/internal/dispatcher"
+	"fmt"
+
+	"github.com/pushbits/server/internal/model"
 )
 
-// GetMatrixDispatcher creates and returns a matrix dispatcher
-func GetMatrixDispatcher(homeserver, username, password string, confCrypto configuration.CryptoConfig) (*dispatcher.Dispatcher, error) {
-	return dispatcher.Create(homeserver, username, password, configuration.Formatting{})
+// MockDispatcher is a dispatcher used for testing - it does not need any storage interface
+type MockDispatcher struct {
+}
+
+func (d *MockDispatcher) RegisterApplication(id uint, name, token, user string) (string, error) {
+	return fmt.Sprintf("%d-%s", id, name), nil
+}
+
+func (d *MockDispatcher) DeregisterApplication(a *model.Application, u *model.User) error {
+	return nil
+}
+
+func (d *MockDispatcher) UpdateApplication(a *model.Application) error {
+	return nil
 }

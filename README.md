@@ -174,8 +174,6 @@ git clone https://github.com/pushbits/server.git
 
 Testing is essential for deliviering a good and reliable software. PushBits uses golangs integrated test features. Unfortunately writing tests is quite time consuming and therefore not every feature and every line of code is automatically tested. Feel free to help us improve our tests.
 
-Some tests depend on confidential configuration data. Therefore provide a `config.yml` in PushBits main folder. 
-
 To run tests for a single (sub)module you can simply execute the following command in the modules folder.
 
 ```bash
