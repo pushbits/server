@@ -4,6 +4,9 @@ import (
 	"github.com/jinzhu/configor"
 )
 
+// testMode indicates if the package is run in test mode
+var testMode bool
+
 // Argon2Config holds the parameters used for creating hashes with Argon2.
 type Argon2Config struct {
 	Memory      uint32 `default:"131072"`
@@ -55,6 +58,9 @@ type Configuration struct {
 }
 
 func configFiles() []string {
+	if testMode {
+		return []string{"config_unittest.yml"}
+	}
 	return []string{"config.yml"}
 }
 

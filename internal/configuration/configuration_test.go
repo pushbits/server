@@ -18,6 +18,7 @@ type Pair struct {
 }
 
 func TestMain(m *testing.M) {
+	testMode = true
 	m.Run()
 	cleanUp()
 	os.Exit(0)
@@ -145,7 +146,7 @@ func writeMinimalConfig() error {
 		return err
 	}
 
-	return ioutil.WriteFile("config.yml", configString, 0644)
+	return ioutil.WriteFile("config_unittest.yml", configString, 0644)
 }
 
 // Writes a config with default values to config.yml
@@ -159,7 +160,7 @@ func writeValidConfig() error {
 		Environment:          "production",
 		ENVPrefix:            "PUSHBITS",
 		ErrorOnUnmatchedKeys: true,
-	}).Load(config, "config.yml")
+	}).Load(config, "config_unittest.yml")
 	if err != nil {
 		return err
 	}
@@ -173,13 +174,13 @@ func writeValidConfig() error {
 		return err
 	}
 
-	return ioutil.WriteFile("config.yml", configString, 0644)
+	return ioutil.WriteFile("config_unittest.yml", configString, 0644)
 }
 
 // Writes a config that is empty
 func writeEmptyConfig() error {
 	cleanUp()
-	return ioutil.WriteFile("config.yml", []byte(""), 0644)
+	return ioutil.WriteFile("config_unittest.yml", []byte(""), 0644)
 }
 
 // Writes a config with invalid entries
@@ -196,9 +197,9 @@ func writeInvalidConfig() error {
 		return err
 	}
 
-	return ioutil.WriteFile("config.yml", configString, 0644)
+	return ioutil.WriteFile("config_unittest.yml", configString, 0644)
 }
 
 func cleanUp() error {
-	return os.Remove("config.yml")
+	return os.Remove("config_unittest.yml")
 }

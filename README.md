@@ -192,8 +192,8 @@ To execute a single test use the `-run` flag.
 go test -run "TestApi_getUser"
 ```
 
-Running tests for all PushBits module is done by the `execute_tests.sh` script provided.
+Running tests for all PushBits module is done like this:
 
 ```bash
-bash execute_tests.sh
+make test
 ```
