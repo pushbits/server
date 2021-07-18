@@ -1,8 +1,8 @@
 name: Publish
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 jobs:
   test_build_publish:
     name: Test, build, and publish
@@ -21,11 +21,9 @@ jobs:
       - name: Build image
         run: make build_image
       - name: Login to Docker Hub
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }} # Only login for tagged commits.
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Publish image
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }} # Only publish for tagged commits.
         run: make push_image
