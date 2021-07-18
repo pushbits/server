@@ -20,10 +20,11 @@ jobs:
       - name: Get Branch # Needed to evaluate env.BRANCH.
         if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' }} # Otherwise will fail on pull requests.
         run: |
+          echo "Getting branch name..."
           raw=$(git branch -r --contains ${{ github.ref }})
-          echo "$raw"
+          echo "raw: $raw"
           branch=${raw##*/}
-          echo "$branch"
+          echo "branch: $branch"
           echo "BRANCH=$branch" >> $GITHUB_ENV
       - name: Login to Docker Hub
         if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' && env.BRANCH == 'master' }} # Only login for tagged commits pushed to master.
