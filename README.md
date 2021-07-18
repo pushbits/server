@@ -169,3 +169,31 @@ git clone https://github.com/pushbits/server.git
 ```
 
 [![Stargazers over time](https://starchart.cc/pushbits/server.svg)](https://starchart.cc/pushbits/server)
+
+### Testing
+
+Testing is essential for deliviering a good and reliable software. PushBits uses golangs integrated test features. Unfortunately writing tests is quite time consuming and therefore not every feature and every line of code is automatically tested. Feel free to help us improve our tests.
+
+To run tests for a single (sub)module you can simply execute the following command in the modules folder.
+
+```bash
+go test
+```
+
+To get the testing coverage for a module use the `-cover` flag. 
+
+```bash
+go test -cover
+```
+
+To execute a single test use the `-run` flag.
+
+```bash
+go test -run "TestApi_getUser"
+```
+
+Running tests for all PushBits module is done like this:
+
+```bash
+make test
+```

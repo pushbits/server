@@ -8,8 +8,8 @@ import (
 
 	"github.com/gomarkdown/markdown"
 	"github.com/matrix-org/gomatrix"
-	"github.com/pushbits/server/internal/api"
 	"github.com/pushbits/server/internal/model"
+	"github.com/pushbits/server/internal/pberrors"
 )
 
 // MessageFormat is a matrix message format
@@ -77,7 +77,7 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 
 	if err != nil {
 		log.Println(err)
-		return api.ErrorMessageNotFound
+		return pberrors.ErrorMessageNotFound
 	}
 
 	oldBody, oldFormattedBody, err = bodiesFromMessage(deleteMessage)
@@ -182,7 +182,7 @@ func (d *Dispatcher) getMessage(a *model.Application, id string) (gomatrix.Event
 		}
 		start = messages.End
 	}
-	return gomatrix.Event{}, api.ErrorMessageNotFound
+	return gomatrix.Event{}, pberrors.ErrorMessageNotFound
 }
 
 // Replaces the content of a matrix message
@@ -254,19 +254,19 @@ func bodiesFromMessage(message gomatrix.Event) (body, formattedBody string, err 
 		body, ok := val.(string)
 
 		if !ok {
-			return "", "", api.ErrorMessageNotFound
+			return "", "", pberrors.ErrorMessageNotFound
 		}
 
 		formattedBody = body
 
 	} else {
-		return "", "", api.ErrorMessageNotFound
+		return "", "", pberrors.ErrorMessageNotFound
 	}
 
 	if val, ok := message.Content["formatted_body"]; ok {
 		body, ok := val.(string)
 		if !ok {
-			return "", "", api.ErrorMessageNotFound
+			return "", "", pberrors.ErrorMessageNotFound
 		}
 
 		formattedBody = body
