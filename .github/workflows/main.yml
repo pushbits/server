@@ -21,7 +21,9 @@ jobs:
         if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' }} # Otherwise will fail on pull requests.
         run: |
           raw=$(git branch -r --contains ${{ github.ref }})
+          echo "$raw"
           branch=${raw##*/}
+          echo "$branch"
           echo "BRANCH=$branch" >> $GITHUB_ENV
       - name: Login to Docker Hub
         if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' && env.BRANCH == 'master' }} # Only login for tagged commits pushed to master.
