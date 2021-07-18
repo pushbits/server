@@ -1,8 +1,8 @@
 name: Main
 on: [push, pull_request]
 jobs:
-  test_build_publish:
-    name: Test, build, and publish
+  test_build:
+    name: Test and build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,21 +17,3 @@ jobs:
         run: make test
       - name: Build image
         run: make build_image
-      - name: Get Branch # Needed to evaluate env.BRANCH.
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' }} # Otherwise will fail on pull requests.
-        run: |
-          echo "Getting branch name..."
-          raw=$(git branch -r --contains ${{ github.ref }})
-          echo "raw: $raw"
-          branch=${raw##*/}
-          echo "branch: $branch"
-          echo "BRANCH=$branch" >> $GITHUB_ENV
-      - name: Login to Docker Hub
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' && env.BRANCH == 'master' }} # Only login for tagged commits pushed to master.
-        uses: docker/login-action@v1
-        with: # Secrets are not exposed to pull request contexts.
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Publish image
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push' && env.BRANCH == 'master' }} # Only publish for tagged commits pushed to master.
-        run: make push_image
