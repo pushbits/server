@@ -44,6 +44,8 @@ type Oauth struct {
 type Database struct {
 	Dialect    string `default:"sqlite3"`
 	Connection string `default:"pushbits.db"`
+}
+
 // Matrix holds credentials for a matrix account
 type Matrix struct {
 	Homeserver string `default:"https://matrix.org"`
