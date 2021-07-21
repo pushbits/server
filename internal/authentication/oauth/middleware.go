@@ -21,21 +21,21 @@ func (a AuthHandler) UserSetter() gin.HandlerFunc {
 		var err error
 		ti, exists := ctx.Get(ginserver.DefaultConfig.TokenKey)
 		if !exists {
-			err = errors.New("No token available")
+			err = errors.New("no token available")
 			ctx.AbortWithError(http.StatusForbidden, err)
 			return
 		}
 
 		token, ok := ti.(oauth2.TokenInfo)
 		if !ok {
-			err = errors.New("Wrong token format")
+			err = errors.New("wrong token format")
 			ctx.AbortWithError(http.StatusForbidden, err)
 			return
 		}
 
 		userID, err := strconv.ParseUint(token.GetUserID(), 10, 64)
 		if err != nil {
-			err = errors.New("User information of wrong format")
+			err = errors.New("user information of wrong format")
 			ctx.AbortWithError(http.StatusForbidden, err)
 			return
 		}

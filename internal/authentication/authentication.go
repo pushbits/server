@@ -47,12 +47,12 @@ type hasUserProperty func(user *model.User) bool
 
 func (a *Authenticator) requireUserProperty(has hasUserProperty, errorMessage string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		err := errors.New("User not found")
+		err := errors.New("user not found")
 
 		u, exists := ctx.Get("user")
 
 		if !exists {
-			log.Println("No user object in context")
+			log.Println("no user object in context")
 			ctx.AbortWithError(http.StatusForbidden, err)
 			return
 		}
@@ -60,7 +60,7 @@ func (a *Authenticator) requireUserProperty(has hasUserProperty, errorMessage st
 		user, ok := u.(*model.User)
 
 		if !ok {
-			log.Println("User object from context has wrong format")
+			log.Println("user object from context has wrong format")
 			ctx.AbortWithError(http.StatusForbidden, err)
 			return
 		}
@@ -87,7 +87,7 @@ func (a *Authenticator) RequireAdmin() []gin.HandlerFunc {
 	funcs = append(funcs, a.UserSetter())
 	funcs = append(funcs, a.requireUserProperty(func(user *model.User) bool {
 		return user.IsAdmin
-	}, "User does not have permission: admin"))
+	}, "user does not have permission: admin"))
 
 	return funcs
 }

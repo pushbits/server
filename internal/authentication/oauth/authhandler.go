@@ -145,7 +145,7 @@ func (a *AuthHandler) UserAuthHandler() server.UserAuthorizationHandler {
 		} else if user != nil && credentials.ComparePassword(user.PasswordHash, []byte(password)) {
 			return fmt.Sprint(user.ID), nil
 		}
-		return "", errors.New("No credentials provided")
+		return "", errors.New("no credentials provided")
 	}
 }
 

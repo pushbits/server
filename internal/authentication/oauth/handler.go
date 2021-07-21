@@ -42,14 +42,14 @@ func (a *AuthHandler) RevokeAccess(c *gin.Context) {
 	err := c.BindJSON(&request)
 	if err != nil || request.Access == "" {
 		log.Println("Error when reading request.")
-		c.AbortWithError(http.StatusUnprocessableEntity, errors.New("Missing access_token"))
+		c.AbortWithError(http.StatusUnprocessableEntity, errors.New("missing access_token"))
 		return
 	}
 
 	err = a.manager.RemoveAccessToken(request.Access)
 	if err != nil {
 		log.Println("Error when revoking: ", err)
-		c.AbortWithError(http.StatusNotFound, errors.New("Unknown access token"))
+		c.AbortWithError(http.StatusNotFound, errors.New("unknown access token"))
 		return
 	}
 
@@ -65,7 +65,7 @@ func (a *AuthHandler) LongtermToken(c *gin.Context) {
 	err := c.BindJSON(&request)
 	if err != nil {
 		log.Println(err)
-		c.AbortWithError(http.StatusUnprocessableEntity, errors.New("Missing or malformated request"))
+		c.AbortWithError(http.StatusUnprocessableEntity, errors.New("missing or malformated request"))
 		return
 	}
 
@@ -95,17 +95,17 @@ func (a *AuthHandler) LongtermToken(c *gin.Context) {
 }
 
 func (a *AuthHandler) tokenFromContext(c *gin.Context) (oauth2.TokenInfo, error) {
-	err := errors.New("Token not found")
+	err := errors.New("token not found")
 
 	data, exists := c.Get(ginserver.DefaultConfig.TokenKey)
 	if !exists {
-		log.Println("Token does not exist in context.")
+		log.Println("token does not exist in context.")
 		return nil, err
 	}
 
 	ti, ok := data.(oauth2.TokenInfo)
 	if !ok {
-		log.Println("Token from context has wrong format.")
+		log.Println("token from context has wrong format.")
 		return nil, err
 	}
 	return ti, nil
