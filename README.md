@@ -121,6 +121,137 @@ You can retrieve the token using [pbcli](https://github.com/PushBits/cli) by run
 pbcli application show $PB_APPLICATION --url https://pushbits.example.com --username $PB_USERNAME
 ```
 
+### Authentication
+
+Pushbits offers you two methods of authenticating against the server:
+
+* Basic authentication (`basic`)
+* [Oauth 2.0](https://oauth.net/2/) (`oauth`)
+
+You will find the corresponding setting in the security section.
+
+```yaml
+...
+security:
+    ...
+    # The authentication method to use
+    authentication: basic
+...
+```
+
+#### Basic authentication
+
+For [basic authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) you have to provide your username and password in each request to the server. For example in curl you can do this with the `--user` flag:
+
+```bash
+curl -u myusername:totallysecretpassword
+```
+
+#### Oauth 2.0
+
+[Oauth 2.0](https://en.wikipedia.org/wiki/OAuth) is a token based authentication method. Instead of passing your password with each request you request a token from an authorization server. With this token you are then able to authenticate yourself against the PushBits server. 
+
+Make sure to setup the "oauth" section in the config file correctly.
+
+##### Authenticating
+
+For authentication use the ``/oauth2/auth` endpoint. E.g.:
+
+```bash
+curl \
+	--header "Content-Type: application/json" \
+	--request POST \
+	"https://pushbits.example.com/oauth2/auth" -d "client_id=000000&username=admin&password=1233456&response_type=code&redirect_uri=https://myapp.example.com"
+```
+
+This will return a HTTP redirect with the status code `302` and an authentication code set as parameter:
+
+```
+HTTP/2 302
+date: Sun, 23 May 2021 10:33:27 GMT
+location: https://myapp.example.com?code=4T1TJXMBPTOS4NNGILBDYW
+content-length: 0
+```
+
+Your app then needs to use this code to trade it for a access token. 
+
+**Hint for command line users:** you can extract the authentication code from the redirect without the need of a running webserver.
+
+##### Receiving an access token
+
+You can get an access token from the `/oauth/token` endpoint. There are several methods, so called "grant types" for receiving a token. PushBits currently supports the following one's:
+
+* Refresh 
+* Authentication code
+
+Oauth 2.0 authentication is based on "clients", thus you need to provide identifiers for a client with your request. These are the `client_id` and the `client_secret`. 
+
+For your first token you will need a authentication code, see the section above. Then use it like this: 
+
+```bash
+curl \
+	--header "Content-Type: application/json" \
+	--request POST \
+	"https://pushbits.example.com/oauth2/token" -d "grant_type=authorization_code&client_id=000000&client_secret=49gjg4js9&response_type=token&redirect_uri=https://myapp.example.com&code=OP1Q2UJEVL-RPR9GZAUURA"
+```
+
+This will then return an access token and refresh token for you. 
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NTU3ODcsInN1YiI6IjEifQ.jMux7CBw6fY15Ohc8exEbcnUiMBVVgCowvq3rMrw7MQ",
+  "expires_in": 86400,
+  "refresh_token": "OP1Q2UJEVL-RPR9GZAUURA",
+  "token_type": "Bearer"
+}
+```
+
+The access token is short lived, the refresh token is long lived, but can not be used for authentication. If your access token runs out, you can use the refresh token to generate a new access token:
+
+```bash
+curl \
+	--header "Content-Type: application/json" \
+	--request POST \
+	"https://pushbits.example.com/oauth2/token" -d "grant_type=refresh_token&client_id=000000&client_secret=49gjg4js9&response_type=token&refresh_token=OP1Q2UJEVL-RPR9GZAUURA"
+```
+
+##### Getting information about a access token
+
+With a valid access token you can get information about it from `/oauth/tokeninfo`. This is meant for testing if a token is issued correctly.
+
+```bash
+curl \
+	--header "Content-Type: application/json" \
+	--request GET \
+    --header "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NTU3ODcsInN1YiI6IjEifQ.jMux7CBw6fY15Ohc8exEbcnUiMBVVgCowvq3rMrw7MQ" \
+	"https://pushbits.example.com/oauth2/tokeninfo"
+```
+
+##### Revoking a token
+
+Admin users are eligible to revoke tokens. This should not be necessary in normal operation, as tokens are only short lived. But there might be situations where attackers might have gotten knowledge about a token. 
+
+```bash
+curl \
+	--header "Content-Type: application/json" \
+	--request POST \
+    --header "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NTU3ODcsInN1YiI6IjEifQ.jMux7CBw6fY15Ohc8exEbcnUiMBVVgCowvq3rMrw7MQ" \
+    --data '{"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NDg1MDYsInN1YiI6IjEifQ.cO0_8fqsJDG4KswjC0CSzc_EznntH-FDQejdolPAISo"}' \
+	"https://pushbits.example.com/oauth2/revoke"
+```
+
+##### Requesting a longterm token
+
+Longterm tokens are tokens that life for multiple years. They can be used for scripts and other software that access PushBits. So the other software does not need knowledge about the actuall password of the user. However be carefull with longterm tokens, if you loose one others might be able to perform actions on your user account.
+
+```bash
+curl \
+    --request POST \
+    --header "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwMDAwMDAiLCJleHAiOjE2MjE4NTU3ODcsInN1YiI6IjEifQ.jMux7CBw6fY15Ohc8exEbcnUiMBVVgCowvq3rMrw7MQ" \
+    --data '{"client_id": "000000", "client_secret": "49gjg4js9"}' \
+    "https://push.remote.alexanderebhart.de/oauth2/longtermtoken" 
+```
+
 ### Message options
 
 Messages can be specified in three different syntaxes:
