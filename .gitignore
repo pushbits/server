@@ -1,4 +1,4 @@
-app
+out/
 *.db
 config.yml
 

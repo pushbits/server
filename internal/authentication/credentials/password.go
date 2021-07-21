@@ -14,7 +14,7 @@ func (m *Manager) CreatePasswordHash(password string) ([]byte, error) {
 		if err != nil {
 			return []byte{}, errors.New("HIBP is not available, please wait until service is available again")
 		} else if pwned {
-			return []byte{}, errors.New("Password is pwned, please choose another one")
+			return []byte{}, errors.New("password is pwned, please choose another one")
 		}
 	}
 

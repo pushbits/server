@@ -57,7 +57,7 @@ crypto:
         saltlength: 16
         keylength: 32
 
-formatting: 
+formatting:
     # Whether to use colored titles based on the message priority (<0: grey, 0-3: default, 4-10: yellow, 10-20: orange, >20: red).
     coloredtitle: false
 

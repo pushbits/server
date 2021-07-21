@@ -5,13 +5,20 @@ import (
 	"net/http"
 
 	"github.com/pushbits/server/internal/authentication"
+	"github.com/pushbits/server/internal/pberrors"
 
 	"github.com/gin-gonic/gin"
 )
 
 func successOrAbort(ctx *gin.Context, code int, err error) bool {
 	if err != nil {
-		ctx.AbortWithError(code, err)
+		// If we know the error force error code
+		switch err {
+		case pberrors.ErrorMessageNotFound:
+			ctx.AbortWithError(http.StatusNotFound, err)
+		default:
+			ctx.AbortWithError(code, err)
+		}
 	}
 
 	return err == nil

@@ -4,6 +4,9 @@ import (
 	"github.com/jinzhu/configor"
 )
 
+// testMode indicates if the package is run in test mode
+var testMode bool
+
 // Argon2Config holds the parameters used for creating hashes with Argon2.
 type Argon2Config struct {
 	Memory      uint32 `default:"131072"`
@@ -41,6 +44,11 @@ type Oauth struct {
 type Database struct {
 	Dialect    string `default:"sqlite3"`
 	Connection string `default:"pushbits.db"`
+// Matrix holds credentials for a matrix account
+type Matrix struct {
+	Homeserver string `default:"https://matrix.org"`
+	Username   string `required:"true"`
+	Password   string `required:"true"`
 }
 
 // Configuration holds values that can be configured by the user.
@@ -56,11 +64,7 @@ type Configuration struct {
 		Password string `default:"admin"`
 		MatrixID string `required:"true"`
 	}
-	Matrix struct {
-		Homeserver string `default:"https://matrix.org"`
-		Username   string `required:"true"`
-		Password   string `required:"true"`
-	}
+	Matrix   Matrix
 	Security struct {
 		CheckHIBP bool `default:"false"`
 	}
@@ -70,6 +74,9 @@ type Configuration struct {
 }
 
 func configFiles() []string {
+	if testMode {
+		return []string{"config_unittest.yml"}
+	}
 	return []string{"config.yml"}
 }
 

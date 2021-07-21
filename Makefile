@@ -2,7 +2,8 @@ IMAGE := eikendev/pushbits
 
 .PHONY: build
 build:
-	go build -ldflags="-w -s" -o app ./cmd/pushbits
+	mkdir -p ./out
+	go build -ldflags="-w -s" -o ./out/pushbits ./cmd/pushbits
 
 .PHONY: test
 test:
@@ -12,16 +13,13 @@ test:
 	fi
 	go vet ./...
 	gocyclo -over 10 $(shell find . -iname '*.go' -type f)
+	staticcheck ./...
 	go test -v -cover ./...
-	stdout=$$(golint ./... 2>&1); \
-	if [ "$$stdout" ]; then \
-		exit 1; \
-	fi
 
 .PHONY: setup
 setup:
-	go get -u github.com/fzipp/gocyclo/cmd/gocyclo
-	go get -u golang.org/x/lint/golint
+	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+	go install honnef.co/go/tools/cmd/staticcheck@latest
 
 .PHONY: build_image
 build_image:

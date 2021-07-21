@@ -20,6 +20,17 @@ func getID(ctx *gin.Context) (uint, error) {
 	return id, nil
 }
 
+func getMessageID(ctx *gin.Context) (string, error) {
+	id, ok := ctx.MustGet("messageid").(string)
+	if !ok {
+		err := errors.New("an error occured while retrieving messageID from context")
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return "", err
+	}
+
+	return id, nil
+}
+
 func getApplication(ctx *gin.Context, db Database) (*model.Application, error) {
 	id, err := getID(ctx)
 	if err != nil {
