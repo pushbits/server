@@ -20,6 +20,7 @@ import (
 var TestApplicationHandler *ApplicationHandler
 var TestUsers []*model.User
 var TestDatabase *database.Database
+var TestNotificationHandler *NotificationHandler
 
 // Collect all created applications to check & delete them later
 var SuccessAplications map[uint][]model.Application
@@ -56,6 +57,10 @@ func TestMain(m *testing.M) {
 	TestUsers = mockups.GetUsers(config)
 	SuccessAplications = make(map[uint][]model.Application)
 
+	TestNotificationHandler = &NotificationHandler{
+		DB: TestDatabase,
+		DP: &mockups.MockDispatcher{},
+	}
 	// Run
 	m.Run()
 	cleanUp()
