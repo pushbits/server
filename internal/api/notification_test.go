@@ -67,3 +67,35 @@ func TestApi_CreateNotification(t *testing.T) {
 	}
 
 }
+
+func TestApi_DeleteNotification(t *testing.T) {
+	assert := assert.New(t)
+	gin.SetMode(gin.TestMode)
+
+	testApplication := model.Application{
+		ID:       1,
+		Token:    "123456",
+		UserID:   1,
+		Name:     "Test Application",
+		MatrixID: "@testuser:test.de",
+	}
+
+	testCases := make(map[interface{}]tests.Request, 0)
+	testCases["1"] = tests.Request{Name: "Valid numeric string", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 200}
+	testCases["abcde"] = tests.Request{Name: "Valid string", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 200}
+	testCases[123456] = tests.Request{Name: "Valid int", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 200}
+
+	for id, req := range testCases {
+		w, c, err := req.GetRequest()
+		if err != nil {
+			t.Fatalf(err.Error())
+		}
+
+		c.Set("app", &testApplication)
+		c.Set("messageid", id)
+		TestNotificationHandler.CreateNotification(c)
+
+		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+	}
+
+}
