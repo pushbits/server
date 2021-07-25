@@ -224,13 +224,3 @@ func getAdmin() *model.User {
 	}
 	return nil
 }
-
-func countAdmins() uint64 {
-	count := uint64(0)
-	for _, user := range TestUsers {
-		if user.IsAdmin {
-			count += 1
-		}
-	}
-	return count
-}
