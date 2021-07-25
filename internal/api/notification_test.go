@@ -80,7 +80,7 @@ func TestApi_DeleteNotification(t *testing.T) {
 		MatrixID: "@testuser:test.de",
 	}
 
-	testCases := make(map[interface{}]tests.Request, 0)
+	testCases := make(map[interface{}]tests.Request)
 	testCases["1"] = tests.Request{Name: "Valid numeric string", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 200}
 	testCases["abcde"] = tests.Request{Name: "Valid string", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 200}
 	testCases[123456] = tests.Request{Name: "Valid int", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 200}

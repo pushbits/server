@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pushbits/server/internal/authentication/credentials"
 	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"
 	"github.com/pushbits/server/internal/model"
@@ -21,11 +22,14 @@ var TestApplicationHandler *ApplicationHandler
 var TestUsers []*model.User
 var TestDatabase *database.Database
 var TestNotificationHandler *NotificationHandler
+var TestUserHandler *UserHandler
+var TestConfig *configuration.Configuration
 
 // Collect all created applications to check & delete them later
 var SuccessAplications map[uint][]model.Application
 
 func TestMain(m *testing.M) {
+	cleanUp()
 	// Get main config and adapt
 	config := &configuration.Configuration{}
 
@@ -36,6 +40,10 @@ func TestMain(m *testing.M) {
 	config.Crypto.Argon2.Memory = 131072
 	config.Crypto.Argon2.SaltLength = 16
 	config.Crypto.Argon2.KeyLength = 32
+	config.Admin.Name = "user"
+	config.Admin.Password = "pushbits"
+
+	TestConfig = config
 
 	// Set up test environment
 	db, err := mockups.GetEmptyDatabase(config.Crypto)
@@ -61,8 +69,17 @@ func TestMain(m *testing.M) {
 		DB: TestDatabase,
 		DP: &mockups.MockDispatcher{},
 	}
+
+	TestUserHandler = &UserHandler{
+		AH: TestApplicationHandler,
+		CM: credentials.CreateManager(false, config.Crypto),
+		DB: TestDatabase,
+		DP: &mockups.MockDispatcher{},
+	}
+
 	// Run
 	m.Run()
+	log.Println("Clean up after Test")
 	cleanUp()
 }
 
