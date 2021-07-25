@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"io/ioutil"
+	"strconv"
 	"testing"
 
 	"github.com/pushbits/server/internal/model"
@@ -139,6 +140,82 @@ func TestApi_UpdateUser(t *testing.T) {
 	}
 }
 
+func TestApi_GetUser(t *testing.T) {
+	assert := assert.New(t)
+
+	testCases := make(map[interface{}]tests.Request)
+	testCases["abcde"] = tests.Request{Name: "Invalid id - string", Method: "GET", Endpoint: "/user/abcde", ShouldStatus: 500}
+	testCases[uint(9999999)] = tests.Request{Name: "Unknown id", Method: "GET", Endpoint: "/user/99999999", ShouldStatus: 404}
+
+	// Check if we can get all existing users
+	for _, user := range TestUsers {
+		testCases[user.ID] = tests.Request{
+			Name:         "Valid user " + user.Name,
+			Method:       "GET",
+			Endpoint:     "/user/" + strconv.Itoa(int(user.ID)),
+			ShouldStatus: 200,
+			ShouldReturn: user,
+		}
+	}
+
+	for id, testCase := range testCases {
+		w, c, err := testCase.GetRequest()
+		assert.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
+
+		c.Set("id", id)
+		TestUserHandler.GetUser(c)
+
+		assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) should return code %d but returned %d", testCase.Name, testCase.ShouldStatus, w.Code)
+
+		// Check content for successful requests
+		if testCase.ShouldReturn == 200 {
+			user := &model.ExternalUser{}
+			userBytes, err := ioutil.ReadAll(w.Body)
+			assert.NoErrorf(err, "(Test case %s) can not read body", testCase.Name)
+			err = json.Unmarshal(userBytes, user)
+			assert.NoErrorf(err, "(Test case %s) can not unmarshal body", testCase.Name)
+
+			shouldUser, ok := testCase.ShouldReturn.(*model.User)
+			assert.Truef(ok, "(Test case %s) successful response but no should response", testCase.Name)
+
+			// Check if the returned user match
+			assert.Equalf(user.ID, shouldUser.ID, "(Test case %s) user ID should be %d but is %d", testCase.Name, user.ID, shouldUser.ID)
+			assert.Equalf(user.Name, shouldUser.Name, "(Test case %s) user name should be %s but is %s", testCase.Name, user.Name, shouldUser.Name)
+			assert.Equalf(user.MatrixID, shouldUser.MatrixID, "(Test case %s) user matrix ID should be %s but is %s", testCase.Name, user.MatrixID, shouldUser.MatrixID)
+			assert.Equalf(user.IsAdmin, shouldUser.IsAdmin, "(Test case %s) user is admin should be %v but is %v", testCase.Name, user.IsAdmin, shouldUser.IsAdmin)
+		}
+
+	}
+}
+
+func TestApi_DeleteUser(t *testing.T) {
+	assert := assert.New(t)
+	testCases := make(map[interface{}]tests.Request)
+	testCases["abcde"] = tests.Request{Name: "Invalid user - string", Method: "DELETE", Endpoint: "/user/abcde", ShouldStatus: 500}
+	testCases[uint(999999)] = tests.Request{Name: "Unknown user", Method: "DELETE", Endpoint: "/user/999999", ShouldStatus: 404}
+
+	for _, user := range TestUsers {
+		shouldStatus := 200
+		testCases[user.ID] = tests.Request{
+			Name:         "Valid user " + user.Name,
+			Method:       "DELETE",
+			Endpoint:     "/user/" + strconv.Itoa(int(user.ID)),
+			ShouldStatus: shouldStatus,
+		}
+	}
+
+	for id, testCase := range testCases {
+		w, c, err := testCase.GetRequest()
+		assert.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
+
+		c.Set("id", id)
+		TestUserHandler.DeleteUser(c)
+
+		assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) should return code %d but returned %d", testCase.Name, testCase.ShouldStatus, w.Code)
+	}
+
+}
+
 func getAdmin() *model.User {
 	for _, user := range TestUsers {
 		if user.IsAdmin {
@@ -146,4 +223,14 @@ func getAdmin() *model.User {
 		}
 	}
 	return nil
+}
+
+func countAdmins() uint64 {
+	count := uint64(0)
+	for _, user := range TestUsers {
+		if user.IsAdmin {
+			count += 1
+		}
+	}
+	return count
 }
