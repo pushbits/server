@@ -5,8 +5,7 @@ go 1.16
 require (
 	github.com/alexedwards/argon2id v0.0.0-20201228115903-cf543ebc1f7b
 	github.com/gin-contrib/location v0.0.2
-	github.com/gin-gonic/gin v1.6.3
-	github.com/go-playground/validator/v10 v10.3.0 // indirect
+	github.com/gin-gonic/gin v1.7.0
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/gomarkdown/markdown v0.0.0-20210408062403-ad838ccf8cdd
 	github.com/google/go-cmp v0.5.0 // indirect
