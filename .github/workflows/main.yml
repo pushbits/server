@@ -22,5 +22,3 @@ jobs:
         run: make setup
       - name: Run tests
         run: make test
-      - name: Build image
-        run: make build_image

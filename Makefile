@@ -1,5 +1,3 @@
-IMAGE := eikendev/pushbits
-
 .PHONY: build
 build:
 	mkdir -p ./out
