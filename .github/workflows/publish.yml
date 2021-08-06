@@ -31,9 +31,6 @@ jobs:
       - name: Run tests
         run: make test
 
-      - name: Build image
-        run: make build_image
-
       - name: Log in to the Container registry
         uses: docker/login-action@v1
         with:
