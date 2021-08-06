@@ -20,11 +20,3 @@ test:
 setup:
 	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
-
-.PHONY: build_image
-build_image:
-	docker build -t ${IMAGE}:latest .
-
-.PHONY: push_image
-push_image:
-	docker push ${IMAGE}:latest

@@ -75,7 +75,7 @@ version: '2'
 
 services:
     server:
-        image: eikendev/pushbits:latest
+        image: ghcr.io/pushbits/server:latest
         ports:
             - 8080:8080
         environment:
