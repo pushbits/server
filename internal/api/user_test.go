@@ -184,7 +184,6 @@ func TestApi_GetUser(t *testing.T) {
 			assert.Equalf(user.MatrixID, shouldUser.MatrixID, "(Test case %s) user matrix ID should be %s but is %s", testCase.Name, user.MatrixID, shouldUser.MatrixID)
 			assert.Equalf(user.IsAdmin, shouldUser.IsAdmin, "(Test case %s) user is admin should be %v but is %v", testCase.Name, user.IsAdmin, shouldUser.IsAdmin)
 		}
-
 	}
 }
 
