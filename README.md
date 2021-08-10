@@ -11,8 +11,6 @@
 
 <p align="center">
 	<a href="https://github.com/pushbits/server/actions"><img alt="Build status" src="https://img.shields.io/github/workflow/status/pushbits/server/Main"/></a>&nbsp;
-	<a href="https://hub.docker.com/r/eikendev/pushbits"><img alt="Downloads" src="https://img.shields.io/docker/pulls/eikendev/pushbits"/></a>&nbsp;
-	<a href="https://hub.docker.com/r/eikendev/pushbits"><img alt="Image size" src="https://img.shields.io/docker/image-size/eikendev/pushbits"/></a>&nbsp;
 	<a href="https://github.com/pushbits/server/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/pushbits/server"/></a>&nbsp;
 </p>
 
@@ -55,7 +53,7 @@ PushBits is meant to be self-hosted.
 That means you have to install it on your own server.
 
 Currently, the only supported way of installing PushBits is via [Docker](https://www.docker.com/) or [Podman](https://podman.io/).
-The image is hosted [here on Docker Hub](https://hub.docker.com/r/eikendev/pushbits).
+The image is hosted [via ghcr.io](https://github.com/pushbits/server/pkgs/container/server).
 
 | :warning:  **You are advised to install PushBits behind a reverse proxy and enable TLS.** Otherwise, your credentials will be transmitted unencrypted.   |
 |----------------------------------------------------------------------------------------------------------------------------------------------------------|
