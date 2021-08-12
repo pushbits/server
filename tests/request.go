@@ -17,6 +17,7 @@ type Request struct {
 	Data         interface{}
 	Headers      map[string]string
 	ShouldStatus int
+	ShouldReturn interface{}
 }
 
 // GetRequest returns a ResponseRecorder and gin context according to the data set in the Request.
