@@ -44,9 +44,7 @@ func (a *AuthHandler) Initialize(db *database.Database, configAuth configuration
 	a.db = db
 	a.config = configAuth
 
-	if len(a.config.Oauth.ClientSecret) < 5 {
-		panic("Your Oauth 2.0 client secret is empty or not long enough to be secure. Please change it in the configuration file.")
-	} else if len(a.config.Oauth.TokenKey) < 5 {
+	if len(a.config.Oauth.TokenKey) < 5 {
 		panic("Your Oauth 2.0 token key is empty or not long enough to be secure. Please change it in the configuration file.")
 	}
 
@@ -72,26 +70,46 @@ func (a *AuthHandler) Initialize(db *database.Database, configAuth configuration
 	switch configDatabase.Dialect {
 	case "mysql":
 		dbOauth := sqlx.NewDb(db.GetSqldb(), "mysql")
+		// Workaround to get rid of clients that still exist in the database but no longer in the config file
+		_, err := dbOauth.Exec("DROP TABLE IF EXISTS oauth_clients")
+		if err != nil {
+			panic(err)
+		}
 
 		a.manager.MustTokenStorage(mysql.NewTokenStore(dbOauth))
 
 		clientStore, _ := mysql.NewClientStore(dbOauth, mysql.WithClientStoreTableName("oauth_clients"))
 		a.manager.MapClientStorage(clientStore)
 
-		clientStore.Create(&models.Client{
-			ID:     a.config.Oauth.ClientID,
-			Secret: a.config.Oauth.ClientSecret,
-			Domain: a.config.Oauth.ClientRedirect,
-		})
+		for _, client := range a.config.Oauth.Clients {
+			if len(client.ClientSecret) < 5 {
+				panic("Your Oauth 2.0 client secret is empty or not long enough to be secure. Please change it in the configuration file.")
+			}
+
+			clientStore.Create(&models.Client{
+				ID:     client.ClientID,
+				Secret: client.ClientSecret,
+				Domain: client.ClientRedirect,
+			})
+		}
+
 	case "sqlite3":
 		a.manager.MustTokenStorage(store.NewFileTokenStore("pushbits_tokens.db"))
 		clientStore := store.NewClientStore() // memory store
 		a.manager.MapClientStorage(clientStore)
-		clientStore.Set(a.config.Oauth.ClientID, &models.Client{
-			ID:     a.config.Oauth.ClientID,
-			Secret: a.config.Oauth.ClientSecret,
-			Domain: a.config.Oauth.ClientRedirect,
-		})
+
+		for _, client := range a.config.Oauth.Clients {
+			if len(client.ClientSecret) < 5 {
+				panic("Your Oauth 2.0 client secret is empty or not long enough to be secure. Please change it in the configuration file.")
+			}
+
+			clientStore.Set(client.ClientID, &models.Client{
+				ID:     client.ClientID,
+				Secret: client.ClientSecret,
+				Domain: client.ClientRedirect,
+			})
+		}
+
 	default:
 		log.Panicln("Unknown (oauth) storage dialect")
 	}

@@ -66,11 +66,12 @@ authentication:
     method: basic
     # Only needed if you choose oauth method.
     oauth:
-        # Oauth client identifier (random string).
-        clientid: "000000"
-        # Oauth client secret (random string).
-        clientsecret: ""
-        # Oauth redirect url after successful auth. Can be overwritten in the authentication request.
-        clientredirect: "http://localhost"
+        clients:
+            # Oauth client identifier (random string).
+          - clientid: "000000"
+            # Oauth client secret (random string).
+            clientsecret: ""
+            # Oauth redirect url after successful auth. Redirects will only be accepted for this url.
+            clientredirect: "http://localhost"
         # Key used for signing (JWT with HS512) the access tokens (random string).
         tokenkey: ""

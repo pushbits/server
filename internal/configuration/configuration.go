@@ -34,10 +34,15 @@ type Authentication struct {
 
 // Oauth holds information about the oauth server
 type Oauth struct {
+	Clients  []OauthClient
+	TokenKey string `default:""`
+}
+
+// OauthClient holds information about an oauth client
+type OauthClient struct {
 	ClientID       string `default:"000000"`
 	ClientSecret   string `default:""`
 	ClientRedirect string `default:"http://localhost"`
-	TokenKey       string `default:""`
 }
 
 // Database holds information about the used database type
