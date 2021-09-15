@@ -50,7 +50,7 @@ func TestApi_CreateUser(t *testing.T) {
 
 		TestUserHandler.CreateUser(c)
 
-		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 	}
 }
 
@@ -127,7 +127,7 @@ func TestApi_UpdateUser(t *testing.T) {
 		c.Set("user", admin)
 		TestUserHandler.UpdateUser(c)
 
-		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 	}
 
 	// Invalid without user set
@@ -168,24 +168,24 @@ func TestApi_GetUser(t *testing.T) {
 		c.Set("id", id)
 		TestUserHandler.GetUser(c)
 
-		assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) should return code %d but returned %d", testCase.Name, testCase.ShouldStatus, w.Code)
+		assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) Expected status code %d but have %d", testCase.Name, testCase.ShouldStatus, w.Code)
 
 		// Check content for successful requests
 		if testCase.ShouldReturn == 200 {
 			user := &model.ExternalUser{}
 			userBytes, err := ioutil.ReadAll(w.Body)
-			require.NoErrorf(err, "(Test case %s) can not read body", testCase.Name)
+			require.NoErrorf(err, "(Test case %s) Can not read body", testCase.Name)
 			err = json.Unmarshal(userBytes, user)
-			require.NoErrorf(err, "(Test case %s) can not unmarshal body", testCase.Name)
+			require.NoErrorf(err, "(Test case %s) Can not unmarshal body", testCase.Name)
 
 			shouldUser, ok := testCase.ShouldReturn.(*model.User)
-			assert.Truef(ok, "(Test case %s) successful response but no should response", testCase.Name)
+			assert.Truef(ok, "(Test case %s) Successful response but no should response", testCase.Name)
 
 			// Check if the returned user match
-			assert.Equalf(user.ID, shouldUser.ID, "(Test case %s) user ID should be %d but is %d", testCase.Name, user.ID, shouldUser.ID)
-			assert.Equalf(user.Name, shouldUser.Name, "(Test case %s) user name should be %s but is %s", testCase.Name, user.Name, shouldUser.Name)
-			assert.Equalf(user.MatrixID, shouldUser.MatrixID, "(Test case %s) user matrix ID should be %s but is %s", testCase.Name, user.MatrixID, shouldUser.MatrixID)
-			assert.Equalf(user.IsAdmin, shouldUser.IsAdmin, "(Test case %s) user is admin should be %v but is %v", testCase.Name, user.IsAdmin, shouldUser.IsAdmin)
+			assert.Equalf(user.ID, shouldUser.ID, "(Test case %s) User ID should be %d but is %d", testCase.Name, user.ID, shouldUser.ID)
+			assert.Equalf(user.Name, shouldUser.Name, "(Test case %s) User name should be %s but is %s", testCase.Name, user.Name, shouldUser.Name)
+			assert.Equalf(user.MatrixID, shouldUser.MatrixID, "(Test case %s) User matrix ID should be %s but is %s", testCase.Name, user.MatrixID, shouldUser.MatrixID)
+			assert.Equalf(user.IsAdmin, shouldUser.IsAdmin, "(Test case %s) User is admin should be %v but is %v", testCase.Name, user.IsAdmin, shouldUser.IsAdmin)
 		}
 	}
 }
@@ -214,7 +214,7 @@ func TestApi_DeleteUser(t *testing.T) {
 		c.Set("id", id)
 		TestUserHandler.DeleteUser(c)
 
-		assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) should return code %d but returned %d", testCase.Name, testCase.ShouldStatus, w.Code)
+		assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) Expected status code %d but have %d", testCase.Name, testCase.ShouldStatus, w.Code)
 	}
 
 }

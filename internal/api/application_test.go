@@ -130,7 +130,7 @@ func TestApi_RegisterApplication(t *testing.T) {
 				SuccessAplications[user.ID] = append(SuccessAplications[user.ID], application)
 			}
 
-			assert.Equalf(w.Code, req.ShouldStatus, "CreateApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "CreateApplication (Test case: \"%s\") Expected status code %v but received %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
@@ -169,7 +169,7 @@ func TestApi_GetApplications(t *testing.T) {
 				assert.Equalf(len(applications), len(SuccessAplications[user.ID]), "Created %d application(s) but got %d back", len(SuccessAplications[user.ID]), len(applications))
 			}
 
-			assert.Equalf(w.Code, req.ShouldStatus, "GetApplications (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "GetApplications (Test case: \"%s\") Expected status code %v but received %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
@@ -210,7 +210,7 @@ func TestApi_GetApplicationErrors(t *testing.T) {
 			c.Set("id", id)
 			TestApplicationHandler.GetApplication(c)
 
-			assert.Equalf(w.Code, req.ShouldStatus, "GetApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "GetApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
@@ -249,7 +249,7 @@ func TestApi_GetApplication(t *testing.T) {
 
 			}
 
-			assert.Equalf(w.Code, req.ShouldStatus, "GetApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "GetApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
@@ -289,7 +289,7 @@ func TestApi_UpdateApplication(t *testing.T) {
 			c.Set("id", id)
 			TestApplicationHandler.UpdateApplication(c)
 
-			assert.Equalf(w.Code, req.ShouldStatus, "UpdateApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "UpdateApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
@@ -317,7 +317,7 @@ func TestApi_DeleteApplication(t *testing.T) {
 			c.Set("id", id)
 			TestApplicationHandler.DeleteApplication(c)
 
-			assert.Equalf(w.Code, req.ShouldStatus, "DeleteApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "DeleteApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }

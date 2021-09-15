@@ -59,7 +59,7 @@ func TestApi_CreateNotification(t *testing.T) {
 			assert.Equalf(shouldNotification.Priority, notification.Priority, "(Test case %s) Notification priority should be %s but is %s", req.Name, shouldNotification.Priority, notification.Priority)
 		}
 
-		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 	}
 
 }
@@ -91,7 +91,7 @@ func TestApi_DeleteNotification(t *testing.T) {
 		c.Set("messageid", id)
 		TestNotificationHandler.DeleteNotification(c)
 
-		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 	}
 
 }

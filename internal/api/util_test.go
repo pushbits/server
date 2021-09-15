@@ -30,10 +30,10 @@ func TestApi_SuccessOrAbort(t *testing.T) {
 		aborted := successOrAbort(c, testCase.ShouldStatus, forcedErr)
 
 		if forcedErr != nil {
-			assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) should return code %d but returned %d", testCase.Name, testCase.ShouldStatus, w.Code)
+			assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) Expected status code %d but have %d", testCase.Name, testCase.ShouldStatus, w.Code)
 		}
 
-		assert.Equalf(forcedErr == nil, aborted, "(Test case %s) should return %v but returned %v", testCase.Name, forcedErr == nil, aborted)
+		assert.Equalf(forcedErr == nil, aborted, "(Test case %s) Expected %v but have %v", testCase.Name, forcedErr == nil, aborted)
 	}
 }
 
@@ -55,10 +55,10 @@ func TestApi_IsCurrentUser(t *testing.T) {
 			isCurrentUser := isCurrentUser(c, id)
 
 			if testCase.ShouldStatus == 200 {
-				assert.Truef(isCurrentUser, "(Test case %s) should be true but is false", testCase.Name)
+				assert.Truef(isCurrentUser, "(Test case %s) Should be true but is false", testCase.Name)
 			} else {
-				assert.Falsef(isCurrentUser, "(Test case %s) should be false but is true", testCase.Name)
-				assert.Equalf(w.Code, testCase.ShouldStatus, "(Test case %s) should return status %d but returned %d", testCase.Name, testCase.ShouldStatus, w.Code)
+				assert.Falsef(isCurrentUser, "(Test case %s) Should be false but is true", testCase.Name)
+				assert.Equalf(w.Code, testCase.ShouldStatus, "(Test case %s) Expected status code %d but have %d", testCase.Name, testCase.ShouldStatus, w.Code)
 			}
 		}
 	}
