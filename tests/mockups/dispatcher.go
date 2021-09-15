@@ -21,3 +21,11 @@ func (d *MockDispatcher) DeregisterApplication(a *model.Application, u *model.Us
 func (d *MockDispatcher) UpdateApplication(a *model.Application) error {
 	return nil
 }
+
+func (d *MockDispatcher) SendNotification(a *model.Application, n *model.Notification) (id string, err error) {
+	return randStr(15), nil
+}
+
+func (d *MockDispatcher) DeleteNotification(a *model.Application, n *model.DeleteNotification) error {
+	return nil
+}
