@@ -9,10 +9,12 @@ import (
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/tests"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestApi_CreateNotification(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	testApplication := model.Application{
@@ -43,15 +45,9 @@ func TestApi_CreateNotification(t *testing.T) {
 		// Parse body only for successful requests
 		if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 			body, err := ioutil.ReadAll(w.Body)
-			assert.NoErrorf(err, "Can not read request body")
-			if err != nil {
-				continue
-			}
+			require.NoErrorf(err, "Can not read request body")
 			err = json.Unmarshal(body, &notification)
-			assert.NoErrorf(err, "Can not unmarshal request body")
-			if err != nil {
-				continue
-			}
+			require.NoErrorf(err, "Can not unmarshal request body")
 
 			shouldNotification, ok := req.ShouldReturn.(model.Notification)
 			assert.Truef(ok, "(Test case %s) Type mismatch can not test further", req.Name)
@@ -83,7 +79,7 @@ func TestApi_DeleteNotification(t *testing.T) {
 	testCases := make(map[interface{}]tests.Request)
 	testCases["1"] = tests.Request{Name: "Valid numeric string", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 200}
 	testCases["abcde"] = tests.Request{Name: "Valid string", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 200}
-	testCases[123456] = tests.Request{Name: "Valid int", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 200}
+	testCases[123456] = tests.Request{Name: "Invalid int", Method: "DELETE", Endpoint: "/message?token=123456&message=testmessage", ShouldStatus: 500}
 
 	for id, req := range testCases {
 		w, c, err := req.GetRequest()
@@ -93,7 +89,7 @@ func TestApi_DeleteNotification(t *testing.T) {
 
 		c.Set("app", &testApplication)
 		c.Set("messageid", id)
-		TestNotificationHandler.CreateNotification(c)
+		TestNotificationHandler.DeleteNotification(c)
 
 		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
 	}

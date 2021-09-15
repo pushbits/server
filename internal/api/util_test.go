@@ -7,10 +7,12 @@ import (
 
 	"github.com/pushbits/server/tests"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestApi_SuccessOrAbort(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
 	testCases := make(map[error]tests.Request)
 	testCases[errors.New("")] = tests.Request{Name: "Empty Error - 500", Endpoint: "/", ShouldStatus: 500}
@@ -23,7 +25,7 @@ func TestApi_SuccessOrAbort(t *testing.T) {
 
 	for forcedErr, testCase := range testCases {
 		w, c, err := testCase.GetRequest()
-		assert.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
+		require.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
 
 		aborted := successOrAbort(c, testCase.ShouldStatus, forcedErr)
 
@@ -37,6 +39,7 @@ func TestApi_SuccessOrAbort(t *testing.T) {
 
 func TestApi_IsCurrentUser(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
 	for _, user := range TestUsers {
 		testCases := make(map[uint]tests.Request)
@@ -46,7 +49,7 @@ func TestApi_IsCurrentUser(t *testing.T) {
 
 		for id, testCase := range testCases {
 			w, c, err := testCase.GetRequest()
-			assert.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
+			require.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
 
 			c.Set("user", user)
 			isCurrentUser := isCurrentUser(c, id)

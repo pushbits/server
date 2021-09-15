@@ -9,6 +9,7 @@ import (
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/tests"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestApi_CreateUser(t *testing.T) {
@@ -55,6 +56,7 @@ func TestApi_CreateUser(t *testing.T) {
 
 func TestApi_GetUsers(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
 	request := tests.Request{
 		Method:   "GET",
@@ -72,9 +74,9 @@ func TestApi_GetUsers(t *testing.T) {
 	// Get users from body
 	users := make([]model.ExternalUser, 0)
 	usersRaw, err := ioutil.ReadAll(w.Body)
-	assert.NoErrorf(err, "Failed to parse response body")
+	require.NoErrorf(err, "Failed to parse response body")
 	err = json.Unmarshal(usersRaw, &users)
-	assert.NoErrorf(err, "Can not unmarshal users")
+	require.NoErrorf(err, "Can not unmarshal users")
 
 	// Check existence of all known users
 	for _, user := range TestUsers {
@@ -142,6 +144,7 @@ func TestApi_UpdateUser(t *testing.T) {
 
 func TestApi_GetUser(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 
 	testCases := make(map[interface{}]tests.Request)
 	testCases["abcde"] = tests.Request{Name: "Invalid id - string", Method: "GET", Endpoint: "/user/abcde", ShouldStatus: 500}
@@ -160,7 +163,7 @@ func TestApi_GetUser(t *testing.T) {
 
 	for id, testCase := range testCases {
 		w, c, err := testCase.GetRequest()
-		assert.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
+		require.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
 
 		c.Set("id", id)
 		TestUserHandler.GetUser(c)
@@ -171,9 +174,9 @@ func TestApi_GetUser(t *testing.T) {
 		if testCase.ShouldReturn == 200 {
 			user := &model.ExternalUser{}
 			userBytes, err := ioutil.ReadAll(w.Body)
-			assert.NoErrorf(err, "(Test case %s) can not read body", testCase.Name)
+			require.NoErrorf(err, "(Test case %s) can not read body", testCase.Name)
 			err = json.Unmarshal(userBytes, user)
-			assert.NoErrorf(err, "(Test case %s) can not unmarshal body", testCase.Name)
+			require.NoErrorf(err, "(Test case %s) can not unmarshal body", testCase.Name)
 
 			shouldUser, ok := testCase.ShouldReturn.(*model.User)
 			assert.Truef(ok, "(Test case %s) successful response but no should response", testCase.Name)
@@ -189,6 +192,7 @@ func TestApi_GetUser(t *testing.T) {
 
 func TestApi_DeleteUser(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	testCases := make(map[interface{}]tests.Request)
 	testCases["abcde"] = tests.Request{Name: "Invalid user - string", Method: "DELETE", Endpoint: "/user/abcde", ShouldStatus: 500}
 	testCases[uint(999999)] = tests.Request{Name: "Unknown user", Method: "DELETE", Endpoint: "/user/999999", ShouldStatus: 404}
@@ -205,7 +209,7 @@ func TestApi_DeleteUser(t *testing.T) {
 
 	for id, testCase := range testCases {
 		w, c, err := testCase.GetRequest()
-		assert.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
+		require.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
 
 		c.Set("id", id)
 		TestUserHandler.DeleteUser(c)

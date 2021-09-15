@@ -16,6 +16,7 @@ import (
 	"github.com/pushbits/server/tests"
 	"github.com/pushbits/server/tests/mockups"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var TestApplicationHandler *ApplicationHandler
@@ -99,6 +100,7 @@ func TestApi_RegisterApplicationWithoutUser(t *testing.T) {
 
 func TestApi_RegisterApplication(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	testCases := make([]tests.Request, 0)
@@ -121,15 +123,9 @@ func TestApi_RegisterApplication(t *testing.T) {
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 				body, err := ioutil.ReadAll(w.Body)
-				assert.NoErrorf(err, "Can not read request body")
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not read request body")
 				err = json.Unmarshal(body, &application)
-				assert.NoErrorf(err, "Can not unmarshal request body")
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not unmarshal request body")
 
 				SuccessAplications[user.ID] = append(SuccessAplications[user.ID], application)
 			}
@@ -143,6 +139,7 @@ func TestApi_GetApplications(t *testing.T) {
 	var applications []model.Application
 
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	testCases := make([]tests.Request, 0)
@@ -161,12 +158,9 @@ func TestApi_GetApplications(t *testing.T) {
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 				body, err := ioutil.ReadAll(w.Body)
-				assert.NoErrorf(err, "Can not read request body")
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not read request body")
 				err = json.Unmarshal(body, &applications)
-				assert.NoErrorf(err, "Can not unmarshal request body")
+				require.NoErrorf(err, "Can not unmarshal request body")
 				if err != nil {
 					continue
 				}
@@ -225,6 +219,7 @@ func TestApi_GetApplication(t *testing.T) {
 	var application model.Application
 
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	// Previously generated applications
@@ -244,15 +239,9 @@ func TestApi_GetApplication(t *testing.T) {
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 				body, err := ioutil.ReadAll(w.Body)
-				assert.NoErrorf(err, "Can not read request body")
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not read request body")
 				err = json.Unmarshal(body, &application)
-				assert.NoErrorf(err, "Can not unmarshal request body: %v", err)
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not unmarshal request body: %v", err)
 
 				assert.Equalf(application.ID, app.ID, "Application ID should be %d but is %d", app.ID, application.ID)
 				assert.Equalf(application.Name, app.Name, "Application Name should be %s but is %s", app.Name, application.Name)
@@ -267,6 +256,7 @@ func TestApi_GetApplication(t *testing.T) {
 
 func TestApi_UpdateApplication(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	for _, user := range TestUsers {
@@ -278,7 +268,7 @@ func TestApi_UpdateApplication(t *testing.T) {
 				Name: &newName,
 			}
 			updateAppBytes, err := json.Marshal(updateApp)
-			assert.NoErrorf(err, "Error on marshaling updateApplication struct")
+			require.NoErrorf(err, "Error on marshaling updateApplication struct")
 
 			// Valid
 			testCases[app.ID] = tests.Request{Name: fmt.Sprintf("Update application (valid) %s (%d)", app.Name, app.ID), Method: "PUT", Endpoint: fmt.Sprintf("/application/%d", app.ID), ShouldStatus: 200, Data: string(updateAppBytes), Headers: map[string]string{"Content-Type": "application/json"}}

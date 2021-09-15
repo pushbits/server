@@ -8,10 +8,12 @@ import (
 	"github.com/pushbits/server/tests"
 	"github.com/pushbits/server/tests/mockups"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestApi_getID(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 	testValue := uint(1337)
 
@@ -36,11 +38,12 @@ func TestApi_getID(t *testing.T) {
 		idReturned, err := getID(c)
 
 		if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
+			require.NoErrorf(err, "getId with id %v (%t) returned an error altough it should not: %v", id, id, err)
+
 			idUint, ok := id.(uint)
 			if ok {
 				assert.Equalf(idReturned, idUint, "getApi id was set to %d but result is %d", idUint, idReturned)
 			}
-			assert.NoErrorf(err, "getId with id %v (%t) returned an error altough it should not: %v", id, id, err)
 		} else {
 			assert.Errorf(err, "getId with id %v (%t) returned no error altough it should", id, id)
 		}
@@ -51,6 +54,7 @@ func TestApi_getID(t *testing.T) {
 
 func TestApi_getApplication(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	applications := mockups.GetAllApplications()
@@ -72,8 +76,8 @@ func TestApi_getApplication(t *testing.T) {
 		app, err := getApplication(c, TestDatabase)
 
 		if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
+			require.NoErrorf(err, "getApplication with id %v (%t) returned an error altough it should not: %v", id, id, err)
 			assert.Equalf(app.ID, id, "getApplication id was set to %d but resulting app id is %d", id, app.ID)
-			assert.NoErrorf(err, "getApplication with id %v (%t) returned an error altough it should not: %v", id, id, err)
 		} else {
 			assert.Errorf(err, "getApplication with id %v (%t) returned no error altough it should", id, id)
 		}
@@ -85,6 +89,7 @@ func TestApi_getApplication(t *testing.T) {
 
 func TestApi_getUser(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	_, err := mockups.AddUsersToDb(TestDatabase, TestUsers)
@@ -106,8 +111,9 @@ func TestApi_getUser(t *testing.T) {
 		user, err := getUser(c, TestDatabase)
 
 		if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
+			require.NoErrorf(err, "getUser with id %v (%t) returned an error altough it should not: %v", id, id, err)
 			assert.Equalf(user.ID, id, "getUser id was set to %d but resulting app id is %d", id, user.ID)
-			assert.NoErrorf(err, "getUser with id %v (%t) returned an error altough it should not: %v", id, id, err)
+
 		} else {
 			assert.Errorf(err, "getUser with id %v (%t) returned no error altough it should", id, id)
 		}
