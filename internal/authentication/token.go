@@ -2,15 +2,14 @@ package authentication
 
 import (
 	"crypto/rand"
-	"log"
 	"math/big"
 )
 
 var (
-	tokenCharacters     = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	standardTokenLength = 64 // This length includes the prefix (one character).
-	compatTokenLength   = 15 // This length includes the prefix (one character).
-	applicationPrefix   = "A"
+	tokenCharacters        = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	regularTokenLength     = 64 // This length includes the prefix (one character).
+	compatTokenLength      = 15 // This length includes the prefix (one character).
+	applicationTokenPrefix = "A"
 )
 
 func randIntn(n int) int {
@@ -46,23 +45,13 @@ func generateRandomString(length int) string {
 	return string(res)
 }
 
-func generateRandomToken(prefix string, compat bool) string {
-	tokenLength := standardTokenLength
+// GenerateApplicationToken generates a token for an application.
+func GenerateApplicationToken(compat bool) string {
+	tokenLength := regularTokenLength
 
 	if compat {
 		tokenLength = compatTokenLength
 	}
 
-	// Although constant at the time of writing, this check should prevent future changes from generating insecure tokens.
-	randomLength := tokenLength - len(prefix)
-	if randomLength < 14 {
-		log.Fatalf("Tokens should have more than %d random characters", randomLength)
-	}
-
-	return prefix + generateRandomString(randomLength)
-}
-
-// GenerateApplicationToken generates a token for an application.
-func GenerateApplicationToken(compat bool) string {
-	return generateRandomToken(applicationPrefix, compat)
+	return applicationTokenPrefix + generateRandomString(tokenLength)
 }
