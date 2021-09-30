@@ -1,4 +1,4 @@
-FROM golang:alpine as builder
+FROM docker.io/library/golang:alpine as builder
 
 WORKDIR /build
 
@@ -11,7 +11,7 @@ RUN set -ex \
 	&& make build \
 	&& chmod +x /build/out/pushbits
 
-FROM alpine
+FROM docker.io/library/alpine
 
 ARG USER_ID=1000
 
