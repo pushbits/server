@@ -26,6 +26,19 @@ func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 	}()
 }
 
+// @title PushBits Server API Documentation
+// @version 1.0
+// @description Documentation for the PushBits server API.
+
+// TODO add inprint and contact?
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+
+// @host your-domain.net
+// @BasePath /
+// @query.collection.format multi
+
+// @securityDefinitions.basic BasicAuth
 func main() {
 	log.Println("Starting PushBits.")
 

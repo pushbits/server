@@ -109,7 +109,16 @@ func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Applic
 	return nil
 }
 
-// CreateApplication creates an application.
+// CreateApplication godoc
+// @Summary Create Application
+// @Description Create a new application
+// @Accept mpfd
+// @Produce json
+// @Param name query string true "Name of the application"
+// @Param strict_compatability query boolean false "Use strict compatability mode"
+// @Success 200 {object} model.Application
+// @Failure 400 {string} ""
+// @Router /application [post]
 func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	var createApplication model.CreateApplication
 
