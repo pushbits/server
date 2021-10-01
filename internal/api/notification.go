@@ -74,7 +74,7 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 // @Summary Delete a Notification
 // @Description Informs the channel that the notification is deleted
 // @Accept json,mpfd
-// @Produce  json
+// @Produce json
 // @Param message_id path string true "ID of the message to delete"
 // @Param token query string true "Channels token, can also be provieded in the header"
 // @Success 200 ""

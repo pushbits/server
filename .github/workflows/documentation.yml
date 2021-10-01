@@ -20,12 +20,10 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: Install swag
         run: go install github.com/swaggo/swag/cmd/swag
-      - name: debug
-        run: cd / && find * | grep swag
       - name: Install redoc
         run: sudo apt install npm && sudo npm install redoc 
       - name: Build the api documentation
-        run: swag init --parseDependency=true -d . -g cmd/pushbits/main.go
+        run: /home/runner/go/bin/swag init --parseDependency=true -d . -g cmd/pushbits/main.go
       - name: Build static html
         run: npx redoc-cli bundle docs/swagger.yaml --output index.html
       # TODO copy index.html to new repo
