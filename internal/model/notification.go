@@ -21,3 +21,6 @@ type DeleteNotification struct {
 	ID   string    `json:"id" form:"id"`
 	Date time.Time `json:"date"`
 }
+
+// NotificationExtras is need to document Notification.Extras in a format that the tool can read.
+type NotificationExtras map[string]interface{}

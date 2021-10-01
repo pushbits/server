@@ -112,12 +112,12 @@ func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Applic
 // CreateApplication godoc
 // @Summary Create Application
 // @Description Create a new application
-// @Accept mpfd
+// @Accept json,mpfd
 // @Produce json
 // @Param name query string true "Name of the application"
 // @Param strict_compatability query boolean false "Use strict compatability mode"
 // @Success 200 {object} model.Application
-// @Failure 400 {string} string ""
+// @Failure 400 ""
 // @Security BasicAuth
 // @Router /application [post]
 func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
@@ -144,10 +144,11 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 // GetApplications godoc
 // @Summary Get Applications
 // @Description Get all applications from current user
-// @Accept mpfd
+// @Accept json,mpfd
 // @Produce json
 // @Success 200 {array} model.Application
-// @Failure 500 {string} string ""
+// @Failure 500 ""
+// @Security BasicAuth
 // @Router /application [get]
 func (h *ApplicationHandler) GetApplications(ctx *gin.Context) {
 	user := authentication.GetUser(ctx)
@@ -166,11 +167,12 @@ func (h *ApplicationHandler) GetApplications(ctx *gin.Context) {
 // GetApplication godoc
 // @Summary Get Application
 // @Description Get single application by ID
-// @Accept mpfd
+// @Accept json,mpfd
 // @Produce json
 // @Param id path int true "ID of the application"
 // @Success 200 {object} model.Application
-// @Failure 404,403 {string} string ""
+// @Failure 404,403 ""
+// @Security BasicAuth
 // @Router /application/{id} [get]
 func (h *ApplicationHandler) GetApplication(ctx *gin.Context) {
 	application, err := getApplication(ctx, h.DB)
@@ -195,11 +197,12 @@ func (h *ApplicationHandler) GetApplication(ctx *gin.Context) {
 // DeleteApplication godoc
 // @Summary Delete Application
 // @Description Delete an application
-// @Accept mpfd
+// @Accept json,mpfd
 // @Produce json
 // @Param id path int true "ID of the application"
-// @Success 200 {string} string ""
-// @Failure 500,404,403 {string} string ""
+// @Success 200 ""
+// @Failure 500,404,403 ""
+// @Security BasicAuth
 // @Router /application/{id} [delete]
 func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 	application, err := getApplication(ctx, h.DB)
@@ -221,14 +224,15 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 // UpdateApplication godoc
 // @Summary Update Application
 // @Description Update an application
-// @Accept mpfd
+// @Accept json,mpfd
 // @Produce json
 // @Param id path int true "ID of the application"
 // @Param name query string false "New name for the application"
 // @Param refresh_token query bool false "Generate new refresh token for the application"
 // @Param strict_compatability query bool false "Whether to use strict compataibility mode"
-// @Success 200 {string} string ""
-// @Failure 500,404,403,404 {string} string ""
+// @Success 200 ""
+// @Failure 500,404,403 ""
+// @Security BasicAuth
 // @Router /application/{id} [put]
 func (h *ApplicationHandler) UpdateApplication(ctx *gin.Context) {
 	application, err := getApplication(ctx, h.DB)
