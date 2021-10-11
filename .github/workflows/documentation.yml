@@ -11,7 +11,7 @@ on:
 jobs:
   build_documentation:
     runs-on: ubuntu-latest
-    # TODO Activate later: if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
