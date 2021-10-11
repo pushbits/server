@@ -42,4 +42,4 @@ jobs:
       - name: Commit and push
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: cd website && git commit -m "Update to ${{ github.sha }}" && git push
+        run: cd website && git add . && git commit -m "Update to ${{ github.sha }}" && git push
