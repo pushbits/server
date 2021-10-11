@@ -32,6 +32,8 @@ type NotificationHandler struct {
 // CreateNotification godoc
 // @Summary Create a Notification
 // @Description Creates a new notification for the given channel
+// @ID post-message
+// @Tags Application
 // @Accept json,mpfd
 // @Produce json
 // @Param message query string true "The message to send"
@@ -73,6 +75,8 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 // DeleteNotification godoc
 // @Summary Delete a Notification
 // @Description Informs the channel that the notification is deleted
+// @ID deöete-message-id
+// @Tags Application
 // @Accept json,mpfd
 // @Produce json
 // @Param message_id path string true "ID of the message to delete"

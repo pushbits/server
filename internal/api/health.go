@@ -13,6 +13,8 @@ type HealthHandler struct {
 
 // Health godoc
 // @Summary Health of the application
+// @ID get-health
+// @Tags Health
 // @Accept json,mpfd
 // @Produce json
 // @Success 200 ""

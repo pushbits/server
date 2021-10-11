@@ -116,6 +116,8 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 // This method assumes that the requesting user has privileges.
 // @Summary Create a User
 // @Description Creates a new user
+// @ID post-user
+// @Tags User
 // @Accept json,mpfd
 // @Produce json
 // @Param name query string true "Name of the user"
@@ -153,6 +155,8 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 // This method assumes that the requesting user has privileges.
 // @Summary Get Users
 // @Description Gets a list of all users
+// @ID get-user
+// @Tags User
 // @Accept json,mpfd
 // @Produce json
 // @Success 200 {object} []model.ExternalUser
@@ -178,6 +182,8 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 // This method assumes that the requesting user has privileges.
 // @Summary Get User
 // @Description Gets single user
+// @ID get-user-id
+// @Tags User
 // @Accept json,mpfd
 // @Produce json
 // @Param id path integer true "The users id"
@@ -198,6 +204,8 @@ func (h *UserHandler) GetUser(ctx *gin.Context) {
 // This method assumes that the requesting user has privileges.
 // @Summary Delete User
 // @Description Delete user
+// @ID delete-user-id
+// @Tags User
 // @Accept json,mpfd
 // @Produce json
 // @Param id path integer true "The users id"
@@ -236,6 +244,8 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 // cannot give themselves privileges.
 // @Summary Update User
 // @Description Update user information
+// @ID put-user-id
+// @Tags User
 // @Accept json,mpfd
 // @Produce json
 // @Param id path integer true "The users id"

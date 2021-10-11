@@ -112,6 +112,8 @@ func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Applic
 // CreateApplication godoc
 // @Summary Create Application
 // @Description Create a new application
+// @ID post-application
+// @Tags Application
 // @Accept json,mpfd
 // @Produce json
 // @Param name query string true "Name of the application"
@@ -144,6 +146,8 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 // GetApplications godoc
 // @Summary Get Applications
 // @Description Get all applications from current user
+// @ID get-application
+// @Tags Application
 // @Accept json,mpfd
 // @Produce json
 // @Success 200 {array} model.Application
@@ -167,6 +171,8 @@ func (h *ApplicationHandler) GetApplications(ctx *gin.Context) {
 // GetApplication godoc
 // @Summary Get Application
 // @Description Get single application by ID
+// @ID get-application-id
+// @Tags Application
 // @Accept json,mpfd
 // @Produce json
 // @Param id path int true "ID of the application"
@@ -197,6 +203,8 @@ func (h *ApplicationHandler) GetApplication(ctx *gin.Context) {
 // DeleteApplication godoc
 // @Summary Delete Application
 // @Description Delete an application
+// @ID delete-application-id
+// @Tags Application
 // @Accept json,mpfd
 // @Produce json
 // @Param id path int true "ID of the application"
@@ -224,6 +232,8 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 // UpdateApplication godoc
 // @Summary Update Application
 // @Description Update an application
+// @ID put-application-id
+// @Tags Application
 // @Accept json,mpfd
 // @Produce json
 // @Param id path int true "ID of the application"
