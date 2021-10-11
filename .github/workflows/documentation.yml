@@ -34,10 +34,10 @@ jobs:
       - name: Checkout website
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: mkdir /website && git clone git@github.com:pushbits/website.git /website
+        run: mkdir website && git clone git@github.com:pushbits/website.git website
       - name: Copy index.html
-        run: cp index.html /website/index.html
+        run: cp index.html website/index.html
       - name: Commit and push
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: cd /website && git commit -m "Update to ${{ github.sha }}" && git push
+        run: cd website && git commit -m "Update to ${{ github.sha }}" && git push
