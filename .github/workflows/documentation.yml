@@ -37,6 +37,8 @@ jobs:
         run: mkdir website && git clone git@github.com:pushbits/website.git website
       - name: Copy index.html
         run: cp index.html website/index.html
+      - name: Set git config
+        run: git config --global user.email "pipeline@pushbits.io" && git config --global user.name "Pushbits Pipeline"
       - name: Commit and push
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
