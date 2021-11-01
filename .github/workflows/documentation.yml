@@ -1,0 +1,59 @@
+name: Documentation
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**.jpg'
+      - '**.jpeg'
+      - '**.png'
+      - '**.yaml'
+      - '**.json'
+
+jobs:
+  build_documentation:
+    name: Build documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag
+
+      - name: Install redoc
+        run: sudo apt install npm && sudo npm install redoc
+
+      - name: Build the API documentation
+        run: /home/runner/go/bin/swag init --parseDependency=true -d . -g cmd/pushbits/main.go
+
+      - name: Build static HTML
+        run: npx redoc-cli bundle docs/swagger.yaml --output index.html
+
+      - name: Setup SSH keys and known_hosts
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add - <<< "${{ secrets.WEBSITE_DEPLOY_KEY }}"
+
+      - name: Checkout website
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: mkdir website && git clone git@github.com:pushbits/website.git website
+
+      - name: Copy index.html
+        run: cp index.html website/static/api/index.html
+
+      - name: Set Git config
+        run: git config --global user.email "pipeline@pushbits.io" && git config --global user.name "PushBits Pipeline"
+
+      - name: Commit and push
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: cd website && git add . && git commit -m "Update documentation to ${{ github.sha }}" && git push

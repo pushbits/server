@@ -112,8 +112,22 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 	return nil
 }
 
-// CreateUser creates a new user.
+// CreateUser godoc
 // This method assumes that the requesting user has privileges.
+// @Summary Create a User
+// @Description Creates a new user
+// @ID post-user
+// @Tags User
+// @Accept json,mpfd
+// @Produce json
+// @Param name query string true "Name of the user"
+// @Param is_admin query bool false "Whether to set the user as admin or not"
+// @Param matrix_id query string true "Matrix ID of the user in the format @user:domain.tld"
+// @Param password query string true "The users password"
+// @Success 200 {object} model.ExternalUser
+// @Failure 500,404,403 ""
+// @Security BasicAuth
+// @Router /user [post]
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	var createUser model.CreateUser
 
@@ -137,8 +151,18 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user.IntoExternalUser())
 }
 
-// GetUsers returns all users.
+// GetUsers godoc
 // This method assumes that the requesting user has privileges.
+// @Summary Get Users
+// @Description Gets a list of all users
+// @ID get-user
+// @Tags User
+// @Accept json,mpfd
+// @Produce json
+// @Success 200 {object} []model.ExternalUser
+// @Failure 500 ""
+// @Security BasicAuth
+// @Router /user [get]
 func (h *UserHandler) GetUsers(ctx *gin.Context) {
 	users, err := h.DB.GetUsers()
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
@@ -154,8 +178,19 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, &externalUsers)
 }
 
-// GetUser returns the user with the specified ID.
+// GetUser godoc
 // This method assumes that the requesting user has privileges.
+// @Summary Get User
+// @Description Gets single user
+// @ID get-user-id
+// @Tags User
+// @Accept json,mpfd
+// @Produce json
+// @Param id path integer true "The users id"
+// @Success 200 {object} model.ExternalUser
+// @Failure 500,404 ""
+// @Security BasicAuth
+// @Router /user/{id} [get]
 func (h *UserHandler) GetUser(ctx *gin.Context) {
 	user, err := getUser(ctx, h.DB)
 	if err != nil {
@@ -165,9 +200,19 @@ func (h *UserHandler) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user.IntoExternalUser())
 }
 
-// DeleteUser deletes a user with a certain ID.
-//
+// DeleteUser godoc
 // This method assumes that the requesting user has privileges.
+// @Summary Delete User
+// @Description Delete user
+// @ID delete-user-id
+// @Tags User
+// @Accept json,mpfd
+// @Produce json
+// @Param id path integer true "The users id"
+// @Success 200 ""
+// @Failure 500,404 ""
+// @Security BasicAuth
+// @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 	user, err := getUser(ctx, h.DB)
 	if err != nil {
@@ -194,10 +239,24 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
-// UpdateUser updates a user with a certain ID.
-//
+// UpdateUser godoc
 // This method assumes that the requesting user has privileges. If users can later update their own user, make sure they
 // cannot give themselves privileges.
+// @Summary Update User
+// @Description Update user information
+// @ID put-user-id
+// @Tags User
+// @Accept json,mpfd
+// @Produce json
+// @Param id path integer true "The users id"
+// @Param name query string true "Name of the user"
+// @Param is_admin query bool false "Whether to set the user as admin or not"
+// @Param matrix_id query string true "Matrix ID of the user in the format @user:domain.tld"
+// @Param password query string true "The users password"
+// @Success 200 ""
+// @Failure 500,404,400 ""
+// @Security BasicAuth
+// @Router /user/{id} [put]
 func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	user, err := getUser(ctx, h.DB)
 	if err != nil {

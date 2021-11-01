@@ -29,7 +29,21 @@ type NotificationHandler struct {
 	DP NotificationDispatcher
 }
 
-// CreateNotification is used to create a new notification for a user.
+// CreateNotification godoc
+// @Summary Create a Notification
+// @Description Creates a new notification for the given channel
+// @ID post-message
+// @Tags Application
+// @Accept json,mpfd
+// @Produce json
+// @Param message query string true "The message to send"
+// @Param title query string false "The title to send"
+// @Param priority query integer false "The notifications priority"
+// @Param extras query model.NotificationExtras false "JSON object with additional information"
+// @Param token query string true "Channels token, can also be provieded in the header"
+// @Success 200 {object} model.Notification
+// @Failure 500,404,403 ""
+// @Router /message [post]
 func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	var notification model.Notification
 
@@ -58,7 +72,18 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, &notification)
 }
 
-// DeleteNotification is used to delete (or mark as deleted) a notification for a user
+// DeleteNotification godoc
+// @Summary Delete a Notification
+// @Description Informs the channel that the notification is deleted
+// @ID deöete-message-id
+// @Tags Application
+// @Accept json,mpfd
+// @Produce json
+// @Param message_id path string true "ID of the message to delete"
+// @Param token query string true "Channels token, can also be provieded in the header"
+// @Success 200 ""
+// @Failure 500,404,403 ""
+// @Router /message/{message_id} [DELETE]
 func (h *NotificationHandler) DeleteNotification(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
 	id, err := getMessageID(ctx)

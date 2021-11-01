@@ -20,3 +20,7 @@ config.yml
 # vendor/
 
 *.code-workspace
+
+# Build documentation
+
+docs/
