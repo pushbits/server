@@ -27,12 +27,14 @@ func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 }
 
 // @title PushBits Server API Documentation
-// @version 1.0
-// @description Documentation for the PushBits server API.
+// @version 0.7.2
+// @description Documentation for the PushBits server API. <br> [Contact](https://www.eiken.dev/)
 
-// TODO add inprint and contact?
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
+// @contact.name PushBits
+// @contact.url https://github.com/pushbits
+
+// @license.name ISC
+// @license.url https://github.com/pushbits/server/blob/master/LICENSE
 
 // @host your-domain.net
 // @BasePath /
