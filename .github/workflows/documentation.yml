@@ -23,14 +23,19 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
-      - name: Install swag
-        run: go install github.com/swaggo/swag/cmd/swag
+      - name: Export GOBIN
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Install dependencies
+        run: make setup
 
       - name: Install redoc
         run: sudo apt install npm && sudo npm install redoc
 
       - name: Build the API documentation
-        run: /home/runner/go/bin/swag init --parseDependency=true -d . -g cmd/pushbits/main.go
+        run: make swag
 
       - name: Build static HTML
         run: npx redoc-cli bundle docs/swagger.yaml --output index.html
@@ -56,4 +61,6 @@ jobs:
       - name: Commit and push
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: cd website && git add . && git commit -m "Update documentation to ${{ github.sha }}" && git push
+        run: |
+          cd website
+          git diff --quiet || ( git add . && git commit -m "Update documentation to ${{ github.sha }}" && git push )
