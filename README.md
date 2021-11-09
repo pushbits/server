@@ -1,6 +1,10 @@
 | :exclamation:  **This software is currently in alpha phase.**   |
 |-----------------------------------------------------------------|
 
+<a href="https://github.com/pushbits/logo">
+	<img height="200px" src="https://raw.githubusercontent.com/pushbits/server/master/.github/logo.png" />
+</a>
+
 <div align="center">
 	<h1>PushBits</h1>
 	<h4 align="center">
@@ -10,10 +14,11 @@
 </div>
 
 <p align="center">
+	<a href="https://github.com/pushbits/server/actions"><img alt="Build status" src="https://img.shields.io/github/workflow/status/pushbits/server/Main"/></a>&nbsp;
 	<a href="https://www.pushbits.io/docs/"><img alt="Documentation" src="https://img.shields.io/badge/docs-online-success"/></a>&nbsp;
 	<a href="https://www.pushbits.io/api/"><img alt="API Documentation" src="https://img.shields.io/badge/api docs-online-success"/></a>&nbsp;
-	<a href="https://github.com/pushbits/server/actions"><img alt="Build status" src="https://img.shields.io/github/workflow/status/pushbits/server/Main"/></a>&nbsp;
 	<a href="https://github.com/pushbits/server/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/pushbits/server"/></a>
+	<a href="https://github.com/pushbits/server/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/release/pushbits/server"/></a>
 </p>
 
 ## 💡&nbsp;About
