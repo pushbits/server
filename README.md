@@ -19,8 +19,9 @@
 	<a href="https://github.com/pushbits/server/actions"><img alt="Build status" src="https://img.shields.io/github/workflow/status/pushbits/server/Main"/></a>&nbsp;
 	<a href="https://www.pushbits.io/docs/"><img alt="Documentation" src="https://img.shields.io/badge/docs-online-success"/></a>&nbsp;
 	<a href="https://www.pushbits.io/api/"><img alt="API Documentation" src="https://img.shields.io/badge/api docs-online-success"/></a>&nbsp;
+	<a href="https://matrix.to/#/#pushbits:matrix.org"><img alt="Matrix" src="https://img.shields.io/matrix/pushbits:matrix.org"/></a>&nbsp;
+	<!--<a href="https://github.com/pushbits/server/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/release/pushbits/server"/></a>&nbsp;-->
 	<a href="https://github.com/pushbits/server/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/pushbits/server"/></a>
-	<!--<a href="https://github.com/pushbits/server/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/release/pushbits/server"/></a>-->
 </p>
 
 ## 💡&nbsp;About
