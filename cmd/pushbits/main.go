@@ -26,6 +26,21 @@ func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 	}()
 }
 
+// @title PushBits Server API Documentation
+// @version 0.7.2
+// @description Documentation for the PushBits server API.
+
+// @contact.name PushBits
+// @contact.url https://www.pushbits.io
+
+// @license.name ISC
+// @license.url https://github.com/pushbits/server/blob/master/LICENSE
+
+// @host your-domain.net
+// @BasePath /
+// @query.collection.format multi
+
+// @securityDefinitions.basic BasicAuth
 func main() {
 	log.Println("Starting PushBits.")
 

@@ -9,22 +9,28 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pushbits/server/internal/authentication/credentials"
 	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/tests"
 	"github.com/pushbits/server/tests/mockups"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var TestApplicationHandler *ApplicationHandler
 var TestUsers []*model.User
 var TestDatabase *database.Database
+var TestNotificationHandler *NotificationHandler
+var TestUserHandler *UserHandler
+var TestConfig *configuration.Configuration
 
 // Collect all created applications to check & delete them later
 var SuccessAplications map[uint][]model.Application
 
 func TestMain(m *testing.M) {
+	cleanUp()
 	// Get main config and adapt
 	config := &configuration.Configuration{}
 
@@ -35,6 +41,10 @@ func TestMain(m *testing.M) {
 	config.Crypto.Argon2.Memory = 131072
 	config.Crypto.Argon2.SaltLength = 16
 	config.Crypto.Argon2.KeyLength = 32
+	config.Admin.Name = "user"
+	config.Admin.Password = "pushbits"
+
+	TestConfig = config
 
 	// Set up test environment
 	db, err := mockups.GetEmptyDatabase(config.Crypto)
@@ -56,8 +66,21 @@ func TestMain(m *testing.M) {
 	TestUsers = mockups.GetUsers(config)
 	SuccessAplications = make(map[uint][]model.Application)
 
+	TestNotificationHandler = &NotificationHandler{
+		DB: TestDatabase,
+		DP: &mockups.MockDispatcher{},
+	}
+
+	TestUserHandler = &UserHandler{
+		AH: TestApplicationHandler,
+		CM: credentials.CreateManager(false, config.Crypto),
+		DB: TestDatabase,
+		DP: &mockups.MockDispatcher{},
+	}
+
 	// Run
 	m.Run()
+	log.Println("Clean up after Test")
 	cleanUp()
 }
 
@@ -77,6 +100,7 @@ func TestApi_RegisterApplicationWithoutUser(t *testing.T) {
 
 func TestApi_RegisterApplication(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	testCases := make([]tests.Request, 0)
@@ -99,20 +123,14 @@ func TestApi_RegisterApplication(t *testing.T) {
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 				body, err := ioutil.ReadAll(w.Body)
-				assert.NoErrorf(err, "Can not read request body")
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not read request body")
 				err = json.Unmarshal(body, &application)
-				assert.NoErrorf(err, "Can not unmarshal request body")
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not unmarshal request body")
 
 				SuccessAplications[user.ID] = append(SuccessAplications[user.ID], application)
 			}
 
-			assert.Equalf(w.Code, req.ShouldStatus, "CreateApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "CreateApplication (Test case: \"%s\") Expected status code %v but received %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
@@ -121,6 +139,7 @@ func TestApi_GetApplications(t *testing.T) {
 	var applications []model.Application
 
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	testCases := make([]tests.Request, 0)
@@ -139,12 +158,9 @@ func TestApi_GetApplications(t *testing.T) {
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 				body, err := ioutil.ReadAll(w.Body)
-				assert.NoErrorf(err, "Can not read request body")
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not read request body")
 				err = json.Unmarshal(body, &applications)
-				assert.NoErrorf(err, "Can not unmarshal request body")
+				require.NoErrorf(err, "Can not unmarshal request body")
 				if err != nil {
 					continue
 				}
@@ -153,7 +169,7 @@ func TestApi_GetApplications(t *testing.T) {
 				assert.Equalf(len(applications), len(SuccessAplications[user.ID]), "Created %d application(s) but got %d back", len(SuccessAplications[user.ID]), len(applications))
 			}
 
-			assert.Equalf(w.Code, req.ShouldStatus, "GetApplications (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "GetApplications (Test case: \"%s\") Expected status code %v but received %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
@@ -194,7 +210,7 @@ func TestApi_GetApplicationErrors(t *testing.T) {
 			c.Set("id", id)
 			TestApplicationHandler.GetApplication(c)
 
-			assert.Equalf(w.Code, req.ShouldStatus, "GetApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "GetApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
@@ -203,6 +219,7 @@ func TestApi_GetApplication(t *testing.T) {
 	var application model.Application
 
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	// Previously generated applications
@@ -222,15 +239,9 @@ func TestApi_GetApplication(t *testing.T) {
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 				body, err := ioutil.ReadAll(w.Body)
-				assert.NoErrorf(err, "Can not read request body")
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not read request body")
 				err = json.Unmarshal(body, &application)
-				assert.NoErrorf(err, "Can not unmarshal request body: %v", err)
-				if err != nil {
-					continue
-				}
+				require.NoErrorf(err, "Can not unmarshal request body: %v", err)
 
 				assert.Equalf(application.ID, app.ID, "Application ID should be %d but is %d", app.ID, application.ID)
 				assert.Equalf(application.Name, app.Name, "Application Name should be %s but is %s", app.Name, application.Name)
@@ -238,13 +249,14 @@ func TestApi_GetApplication(t *testing.T) {
 
 			}
 
-			assert.Equalf(w.Code, req.ShouldStatus, "GetApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "GetApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
 
 func TestApi_UpdateApplication(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	gin.SetMode(gin.TestMode)
 
 	for _, user := range TestUsers {
@@ -256,7 +268,7 @@ func TestApi_UpdateApplication(t *testing.T) {
 				Name: &newName,
 			}
 			updateAppBytes, err := json.Marshal(updateApp)
-			assert.NoErrorf(err, "Error on marshaling updateApplication struct")
+			require.NoErrorf(err, "Error on marshaling updateApplication struct")
 
 			// Valid
 			testCases[app.ID] = tests.Request{Name: fmt.Sprintf("Update application (valid) %s (%d)", app.Name, app.ID), Method: "PUT", Endpoint: fmt.Sprintf("/application/%d", app.ID), ShouldStatus: 200, Data: string(updateAppBytes), Headers: map[string]string{"Content-Type": "application/json"}}
@@ -277,7 +289,7 @@ func TestApi_UpdateApplication(t *testing.T) {
 			c.Set("id", id)
 			TestApplicationHandler.UpdateApplication(c)
 
-			assert.Equalf(w.Code, req.ShouldStatus, "UpdateApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "UpdateApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
@@ -305,7 +317,7 @@ func TestApi_DeleteApplication(t *testing.T) {
 			c.Set("id", id)
 			TestApplicationHandler.DeleteApplication(c)
 
-			assert.Equalf(w.Code, req.ShouldStatus, "DeleteApplication (Test case: \"%s\") should return status code %v but is %v.", req.Name, req.ShouldStatus, w.Code)
+			assert.Equalf(w.Code, req.ShouldStatus, "DeleteApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }

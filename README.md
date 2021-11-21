@@ -2,6 +2,12 @@
 |-----------------------------------------------------------------|
 
 <div align="center">
+	<a href="https://github.com/pushbits/logo">
+		<img height="200px" src="https://raw.githubusercontent.com/pushbits/server/master/.github/logo.png" />
+	</a>
+</div>
+
+<div align="center">
 	<h1>PushBits</h1>
 	<h4 align="center">
 		Receive your important notifications immediately, over <a href="https://matrix.org/">Matrix</a>.
@@ -11,9 +17,11 @@
 
 <p align="center">
 	<a href="https://github.com/pushbits/server/actions"><img alt="Build status" src="https://img.shields.io/github/workflow/status/pushbits/server/Main"/></a>&nbsp;
-	<a href="https://hub.docker.com/r/eikendev/pushbits"><img alt="Downloads" src="https://img.shields.io/docker/pulls/eikendev/pushbits"/></a>&nbsp;
-	<a href="https://hub.docker.com/r/eikendev/pushbits"><img alt="Image size" src="https://img.shields.io/docker/image-size/eikendev/pushbits"/></a>&nbsp;
-	<a href="https://github.com/pushbits/server/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/pushbits/server"/></a>&nbsp;
+	<a href="https://www.pushbits.io/docs/"><img alt="Documentation" src="https://img.shields.io/badge/docs-online-success"/></a>&nbsp;
+	<a href="https://www.pushbits.io/api/"><img alt="API Documentation" src="https://img.shields.io/badge/api docs-online-success"/></a>&nbsp;
+	<a href="https://matrix.to/#/#pushbits:matrix.org"><img alt="Matrix" src="https://img.shields.io/matrix/pushbits:matrix.org"/></a>&nbsp;
+	<!--<a href="https://github.com/pushbits/server/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/release/pushbits/server"/></a>&nbsp;-->
+	<a href="https://github.com/pushbits/server/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/pushbits/server"/></a>
 </p>
 
 ## 💡&nbsp;About
@@ -302,34 +310,3 @@ git clone https://github.com/pushbits/server.git
 ```
 
 [![Stargazers over time](https://starchart.cc/pushbits/server.svg)](https://starchart.cc/pushbits/server)
-
-### Testing
-
-Testing is essential for delivering good and reliable software.
-PushBits uses Go's integrated test features.
-Unfortunately, writing tests is quite time consuming and therefore not every feature and every line of code is automatically tested.
-Feel free to help us improve our tests.
-
-To run tests for a single (sub)module you can simply execute the following command in the module's folder.
-
-```bash
-go test
-```
-
-To get the testing coverage for a module use the `-cover` flag.
-
-```bash
-go test -cover
-```
-
-To execute a single test use the `-run` flag.
-
-```bash
-go test -run "TestApi_getUser"
-```
-
-Running tests for all PushBits module is done like this:
-
-```bash
-make test
-```
