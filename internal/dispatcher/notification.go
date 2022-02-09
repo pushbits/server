@@ -10,6 +10,8 @@ import (
 	"github.com/matrix-org/gomatrix"
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/internal/pberrors"
+	"maunium.net/go/mautrix/event"
+	"maunium.net/go/mautrix/id"
 )
 
 // MessageFormat is a matrix message format
@@ -50,7 +52,7 @@ type NewContent struct {
 }
 
 // SendNotification sends a notification to the specified user.
-func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) (id string, err error) {
+func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) (eventId string, err error) {
 	log.Printf("Sending notification to room %s.", a.MatrixID)
 
 	plainMessage := strings.TrimSpace(n.Message)
@@ -61,9 +63,16 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 	text := fmt.Sprintf("%s\n\n%s", plainTitle, plainMessage)
 	formattedText := fmt.Sprintf("%s %s", title, message)
 
-	respSendEvent, err := d.client.SendFormattedText(a.MatrixID, text, formattedText)
+	messageEvent := &MessageEvent{
+		Body:          text,
+		FormattedBody: formattedText,
+		MsgType:       MsgTypeText,
+		Format:        MessageFormatHTML,
+	}
 
-	return respSendEvent.EventID, err
+	evt, err := d.mautrixClient.SendMessageEvent(id.RoomID(a.MatrixID), event.EventMessage, &messageEvent)
+
+	return evt.EventID.String(), err
 }
 
 // DeleteNotification sends a notification to the specified user that another notificaion is deleted
