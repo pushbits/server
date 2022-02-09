@@ -65,8 +65,8 @@ func Create(homeserver, username, password string, formatting configuration.Form
 func (d *Dispatcher) Close() {
 	log.Printf("Logging out.")
 
-	d.client.Logout()
-	d.client.ClearCredentials()
+	d.mautrixClient.Logout()
+	d.mautrixClient.ClearCredentials()
 
 	log.Printf("Successfully logged out.")
 }

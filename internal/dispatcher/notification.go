@@ -7,11 +7,12 @@ import (
 	"strings"
 
 	"github.com/gomarkdown/markdown"
-	"github.com/matrix-org/gomatrix"
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/internal/pberrors"
+	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
+	mId "maunium.net/go/mautrix/id"
 )
 
 // MessageFormat is a matrix message format
@@ -99,7 +100,7 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 	newBody := fmt.Sprintf("<del>%s</del>\n- deleted", oldBody)
 	newFormattedBody := fmt.Sprintf("<del>%s</del><br>- deleted", oldFormattedBody)
 
-	_, err = d.replaceMessage(a, newBody, newFormattedBody, deleteMessage.ID, oldBody, oldFormattedBody)
+	_, err = d.replaceMessage(a, newBody, newFormattedBody, deleteMessage.ID.String(), oldBody, oldFormattedBody)
 
 	if err != nil {
 		return err
@@ -177,25 +178,25 @@ func (d *Dispatcher) coloredText(color string, text string) string {
 }
 
 // Searches in the messages list for the given id
-func (d *Dispatcher) getMessage(a *model.Application, id string) (gomatrix.Event, error) {
+func (d *Dispatcher) getMessage(a *model.Application, id string) (*event.Event, error) {
 	start := ""
 	end := ""
 	maxPages := 10 // maximum pages to request (10 messages per page)
 
 	for i := 0; i < maxPages; i++ {
-		messages, _ := d.client.Messages(a.MatrixID, start, end, 'b', 10)
+		messages, _ := d.mautrixClient.Messages(mId.RoomID(a.MatrixID), start, end, 'b', nil, 10)
 		for _, event := range messages.Chunk {
-			if event.ID == id {
+			if event.ID.String() == id {
 				return event, nil
 			}
 		}
 		start = messages.End
 	}
-	return gomatrix.Event{}, pberrors.ErrorMessageNotFound
+	return &event.Event{}, pberrors.ErrorMessageNotFound
 }
 
 // Replaces the content of a matrix message
-func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedBody string, messageID string, oldBody, oldFormattedBody string) (*gomatrix.RespSendEvent, error) {
+func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedBody string, messageID string, oldBody, oldFormattedBody string) (*mautrix.RespSendEvent, error) {
 	newMessage := NewContent{
 		Body:          newBody,
 		FormattedBody: newFormattedBody,
@@ -217,7 +218,7 @@ func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedB
 		Format:        MessageFormatHTML,
 	}
 
-	sendEvent, err := d.client.SendMessageEvent(a.MatrixID, "m.room.message", replaceEvent)
+	sendEvent, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &replaceEvent)
 
 	if err != nil {
 		log.Println(err)
@@ -228,7 +229,7 @@ func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedB
 }
 
 // Sends a notification in response to another matrix message event
-func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody string, respondMessage gomatrix.Event) (*gomatrix.RespSendEvent, error) {
+func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody string, respondMessage *event.Event) (*mautrix.RespSendEvent, error) {
 	oldBody, oldFormattedBody, err := bodiesFromMessage(respondMessage)
 
 	if err != nil {
@@ -247,19 +248,19 @@ func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody 
 	}
 
 	notificationReply := make(map[string]string)
-	notificationReply["event_id"] = respondMessage.ID
+	notificationReply["event_id"] = respondMessage.ID.String()
 
 	notificationRelation := RelatesTo{
 		InReplyTo: notificationReply,
 	}
 	notificationEvent.RelatesTo = notificationRelation
 
-	return d.client.SendMessageEvent(a.MatrixID, "m.room.message", notificationEvent)
+	return d.mautrixClient.SendMessageEvent(id.RoomID(a.MatrixID), event.EventMessage, &notificationEvent)
 }
 
 // Extracts body and formatted body from a matrix message event
-func bodiesFromMessage(message gomatrix.Event) (body, formattedBody string, err error) {
-	if val, ok := message.Content["body"]; ok {
+func bodiesFromMessage(message *event.Event) (body, formattedBody string, err error) {
+	if val, ok := message.Content.Raw["body"]; ok {
 		body, ok := val.(string)
 
 		if !ok {
@@ -272,7 +273,7 @@ func bodiesFromMessage(message gomatrix.Event) (body, formattedBody string, err 
 		return "", "", pberrors.ErrorMessageNotFound
 	}
 
-	if val, ok := message.Content["formatted_body"]; ok {
+	if val, ok := message.Content.Raw["formatted_body"]; ok {
 		body, ok := val.(string)
 		if !ok {
 			return "", "", pberrors.ErrorMessageNotFound
