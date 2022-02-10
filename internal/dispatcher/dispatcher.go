@@ -8,10 +8,6 @@ import (
 	"maunium.net/go/mautrix/id"
 )
 
-var (
-	loginType = "m.login.password"
-)
-
 // Dispatcher holds information for sending notifications to clients.
 type Dispatcher struct {
 	mautrixClient *mautrix.Client
@@ -28,7 +24,7 @@ func Create(homeserver, username, password string, formatting configuration.Form
 	}
 
 	_, err = matrixClient.Login(&mautrix.ReqLogin{
-		Type:             "m.login.password",
+		Type:             mautrix.AuthTypePassword,
 		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: username},
 		Password:         password,
 		DeviceID:         id.DeviceID("my-device"), // TODO make device ID configurable
