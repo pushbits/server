@@ -11,7 +11,6 @@ import (
 	"github.com/pushbits/server/internal/pberrors"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
-	"maunium.net/go/mautrix/id"
 	mId "maunium.net/go/mautrix/id"
 )
 
@@ -71,7 +70,7 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 		Format:        MessageFormatHTML,
 	}
 
-	evt, err := d.mautrixClient.SendMessageEvent(id.RoomID(a.MatrixID), event.EventMessage, &messageEvent)
+	evt, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &messageEvent)
 
 	return evt.EventID.String(), err
 }
@@ -255,7 +254,7 @@ func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody 
 	}
 	notificationEvent.RelatesTo = notificationRelation
 
-	return d.mautrixClient.SendMessageEvent(id.RoomID(a.MatrixID), event.EventMessage, &notificationEvent)
+	return d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &notificationEvent)
 }
 
 // Extracts body and formatted body from a matrix message event

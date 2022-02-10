@@ -3,7 +3,6 @@ package dispatcher
 import (
 	"log"
 
-	"github.com/matrix-org/gomatrix"
 	"github.com/pushbits/server/internal/configuration"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/id"
@@ -15,7 +14,6 @@ var (
 
 // Dispatcher holds information for sending notifications to clients.
 type Dispatcher struct {
-	client        *gomatrix.Client // TODO get rid of this client as a dependency
 	mautrixClient *mautrix.Client
 	formatting    configuration.Formatting
 }
@@ -23,24 +21,6 @@ type Dispatcher struct {
 // Create instanciates a dispatcher connection.
 func Create(homeserver, username, password string, formatting configuration.Formatting) (*Dispatcher, error) {
 	log.Println("Setting up dispatcher.")
-
-	// TODO remove from here
-	client, err := gomatrix.NewClient(homeserver, "", "")
-	if err != nil {
-		return nil, err
-	}
-
-	response, err := client.Login(&gomatrix.ReqLogin{
-		Type:     loginType,
-		User:     username,
-		Password: password,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	client.SetCredentials(response.UserID, response.AccessToken)
-	// To here
 
 	matrixClient, err := mautrix.NewClient(homeserver, "", "")
 	if err != nil {
@@ -58,7 +38,7 @@ func Create(homeserver, username, password string, formatting configuration.Form
 		return nil, err
 	}
 
-	return &Dispatcher{client: client, formatting: formatting, mautrixClient: matrixClient}, nil
+	return &Dispatcher{formatting: formatting, mautrixClient: matrixClient}, nil
 }
 
 // Close closes the dispatcher connection.
