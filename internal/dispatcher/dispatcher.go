@@ -27,7 +27,7 @@ func Create(homeserver, username, password string, formatting configuration.Form
 		Type:             mautrix.AuthTypePassword,
 		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: username},
 		Password:         password,
-		DeviceID:         id.DeviceID("pushbits"),
+		DeviceID:         id.DeviceID("PushBits"),
 		StoreCredentials: true,
 	})
 	if err != nil {
