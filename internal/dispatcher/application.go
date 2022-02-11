@@ -45,7 +45,7 @@ func (d *Dispatcher) DeregisterApplication(a *model.Application, u *model.User) 
 
 	if _, err := d.mautrixClient.KickUser(mId.RoomID(a.MatrixID), &mautrix.ReqKickUser{
 		Reason: "This application was deleted",
-		UserID: mId.UserID(a.MatrixID),
+		UserID: mId.UserID(u.MatrixID),
 	}); err != nil {
 		log.Print(err)
 		return err

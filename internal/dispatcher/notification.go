@@ -259,27 +259,15 @@ func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody 
 
 // Extracts body and formatted body from a matrix message event
 func bodiesFromMessage(message *event.Event) (body, formattedBody string, err error) {
-	if val, ok := message.Content.Raw["body"]; ok {
-		body, ok := val.(string)
-
-		if !ok {
-			return "", "", pberrors.ErrorMessageNotFound
-		}
-
-		formattedBody = body
-
-	} else {
+	msgContent := message.Content.AsMessage()
+	if msgContent == nil {
 		return "", "", pberrors.ErrorMessageNotFound
 	}
 
-	if val, ok := message.Content.Raw["formatted_body"]; ok {
-		body, ok := val.(string)
-		if !ok {
-			return "", "", pberrors.ErrorMessageNotFound
-		}
-
-		formattedBody = body
+	formattedBody = msgContent.FormattedBody
+	if formattedBody == "" {
+		formattedBody = msgContent.Body
 	}
 
-	return body, formattedBody, nil
+	return msgContent.Body, formattedBody, nil
 }
