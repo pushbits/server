@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,19 +8,13 @@ import (
 )
 
 func isGoodToken(assert *assert.Assertions, require *require.Assertions, token string, compat bool) {
-	prefix := token[0:len(applicationTokenPrefix)]
-	token = token[len(applicationTokenPrefix):]
-
-	// Although constant at the time of writing, this check should prevent future changes from generating insecure tokens.
-	if len(token) < 14 {
-		log.Fatalf("Tokens should have more random characters")
-	}
-
 	if compat {
 		assert.Equal(len(token), compatTokenLength, "Unexpected compatibility token length")
 	} else {
 		assert.Equal(len(token), regularTokenLength, "Unexpected regular token length")
 	}
+
+	prefix := token[0:len(applicationTokenPrefix)]
 
 	assert.Equal(prefix, applicationTokenPrefix, "Invalid token prefix")
 
