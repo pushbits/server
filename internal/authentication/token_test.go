@@ -7,12 +7,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	minTokenLength = 14
+)
+
 func isGoodToken(assert *assert.Assertions, require *require.Assertions, token string, compat bool) {
 	if compat {
 		assert.Equal(len(token), compatTokenLength, "Unexpected compatibility token length")
 	} else {
 		assert.Equal(len(token), regularTokenLength, "Unexpected regular token length")
 	}
+
+	assert.GreaterOrEqual(len(token), minTokenLength, "Token is too short to give sufficient entropy")
 
 	prefix := token[0:len(applicationTokenPrefix)]
 
