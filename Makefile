@@ -5,14 +5,12 @@ build:
 
 .PHONY: test
 test:
-	stdout=$$(gofmt -l . 2>&1); \
-	if [ "$$stdout" ]; then \
-		exit 1; \
-	fi
+	stdout=$$(gofmt -l . 2>&1); if [ "$$stdout" ]; then exit 1; fi
 	go vet ./...
 	gocyclo -over 10 $(shell find . -iname '*.go' -type f)
 	staticcheck ./...
 	go test -v -cover ./...
+	@printf '\n%s\n' "> Test successful"
 
 .PHONY: setup
 setup:

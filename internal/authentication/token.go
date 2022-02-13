@@ -53,5 +53,7 @@ func GenerateApplicationToken(compat bool) string {
 		tokenLength = compatTokenLength
 	}
 
+	tokenLength -= len(applicationTokenPrefix)
+
 	return applicationTokenPrefix + generateRandomString(tokenLength)
 }
