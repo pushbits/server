@@ -7,7 +7,7 @@ import (
 
 var (
 	tokenCharacters        = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	regularTokenLength     = 63 // This length includes the prefix (one character).
+	regularTokenLength     = 64 // This length includes the prefix (one character).
 	compatTokenLength      = 15 // This length includes the prefix (one character).
 	applicationTokenPrefix = "A"
 )
