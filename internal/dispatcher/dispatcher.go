@@ -44,7 +44,11 @@ func Create(homeserver, username, password string, formatting configuration.Form
 func (d *Dispatcher) Close() {
 	log.Printf("Logging out.")
 
-	d.client.Logout()
+	_, err := d.client.Logout()
+	if err != nil {
+		log.Printf("Error while logging out: %s", err)
+	}
+
 	d.client.ClearCredentials()
 
 	log.Printf("Successfully logged out.")

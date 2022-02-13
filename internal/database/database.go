@@ -24,8 +24,10 @@ type Database struct {
 }
 
 func createFileDir(file string) {
-	if _, err := os.Stat(filepath.Dir(file)); os.IsNotExist(err) {
-		if err := os.MkdirAll(filepath.Dir(file), 0775); err != nil {
+	dir := filepath.Dir(file)
+
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, 0750); err != nil {
 			panic(err)
 		}
 	}
@@ -67,14 +69,20 @@ func Create(cm *credentials.Manager, dialect, connection string) (*Database, err
 		sql.SetConnMaxLifetime(9 * time.Minute)
 	}
 
-	db.AutoMigrate(&model.User{}, &model.Application{})
+	err = db.AutoMigrate(&model.User{}, &model.Application{})
+	if err != nil {
+		return nil, err
+	}
 
 	return &Database{gormdb: db, sqldb: sql, credentialsManager: cm}, nil
 }
 
 // Close closes the database connection.
 func (d *Database) Close() {
-	d.sqldb.Close()
+	err := d.sqldb.Close()
+	if err != nil {
+		log.Printf("Error while closing database: %s", err)
+	}
 }
 
 // Populate fills the database with initial information like the admin user.
@@ -111,12 +119,16 @@ func (d *Database) RepairChannels(dp Dispatcher) error {
 	}
 
 	for _, user := range users {
+		user := user // See https://stackoverflow.com/a/68247837
+
 		applications, err := d.GetApplications(&user)
 		if err != nil {
 			return err
 		}
 
 		for _, application := range applications {
+			application := application // See https://stackoverflow.com/a/68247837
+
 			if err := dp.UpdateApplication(&application); err != nil {
 				return err
 			}

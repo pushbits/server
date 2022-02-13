@@ -13,10 +13,12 @@ test:
 	gocyclo -over 10 $(shell find . -iname '*.go' -type f)
 	staticcheck ./...
 	go test -v -cover ./...
+	gosec -exclude-dir=tests ./...
 
 .PHONY: setup
 setup:
 	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+	go install github.com/securego/gosec/v2/cmd/gosec@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 
