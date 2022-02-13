@@ -73,4 +73,4 @@ You can retrieve it by checking out the repository as follows.
 git clone https://github.com/pushbits/server.git
 ```
 
-[![Stargazers over time](https://starchart.cc/pushbits/server.svg)](https://starchart.cc/pushbits/server)
+Check out [the stargazers over time](https://starchart.cc/pushbits/server) for a fancy graph.
