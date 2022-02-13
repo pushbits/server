@@ -29,4 +29,6 @@ jobs:
         run: make setup
 
       - name: Run tests
-        run: make test
+        run: |
+          source $(poetry env info --path)/bin/activate
+          make test

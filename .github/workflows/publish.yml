@@ -32,7 +32,9 @@ jobs:
         run: make setup
 
       - name: Run tests
-        run: make test
+        run: |
+          source $(poetry env info --path)/bin/activate
+          make test
 
       - name: Log in to the Container registry
         uses: docker/login-action@v1
