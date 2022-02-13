@@ -10,13 +10,17 @@ test:
 	gocyclo -over 10 $(shell find . -iname '*.go' -type f)
 	staticcheck ./...
 	go test -v -cover ./...
+	gosec -exclude-dir=tests ./...
+	semgrep --lang=go --config=tests/semgrep --metrics=off
 	@printf '\n%s\n' "> Test successful"
 
 .PHONY: setup
 setup:
 	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+	go install github.com/securego/gosec/v2/cmd/gosec@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
+	poetry install
 
 .PHONY: swag
 swag:
