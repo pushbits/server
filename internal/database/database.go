@@ -27,7 +27,7 @@ func createFileDir(file string) {
 	dir := filepath.Dir(file)
 
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		// nosemgrep: tests.semgrep.go.lang.correctness.permissions.incorrect-default-permission
+		// nosemgrep: tests.semgrep-rules.go.lang.correctness.permissions.incorrect-default-permission
 		if err := os.MkdirAll(dir, 0750); err != nil {
 			panic(err)
 		}
