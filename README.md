@@ -57,10 +57,12 @@ Still, if you haven't tried it yet, we'd encourage you to check it out.
 - [ ] Two-factor authentication, [issue](https://github.com/pushbits/server/issues/19)
 - [ ] Bi-directional key verification, [issue](https://github.com/pushbits/server/issues/20)
 
-## 👮&nbsp;Acknowledgments
+## 👮&nbsp;License and Acknowledgments
 
-The idea for this software and most parts of the initial source are heavily inspired by [Gotify](https://gotify.net/).
-Many thanks to [jmattheis](https://jmattheis.de/) for his well-structured code.
+Please refer to [the LICENSE file](LICENSE) to learn more about the license of this code.
+It applies only where not specified differently.
+
+The idea for this software was inspired by [Gotify](https://gotify.net/).
 
 ## 💻&nbsp;Development
 
