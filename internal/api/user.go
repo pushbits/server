@@ -175,10 +175,10 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 		return
 	}
 
-	var externalUsers []*model.ExternalUser
+	externalUsers := make([]*model.ExternalUser, len(users))
 
-	for _, user := range users {
-		externalUsers = append(externalUsers, user.IntoExternalUser())
+	for i, user := range users {
+		externalUsers[i] = user.IntoExternalUser()
 	}
 
 	ctx.JSON(http.StatusOK, &externalUsers)

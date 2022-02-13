@@ -14,6 +14,7 @@ test:
 	staticcheck ./...
 	go test -v -cover ./...
 	gosec -exclude-dir=tests ./...
+	semgrep --lang=go --config=tests/semgrep
 
 .PHONY: setup
 setup:
@@ -21,6 +22,7 @@ setup:
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
+	poetry install
 
 .PHONY: swag
 swag:
