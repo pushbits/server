@@ -8,20 +8,22 @@ import (
 )
 
 const (
-	minTokenLength = 14
+	minRandomChars = 14
 )
 
 func isGoodToken(assert *assert.Assertions, require *require.Assertions, token string, compat bool) {
+	tokenLength := len(token)
+
 	if compat {
-		assert.Equal(len(token), compatTokenLength, "Unexpected compatibility token length")
+		assert.Equal(tokenLength, compatTokenLength, "Unexpected compatibility token length")
 	} else {
-		assert.Equal(len(token), regularTokenLength, "Unexpected regular token length")
+		assert.Equal(tokenLength, regularTokenLength, "Unexpected regular token length")
 	}
 
-	assert.GreaterOrEqual(len(token), minTokenLength, "Token is too short to give sufficient entropy")
+	randomChars := tokenLength - len(applicationTokenPrefix)
+	assert.GreaterOrEqual(randomChars, minRandomChars, "Token is too short to give sufficient entropy")
 
 	prefix := token[0:len(applicationTokenPrefix)]
-
 	assert.Equal(prefix, applicationTokenPrefix, "Invalid token prefix")
 
 	for _, c := range []byte(token) {
