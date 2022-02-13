@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strings"
 	"time"
 )
 
@@ -14,6 +15,17 @@ type Notification struct {
 	Priority      int                    `json:"priority" form:"priority" query:"priority"`
 	Extras        map[string]interface{} `json:"extras,omitempty" form:"-" query:"-"`
 	Date          time.Time              `json:"date"`
+}
+
+// Sanitize sets explicit defaults for a notification.
+func (n *Notification) Sanitize(application *Application) {
+	n.ID = ""
+	n.UrlEncodedID = ""
+	n.ApplicationID = application.ID
+	if strings.TrimSpace(n.Title) == "" {
+		n.Title = application.Name
+	}
+	n.Date = time.Now()
 }
 
 // DeleteNotification holds information like the message ID of a deletion notification.

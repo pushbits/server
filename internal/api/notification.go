@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/pushbits/server/internal/authentication"
@@ -45,23 +44,17 @@ type NotificationHandler struct {
 // @Failure 500,404,403 ""
 // @Router /message [post]
 func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
-	var notification model.Notification
+	application := authentication.GetApplication(ctx)
+	log.Printf("Sending notification for application %s.", application.Name)
 
+	var notification model.Notification
 	if err := ctx.Bind(&notification); err != nil {
 		return
 	}
 
-	application := authentication.GetApplication(ctx)
-	log.Printf("Sending notification for application %s.", application.Name)
-
-	notification.ApplicationID = application.ID
-	if strings.TrimSpace(notification.Title) == "" {
-		notification.Title = application.Name
-	}
-	notification.Date = time.Now()
+	notification.Sanitize(application)
 
 	messageID, err := h.DP.SendNotification(application, &notification)
-
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
 	}
@@ -86,8 +79,9 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 // @Router /message/{message_id} [DELETE]
 func (h *NotificationHandler) DeleteNotification(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
-	id, err := getMessageID(ctx)
+	log.Printf("Deleting notification for application %s.", application.Name)
 
+	id, err := getMessageID(ctx)
 	if success := successOrAbort(ctx, http.StatusUnprocessableEntity, err); !success {
 		return
 	}
