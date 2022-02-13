@@ -1,4 +1,5 @@
 name: Main
+
 on:
   push:
     branches:
@@ -7,6 +8,7 @@ on:
       - '**'
       - '!v[0-9]+.[0-9]+.[0-9]+'
   pull_request:
+
 jobs:
   test_build:
     name: Test and build
@@ -14,11 +16,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Export GOBIN
         uses: actions/setup-go@v2
         with:
           go-version: 1.16
+
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 -
+
       - name: Install dependencies
         run: make setup
+
       - name: Run tests
         run: make test
