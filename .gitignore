@@ -1,6 +1,7 @@
 out/
 *.db
 config.yml
+docs/
 
 ### Go
 # Binaries for programs and plugins
@@ -19,11 +20,7 @@ config.yml
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-*.code-workspace
-
-# Build documentation
-
-docs/### Python
+### Python
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -162,4 +159,15 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+### VisualStudioCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Local History for Visual Studio Code
+.history/
 
