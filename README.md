@@ -9,7 +9,7 @@
 
 <div align="center">
 	<h1>PushBits</h1>
-	<p align="center">Receive your important notifications immediately, over <a href="https://matrix.org/">Matrix</a>.</p>
+	<p align="center"><b>Receive your important notifications immediately, over <a href="https://matrix.org/">Matrix</a>.</b></p>
 	<p>PushBits enables you to send push notifications via a simple web API, and delivers them to your users.</p>
 </div>
 
