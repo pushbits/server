@@ -64,13 +64,18 @@ It applies only where not specified differently.
 
 The idea for this software was inspired by [Gotify](https://gotify.net/).
 
-## 💻&nbsp;Development
+## 💻&nbsp;Development and Contributions
 
 The source code is located on [GitHub](https://github.com/pushbits/server).
-You can retrieve it by checking out the repository as follows.
-
+You can retrieve it by checking out the repository as follows:
 ```bash
 git clone https://github.com/pushbits/server.git
 ```
 
-Check out [the stargazers over time](https://starchart.cc/pushbits/server) for a fancy graph.
+:computer: **Want to contribute?**
+Before moving forward, please refer to [out contribution guidelines](CONTRIBUTING.md).
+
+:mailbox: **Found a security vulnerability?**
+Check [this document](SECURITY.md) for information on how you can bring it to our attention.
+
+:star: **Like fancy graphs?** See [our stargazers over time](https://starchart.cc/pushbits/server).
