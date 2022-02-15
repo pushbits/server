@@ -9,9 +9,7 @@
 
 <div align="center">
 	<h1>PushBits</h1>
-	<h4 align="center">
-		Receive your important notifications immediately, over <a href="https://matrix.org/">Matrix</a>.
-	</h4>
+	<p align="center">Receive your important notifications immediately, over <a href="https://matrix.org/">Matrix</a>.</p>
 	<p>PushBits enables you to send push notifications via a simple web API, and delivers them to your users.</p>
 </div>
 
@@ -52,14 +50,14 @@ The idea for this software was inspired by [Gotify](https://gotify.net/).
 
 ## 💻&nbsp;Development and Contributions
 
-The source code is located on [GitHub](https://github.com/pushbits/server).
+The source code is located [on GitHub](https://github.com/pushbits/server).
 You can retrieve it by checking out the repository as follows:
 ```bash
 git clone https://github.com/pushbits/server.git
 ```
 
 :wrench: **Want to contribute?**
-Before moving forward, please refer to [out contribution guidelines](CONTRIBUTING.md).
+Before moving forward, please refer to [our contribution guidelines](CONTRIBUTING.md).
 
 :mailbox: **Found a security vulnerability?**
 Check [this document](SECURITY.md) for information on how you can bring it to our attention.
