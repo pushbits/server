@@ -72,7 +72,7 @@ You can retrieve it by checking out the repository as follows:
 git clone https://github.com/pushbits/server.git
 ```
 
-:computer: **Want to contribute?**
+:wrench: **Want to contribute?**
 Before moving forward, please refer to [out contribution guidelines](CONTRIBUTING.md).
 
 :mailbox: **Found a security vulnerability?**
