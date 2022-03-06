@@ -35,7 +35,11 @@ func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Appl
 	}
 
 	a.MatrixID = channelID
-	h.DB.UpdateApplication(a)
+
+	err = h.DB.UpdateApplication(a)
+	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return err
+	}
 
 	return nil
 }
@@ -55,7 +59,6 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, 
 
 	if err := h.registerApplication(ctx, &application, u); err != nil {
 		err := h.DB.DeleteApplication(&application)
-
 		if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 			log.Printf("Cannot delete application with ID %d.", application.ID)
 		}

@@ -77,5 +77,8 @@ func main() {
 
 	engine := router.Create(c.Debug, cm, db, dp)
 
-	runner.Run(engine, c.HTTP.ListenAddress, c.HTTP.Port)
+	err = runner.Run(engine, c.HTTP.ListenAddress, c.HTTP.Port)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

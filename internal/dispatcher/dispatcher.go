@@ -40,8 +40,12 @@ func Create(homeserver, username, password string, formatting configuration.Form
 // Close closes the dispatcher connection.
 func (d *Dispatcher) Close() {
 	log.Printf("Logging out.")
+  
+	_, err := d.mautrixClient.Logout()
+	if err != nil {
+		log.Printf("Error while logging out: %s", err)
+	}
 
-	d.mautrixClient.Logout()
 	d.mautrixClient.ClearCredentials()
 
 	log.Printf("Successfully logged out.")

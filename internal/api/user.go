@@ -44,6 +44,8 @@ func (h *UserHandler) deleteApplications(ctx *gin.Context, u *model.User) error 
 	}
 
 	for _, application := range applications {
+		application := application // See https://stackoverflow.com/a/68247837
+
 		if err := h.AH.deleteApplication(ctx, &application, u); err != nil {
 			return err
 		}
@@ -59,6 +61,8 @@ func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, matrixID s
 	}
 
 	for _, application := range applications {
+		application := application // See https://stackoverflow.com/a/68247837
+
 		err := h.DP.DeregisterApplication(&application, u)
 		if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
 			return err
@@ -68,6 +72,8 @@ func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, matrixID s
 	u.MatrixID = matrixID
 
 	for _, application := range applications {
+		application := application // See https://stackoverflow.com/a/68247837
+
 		err := h.AH.registerApplication(ctx, &application, u)
 		if err != nil {
 			return err
@@ -169,10 +175,10 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 		return
 	}
 
-	var externalUsers []*model.ExternalUser
+	externalUsers := make([]*model.ExternalUser, len(users))
 
-	for _, user := range users {
-		externalUsers = append(externalUsers, user.IntoExternalUser())
+	for i, user := range users {
+		externalUsers[i] = user.IntoExternalUser()
 	}
 
 	ctx.JSON(http.StatusOK, &externalUsers)
