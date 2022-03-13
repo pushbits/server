@@ -264,9 +264,9 @@ func bodiesFromMessage(message *event.Event) (body, formattedBody string, err er
 		return "", "", pberrors.ErrorMessageNotFound
 	}
 
-	formattedBody = msgContent.FormattedBody
-	if formattedBody == "" {
-		formattedBody = msgContent.Body
+	formattedBody = msgContent.Body
+	if msgContent.FormattedBody != "" {
+		formattedBody = msgContent.FormattedBody
 	}
 
 	return msgContent.Body, formattedBody, nil
