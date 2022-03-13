@@ -3,53 +3,50 @@ package dispatcher
 import (
 	"log"
 
-	"github.com/matrix-org/gomatrix"
 	"github.com/pushbits/server/internal/configuration"
-)
-
-var (
-	loginType = "m.login.password"
+	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/id"
 )
 
 // Dispatcher holds information for sending notifications to clients.
 type Dispatcher struct {
-	client     *gomatrix.Client
-	formatting configuration.Formatting
+	mautrixClient *mautrix.Client
+	formatting    configuration.Formatting
 }
 
 // Create instanciates a dispatcher connection.
 func Create(homeserver, username, password string, formatting configuration.Formatting) (*Dispatcher, error) {
 	log.Println("Setting up dispatcher.")
 
-	client, err := gomatrix.NewClient(homeserver, "", "")
+	matrixClient, err := mautrix.NewClient(homeserver, "", "")
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := client.Login(&gomatrix.ReqLogin{
-		Type:     loginType,
-		User:     username,
-		Password: password,
+	_, err = matrixClient.Login(&mautrix.ReqLogin{
+		Type:             mautrix.AuthTypePassword,
+		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: username},
+		Password:         password,
+		DeviceID:         id.DeviceID("PushBits"),
+		StoreCredentials: true,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	client.SetCredentials(response.UserID, response.AccessToken)
-
-	return &Dispatcher{client: client, formatting: formatting}, nil
+	return &Dispatcher{formatting: formatting, mautrixClient: matrixClient}, nil
 }
 
 // Close closes the dispatcher connection.
 func (d *Dispatcher) Close() {
 	log.Printf("Logging out.")
 
-	_, err := d.client.Logout()
+	_, err := d.mautrixClient.Logout()
 	if err != nil {
 		log.Printf("Error while logging out: %s", err)
 	}
 
-	d.client.ClearCredentials()
+	d.mautrixClient.ClearCredentials()
 
 	log.Printf("Successfully logged out.")
 }
