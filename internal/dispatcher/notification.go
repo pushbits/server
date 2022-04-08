@@ -33,7 +33,7 @@ type MessageEvent struct {
 	MsgType       MsgType       `json:"msgtype"`
 	RelatesTo     RelatesTo     `json:"m.relates_to,omitempty"`
 	Format        MessageFormat `json:"format"`
-	NewContent    NewContent    `json:"m.new_content,omitempty"`
+	NewContent    *NewContent   `json:"m.new_content,omitempty"`
 }
 
 // RelatesTo holds information about relations to other message events
@@ -212,7 +212,7 @@ func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedB
 		Body:          oldBody,
 		FormattedBody: oldFormattedBody,
 		MsgType:       MsgTypeText,
-		NewContent:    newMessage,
+		NewContent:    &newMessage,
 		RelatesTo:     replaceRelation,
 		Format:        MessageFormatHTML,
 	}
