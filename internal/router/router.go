@@ -4,8 +4,10 @@ import (
 	"log"
 
 	"github.com/pushbits/server/internal/api"
+	"github.com/pushbits/server/internal/api/alertmanager"
 	"github.com/pushbits/server/internal/authentication"
 	"github.com/pushbits/server/internal/authentication/credentials"
+	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"
 	"github.com/pushbits/server/internal/dispatcher"
 
@@ -14,7 +16,7 @@ import (
 )
 
 // Create a Gin engine and setup all routes.
-func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
+func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher, alertmanagerConfig *configuration.Alertmanager) *gin.Engine {
 	log.Println("Setting up HTTP routes.")
 
 	if !debug {
@@ -27,6 +29,10 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 	healthHandler := api.HealthHandler{DB: db}
 	notificationHandler := api.NotificationHandler{DB: db, DP: dp}
 	userHandler := api.UserHandler{AH: &applicationHandler, CM: cm, DB: db, DP: dp}
+	alertmanagerHandler := alertmanager.AlertmanagerHandler{DP: dp, Settings: alertmanager.AlertmanagerHandlerSettings{
+		TitleAnnotation:   alertmanagerConfig.AnnotationTitle,
+		MessageAnnotation: alertmanagerConfig.AnnotationMessage,
+	}}
 
 	r := gin.Default()
 
@@ -58,6 +64,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		userGroup.DELETE("/:id", api.RequireIDInURI(), userHandler.DeleteUser)
 		userGroup.PUT("/:id", api.RequireIDInURI(), userHandler.UpdateUser)
 	}
+
+	r.POST("/alert", auth.RequireApplicationToken(), alertmanagerHandler.CreateAlert)
 
 	return r
 }
