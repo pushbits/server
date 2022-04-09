@@ -31,7 +31,7 @@ type MessageEvent struct {
 	Body          string        `json:"body"`
 	FormattedBody string        `json:"formatted_body"`
 	MsgType       MsgType       `json:"msgtype"`
-	RelatesTo     RelatesTo     `json:"m.relates_to,omitempty"`
+	RelatesTo     *RelatesTo    `json:"m.relates_to,omitempty"`
 	Format        MessageFormat `json:"format"`
 	NewContent    *NewContent   `json:"m.new_content,omitempty"`
 }
@@ -213,7 +213,7 @@ func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedB
 		FormattedBody: oldFormattedBody,
 		MsgType:       MsgTypeText,
 		NewContent:    &newMessage,
-		RelatesTo:     replaceRelation,
+		RelatesTo:     &replaceRelation,
 		Format:        MessageFormatHTML,
 	}
 
@@ -252,7 +252,7 @@ func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody 
 	notificationRelation := RelatesTo{
 		InReplyTo: notificationReply,
 	}
-	notificationEvent.RelatesTo = notificationRelation
+	notificationEvent.RelatesTo = &notificationRelation
 
 	return d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &notificationEvent)
 }
