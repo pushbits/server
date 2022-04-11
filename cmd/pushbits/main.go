@@ -14,6 +14,8 @@ import (
 	"github.com/pushbits/server/internal/runner"
 )
 
+var Version string
+
 func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -42,7 +44,11 @@ func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 
 // @securityDefinitions.basic BasicAuth
 func main() {
-	log.Println("Starting PushBits.")
+	if len(Version) == 0 {
+		log.Panic("Version not set")
+	} else {
+		log.Printf("Starting PushBits %s", Version)
+	}
 
 	c := configuration.Get()
 
