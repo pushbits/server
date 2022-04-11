@@ -2,10 +2,10 @@ package api
 
 import (
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/pushbits/server/internal/authentication"
+	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +27,7 @@ func (h *ApplicationHandler) generateToken(compat bool) string {
 }
 
 func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
-	log.Printf("Registering application %s.", a.Name)
+	log.L.Printf("Registering application %s.", a.Name)
 
 	channelID, err := h.DP.RegisterApplication(a.ID, a.Name, a.Token, u.MatrixID)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
@@ -45,7 +45,7 @@ func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Appl
 }
 
 func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, name string, compat bool) (*model.Application, error) {
-	log.Printf("Creating application %s.", name)
+	log.L.Printf("Creating application %s.", name)
 
 	application := model.Application{}
 	application.Name = name
@@ -60,7 +60,7 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, 
 	if err := h.registerApplication(ctx, &application, u); err != nil {
 		err := h.DB.DeleteApplication(&application)
 		if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
-			log.Printf("Cannot delete application with ID %d.", application.ID)
+			log.L.Printf("Cannot delete application with ID %d.", application.ID)
 		}
 
 		return nil, err
@@ -70,7 +70,7 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, 
 }
 
 func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
-	log.Printf("Deleting application %s (ID %d).", a.Name, a.ID)
+	log.L.Printf("Deleting application %s (ID %d).", a.Name, a.ID)
 
 	err := h.DP.DeregisterApplication(a, u)
 	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
@@ -86,15 +86,15 @@ func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Applic
 }
 
 func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Application, updateApplication *model.UpdateApplication) error {
-	log.Printf("Updating application %s (ID %d).", a.Name, a.ID)
+	log.L.Printf("Updating application %s (ID %d).", a.Name, a.ID)
 
 	if updateApplication.Name != nil {
-		log.Printf("Updating application name to '%s'.", *updateApplication.Name)
+		log.L.Printf("Updating application name to '%s'.", *updateApplication.Name)
 		a.Name = *updateApplication.Name
 	}
 
 	if updateApplication.RefreshToken != nil && (*updateApplication.RefreshToken) {
-		log.Print("Updating application token.")
+		log.L.Print("Updating application token.")
 		compat := updateApplication.StrictCompatibility != nil && (*updateApplication.StrictCompatibility)
 		a.Token = h.generateToken(compat)
 	}
@@ -129,7 +129,7 @@ func (h *ApplicationHandler) CreateApplication(ctx *gin.Context) {
 	var createApplication model.CreateApplication
 
 	if err := ctx.Bind(&createApplication); err != nil {
-		log.Println(err)
+		log.L.Println(err)
 		return
 	}
 

@@ -1,9 +1,8 @@
 package credentials
 
 import (
-	"log"
-
 	"github.com/pushbits/server/internal/configuration"
+	"github.com/pushbits/server/internal/log"
 
 	"github.com/alexedwards/argon2id"
 )
@@ -16,7 +15,7 @@ type Manager struct {
 
 // CreateManager instanciates a credential manager.
 func CreateManager(checkHIBP bool, c configuration.CryptoConfig) *Manager {
-	log.Println("Setting up credential manager.")
+	log.L.Println("Setting up credential manager.")
 
 	argon2Params := &argon2id.Params{
 		Memory:      c.Argon2.Memory,

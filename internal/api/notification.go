@@ -1,12 +1,12 @@
 package api
 
 import (
-	"log"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/pushbits/server/internal/authentication"
+	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 
 	"github.com/gin-gonic/gin"
@@ -45,7 +45,7 @@ type NotificationHandler struct {
 // @Router /message [post]
 func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
-	log.Printf("Sending notification for application %s.", application.Name)
+	log.L.Printf("Sending notification for application %s.", application.Name)
 
 	var notification model.Notification
 	if err := ctx.Bind(&notification); err != nil {
@@ -79,7 +79,7 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 // @Router /message/{message_id} [DELETE]
 func (h *NotificationHandler) DeleteNotification(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
-	log.Printf("Deleting notification for application %s.", application.Name)
+	log.L.Printf("Deleting notification for application %s.", application.Name)
 
 	id, err := getMessageID(ctx)
 	if success := successOrAbort(ctx, http.StatusUnprocessableEntity, err); !success {

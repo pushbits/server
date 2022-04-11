@@ -1,9 +1,8 @@
 package model
 
 import (
-	"log"
-
 	"github.com/pushbits/server/internal/authentication/credentials"
+	"github.com/pushbits/server/internal/log"
 )
 
 // User holds information like the name, the secret, and the applications of a user.
@@ -37,7 +36,7 @@ type CreateUser struct {
 
 // NewUser creates a new user.
 func NewUser(cm *credentials.Manager, name, password string, isAdmin bool, matrixID string) (*User, error) {
-	log.Printf("Creating user %s.", name)
+	log.L.Printf("Creating user %s.", name)
 
 	passwordHash, err := cm.CreatePasswordHash(password)
 	if err != nil {

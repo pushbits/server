@@ -3,15 +3,16 @@ package dispatcher
 import (
 	"fmt"
 	"html"
-	"log"
 	"strings"
 
 	"github.com/gomarkdown/markdown"
-	"github.com/pushbits/server/internal/model"
-	"github.com/pushbits/server/internal/pberrors"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	mId "maunium.net/go/mautrix/id"
+
+	"github.com/pushbits/server/internal/log"
+	"github.com/pushbits/server/internal/model"
+	"github.com/pushbits/server/internal/pberrors"
 )
 
 // MessageFormat is a matrix message format
@@ -53,7 +54,7 @@ type NewContent struct {
 
 // SendNotification sends a notification to the specified user.
 func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) (eventId string, err error) {
-	log.Printf("Sending notification to room %s.", a.MatrixID)
+	log.L.Printf("Sending notification to room %s.", a.MatrixID)
 
 	plainMessage := strings.TrimSpace(n.Message)
 	plainTitle := strings.TrimSpace(n.Title)
@@ -77,7 +78,7 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 
 // DeleteNotification sends a notification to the specified user that another notificaion is deleted
 func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNotification) error {
-	log.Printf("Sending delete notification to room %s", a.MatrixID)
+	log.L.Printf("Sending delete notification to room %s", a.MatrixID)
 	var oldFormattedBody string
 	var oldBody string
 
@@ -85,7 +86,7 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 	deleteMessage, err := d.getMessage(a, n.ID)
 
 	if err != nil {
-		log.Println(err)
+		log.L.Println(err)
 		return pberrors.ErrorMessageNotFound
 	}
 
@@ -133,7 +134,7 @@ func (d *Dispatcher) getFormattedMessage(n *model.Notification) string {
 		if ok {
 			if contentTypeRaw, ok := optionsDisplay["contentType"]; ok {
 				contentType := fmt.Sprintf("%v", contentTypeRaw)
-				log.Printf("Message content type: %s", contentType)
+				log.L.Printf("Message content type: %s", contentType)
 
 				switch contentType {
 				case "html", "text/html":
@@ -220,7 +221,7 @@ func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedB
 	sendEvent, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &replaceEvent)
 
 	if err != nil {
-		log.Println(err)
+		log.L.Println(err)
 		return nil, err
 	}
 

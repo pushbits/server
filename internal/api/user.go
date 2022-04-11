@@ -2,10 +2,10 @@ package api
 
 import (
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/pushbits/server/internal/authentication"
+	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 
 	"github.com/gin-gonic/gin"
@@ -90,7 +90,7 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 		}
 	}
 
-	log.Printf("Updating user %s.", u.Name)
+	log.L.Printf("Updating user %s.", u.Name)
 
 	if updateUser.Name != nil {
 		u.Name = *updateUser.Name
@@ -146,7 +146,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	log.Printf("Creating user %s.", createUser.Name)
+	log.L.Printf("Creating user %s.", createUser.Name)
 
 	user, err := h.DB.CreateUser(createUser)
 
@@ -232,7 +232,7 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 		}
 	}
 
-	log.Printf("Deleting user %s.", user.Name)
+	log.L.Printf("Deleting user %s.", user.Name)
 
 	if err := h.deleteApplications(ctx, user); err != nil {
 		return

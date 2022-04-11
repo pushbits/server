@@ -2,9 +2,10 @@ package credentials
 
 import (
 	"errors"
-	"log"
 
 	"github.com/alexedwards/argon2id"
+
+	"github.com/pushbits/server/internal/log"
 )
 
 // CreatePasswordHash returns a hashed version of the given password.
@@ -21,7 +22,7 @@ func (m *Manager) CreatePasswordHash(password string) ([]byte, error) {
 	hash, err := argon2id.CreateHash(password, m.argon2Params)
 
 	if err != nil {
-		log.Fatal(err)
+		log.L.Fatal(err)
 		panic(err)
 	}
 
@@ -33,7 +34,7 @@ func ComparePassword(hash, password []byte) bool {
 	match, err := argon2id.ComparePasswordAndHash(string(password), string(hash))
 
 	if err != nil {
-		log.Fatal(err)
+		log.L.Fatal(err)
 		return false
 	}
 
