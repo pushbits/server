@@ -12,7 +12,7 @@ SEMGREP_MODFILE := $(TESTS_DIR)/semgrep-rules/go.mod
 .PHONY: build
 build:
 	mkdir -p $(OUT_DIR)
-	go build -ldflags="-w -s -X main.Version=$(VERSION)" -o $(OUT_DIR)/pushbits ./cmd/pushbits
+	go build -ldflags="-w -s -X main.version=$(VERSION)" -o $(OUT_DIR)/pushbits ./cmd/pushbits
 
 .PHONY: clean
 clean:

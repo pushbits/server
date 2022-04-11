@@ -1,4 +1,4 @@
-name: Main
+name: Test
 
 on:
   push:
@@ -32,3 +32,6 @@ jobs:
         run: |
           source $(poetry env info --path)/bin/activate
           make test
+
+      - name: Build
+        run: make build

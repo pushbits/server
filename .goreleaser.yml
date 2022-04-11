@@ -1,0 +1,19 @@
+builds:
+  - id: pushbits
+    main: ./cmd/pushbits
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version=v{{.Version}}
+
+checksum:
+  algorithm: sha256
+
+archives:
+  - id: pushbits
+    builds:
+      - pushbits
+    format: tar.gz
