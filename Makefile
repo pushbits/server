@@ -5,7 +5,10 @@ DOCS_DIR := ./docs
 OUT_DIR := ./out
 TESTS_DIR := ./tests
 
-VERSION := `git describe --tags`
+VERSION := $(shell git describe --tags)
+ifeq ($(VERSION),)
+	_ := $(error Cannot determine build version)
+endif
 
 SEMGREP_MODFILE := $(TESTS_DIR)/semgrep-rules/go.mod
 
