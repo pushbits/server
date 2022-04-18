@@ -5,11 +5,9 @@ DOCS_DIR := ./docs
 OUT_DIR := ./out
 TESTS_DIR := ./tests
 
+PB_BUILD_VERSION ?= $(shell git describe --tags)
 ifeq ($(PB_BUILD_VERSION),)
-PB_BUILD_VERSION := $(shell git describe --tags)
-endif
-ifeq ($(PB_BUILD_VERSION),)
-$(error Cannot determine build version)
+	_ := $(error Cannot determine build version)
 endif
 
 SEMGREP_MODFILE := $(TESTS_DIR)/semgrep-rules/go.mod
