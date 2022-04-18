@@ -9,6 +9,9 @@ on:
       - '!v[0-9]+.[0-9]+.[0-9]+'
   pull_request:
 
+env:
+  PB_BUILD_VERSION: pipeline-${{ github.sha }}
+
 jobs:
   test_build:
     name: Test and build
@@ -16,8 +19,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Needed to describe git ref during build.
 
       - name: Export GOBIN
         uses: actions/setup-go@v3
