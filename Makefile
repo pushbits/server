@@ -5,9 +5,11 @@ DOCS_DIR := ./docs
 OUT_DIR := ./out
 TESTS_DIR := ./tests
 
-VERSION := $(shell git describe --tags)
-ifeq ($(VERSION),)
-	_ := $(error Cannot determine build version)
+ifeq ($(PB_BUILD_VERSION),)
+PB_BUILD_VERSION := $(shell git describe --tags)
+endif
+ifeq ($(PB_BUILD_VERSION),)
+$(error Cannot determine build version)
 endif
 
 SEMGREP_MODFILE := $(TESTS_DIR)/semgrep-rules/go.mod
@@ -15,7 +17,7 @@ SEMGREP_MODFILE := $(TESTS_DIR)/semgrep-rules/go.mod
 .PHONY: build
 build:
 	mkdir -p $(OUT_DIR)
-	go build -ldflags="-w -s -X main.version=$(VERSION)" -o $(OUT_DIR)/pushbits ./cmd/pushbits
+	go build -ldflags="-w -s -X main.version=$(PB_BUILD_VERSION)" -o $(OUT_DIR)/pushbits ./cmd/pushbits
 
 .PHONY: clean
 clean:
