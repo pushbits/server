@@ -3,17 +3,17 @@ package mockups
 import (
 	"errors"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"github.com/pushbits/server/internal/configuration"
+	"github.com/pushbits/server/internal/log"
 )
 
 // ReadConfig copies the given filename to the current folder and parses it as a config file. RemoveFile indicates whether to remove the copied file or not
 func ReadConfig(filename string, removeFile bool) (config *configuration.Configuration, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println(r)
+			log.L.Println(r)
 			err = errors.New("paniced while reading config")
 		}
 	}()

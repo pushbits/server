@@ -72,7 +72,7 @@ This project totally would've used Signal if it would offer a proper API.
 Sadly, neither [Signal](https://signal.org/) nor [WhatsApp](https://www.whatsapp.com/) come with an API (at the time of writing) through which PushBits could interact.
 
 In [Telegram](https://telegram.org/) there is an API to run bots, but these are limited in that they cannot create chats by themselves.
-If you insist on going with Telegram, have a look at [webhook2telegram](https://github.com/muety/webhook2telegram).
+If you insist on going with Telegram, have a look at [telepush](https://github.com/muety/telepush).
 
 The idea of a federated, synchronized but yet end-to-end encrypted protocol is awesome, but its clients simply aren't really there yet.
 Still, if you haven't tried it yet, we'd encourage you to check it out.

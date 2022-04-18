@@ -1,11 +1,11 @@
 package dispatcher
 
 import (
-	"log"
-
-	"github.com/pushbits/server/internal/configuration"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/id"
+
+	"github.com/pushbits/server/internal/configuration"
+	"github.com/pushbits/server/internal/log"
 )
 
 // Dispatcher holds information for sending notifications to clients.
@@ -16,7 +16,7 @@ type Dispatcher struct {
 
 // Create instanciates a dispatcher connection.
 func Create(homeserver, username, password string, formatting configuration.Formatting) (*Dispatcher, error) {
-	log.Println("Setting up dispatcher.")
+	log.L.Println("Setting up dispatcher.")
 
 	matrixClient, err := mautrix.NewClient(homeserver, "", "")
 	if err != nil {
@@ -39,14 +39,14 @@ func Create(homeserver, username, password string, formatting configuration.Form
 
 // Close closes the dispatcher connection.
 func (d *Dispatcher) Close() {
-	log.Printf("Logging out.")
+	log.L.Printf("Logging out.")
 
 	_, err := d.mautrixClient.Logout()
 	if err != nil {
-		log.Printf("Error while logging out: %s", err)
+		log.L.Printf("Error while logging out: %s", err)
 	}
 
 	d.mautrixClient.ClearCredentials()
 
-	log.Printf("Successfully logged out.")
+	log.L.Printf("Successfully logged out.")
 }

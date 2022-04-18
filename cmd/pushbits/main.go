@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,9 +9,12 @@ import (
 	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"
 	"github.com/pushbits/server/internal/dispatcher"
+	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/router"
 	"github.com/pushbits/server/internal/runner"
 )
+
+var version string
 
 func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 	c := make(chan os.Signal)
@@ -30,41 +32,46 @@ func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 // @version 0.7.2
 // @description Documentation for the PushBits server API.
 
-// @contact.name PushBits
+// @contact.name The PushBits Developers
 // @contact.url https://www.pushbits.io
 
 // @license.name ISC
 // @license.url https://github.com/pushbits/server/blob/master/LICENSE
 
-// @host your-domain.net
 // @BasePath /
 // @query.collection.format multi
+// @schemes http https
 
 // @securityDefinitions.basic BasicAuth
 func main() {
-	log.Println("Starting PushBits.")
+	if len(version) == 0 {
+		log.L.Panic("Version not set")
+	} else {
+		log.L.Printf("Starting PushBits %s", version)
+	}
 
 	c := configuration.Get()
 
 	if c.Debug {
-		log.Printf("%+v", c)
+		log.SetDebug()
+		log.L.Printf("%+v", c)
 	}
 
 	cm := credentials.CreateManager(c.Security.CheckHIBP, c.Crypto)
 
 	db, err := database.Create(cm, c.Database.Dialect, c.Database.Connection)
 	if err != nil {
-		log.Fatal(err)
+		log.L.Fatal(err)
 	}
 	defer db.Close()
 
 	if err := db.Populate(c.Admin.Name, c.Admin.Password, c.Admin.MatrixID); err != nil {
-		log.Fatal(err)
+		log.L.Fatal(err)
 	}
 
 	dp, err := dispatcher.Create(c.Matrix.Homeserver, c.Matrix.Username, c.Matrix.Password, c.Formatting)
 	if err != nil {
-		log.Fatal(err)
+		log.L.Fatal(err)
 	}
 	defer dp.Close()
 
@@ -72,13 +79,13 @@ func main() {
 
 	err = db.RepairChannels(dp)
 	if err != nil {
-		log.Fatal(err)
+		log.L.Fatal(err)
 	}
 
 	engine := router.Create(c.Debug, cm, db, dp, &c.Alertmanager)
 
 	err = runner.Run(engine, c.HTTP.ListenAddress, c.HTTP.Port)
 	if err != nil {
-		log.Fatal(err)
+		log.L.Fatal(err)
 	}
 }

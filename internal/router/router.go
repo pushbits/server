@@ -1,7 +1,8 @@
 package router
 
 import (
-	"log"
+	"github.com/gin-contrib/location"
+	"github.com/gin-gonic/gin"
 
 	"github.com/pushbits/server/internal/api"
 	"github.com/pushbits/server/internal/api/alertmanager"
@@ -10,14 +11,12 @@ import (
 	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"
 	"github.com/pushbits/server/internal/dispatcher"
-
-	"github.com/gin-contrib/location"
-	"github.com/gin-gonic/gin"
+	"github.com/pushbits/server/internal/log"
 )
 
 // Create a Gin engine and setup all routes.
 func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher, alertmanagerConfig *configuration.Alertmanager) *gin.Engine {
-	log.Println("Setting up HTTP routes.")
+	log.L.Println("Setting up HTTP routes.")
 
 	if !debug {
 		gin.SetMode(gin.ReleaseMode)
@@ -34,7 +33,8 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		MessageAnnotation: alertmanagerConfig.AnnotationMessage,
 	}}
 
-	r := gin.Default()
+	r := gin.New()
+	r.Use(log.GinLogger(log.L), gin.Recovery())
 
 	r.Use(location.Default())
 

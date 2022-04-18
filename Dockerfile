@@ -1,5 +1,7 @@
 FROM docker.io/library/golang:alpine as builder
 
+ARG PB_BUILD_VERSION
+
 WORKDIR /build
 
 COPY . .
@@ -8,7 +10,7 @@ RUN set -ex \
 	&& apk add --no-cache build-base \
 	&& go mod download \
 	&& go mod verify \
-	&& make build \
+	&& PB_BUILD_VERSION="$PB_BUILD_VERSION" make build \
 	&& chmod +x /build/out/pushbits
 
 FROM docker.io/library/alpine

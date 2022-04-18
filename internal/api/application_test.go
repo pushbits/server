@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"testing"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/pushbits/server/internal/authentication/credentials"
 	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"
+	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/tests"
 	"github.com/pushbits/server/tests/mockups"
@@ -50,7 +50,7 @@ func TestMain(m *testing.M) {
 	db, err := mockups.GetEmptyDatabase(config.Crypto)
 	if err != nil {
 		cleanUp()
-		log.Println("Can not set up database: ", err)
+		log.L.Println("Can not set up database: ", err)
 		os.Exit(1)
 	}
 	TestDatabase = db
@@ -58,7 +58,7 @@ func TestMain(m *testing.M) {
 	appHandler, err := getApplicationHandler(config)
 	if err != nil {
 		cleanUp()
-		log.Println("Can not set up application handler: ", err)
+		log.L.Println("Can not set up application handler: ", err)
 		os.Exit(1)
 	}
 
@@ -80,7 +80,7 @@ func TestMain(m *testing.M) {
 
 	// Run
 	m.Run()
-	log.Println("Clean up after Test")
+	log.L.Println("Clean up after Test")
 	cleanUp()
 }
 

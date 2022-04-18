@@ -3,12 +3,12 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/pushbits/server/internal/authentication/credentials"
+	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 
 	"gorm.io/driver/mysql"
@@ -36,7 +36,7 @@ func createFileDir(file string) {
 
 // Create instanciates a database connection.
 func Create(cm *credentials.Manager, dialect, connection string) (*Database, error) {
-	log.Println("Setting up database connection.")
+	log.L.Println("Setting up database connection.")
 
 	maxOpenConns := 5
 
@@ -82,13 +82,13 @@ func Create(cm *credentials.Manager, dialect, connection string) (*Database, err
 func (d *Database) Close() {
 	err := d.sqldb.Close()
 	if err != nil {
-		log.Printf("Error while closing database: %s", err)
+		log.L.Printf("Error while closing database: %s", err)
 	}
 }
 
 // Populate fills the database with initial information like the admin user.
 func (d *Database) Populate(name, password, matrixID string) error {
-	log.Print("Populating database.")
+	log.L.Print("Populating database.")
 
 	var user model.User
 
@@ -104,7 +104,7 @@ func (d *Database) Populate(name, password, matrixID string) error {
 			return errors.New("user cannot be created")
 		}
 	} else {
-		log.Printf("Priviledged user %s already exists.", name)
+		log.L.Printf("Priviledged user %s already exists.", name)
 	}
 
 	return nil
@@ -112,7 +112,7 @@ func (d *Database) Populate(name, password, matrixID string) error {
 
 // RepairChannels resets channels that have been modified by a user.
 func (d *Database) RepairChannels(dp Dispatcher) error {
-	log.Print("Repairing application channels.")
+	log.L.Print("Repairing application channels.")
 
 	users, err := d.GetUsers()
 	if err != nil {
@@ -140,11 +140,11 @@ func (d *Database) RepairChannels(dp Dispatcher) error {
 			}
 
 			if orphan {
-				log.Printf("Found orphan channel for application %s (ID %d)", application.Name, application.ID)
+				log.L.Printf("Found orphan channel for application %s (ID %d)", application.Name, application.ID)
 
 				if err = dp.RepairApplication(&application, &user); err != nil {
-					log.Printf("Unable to repair application %s (ID %d).", application.Name, application.ID)
-					log.Println(err)
+					log.L.Printf("Unable to repair application %s (ID %d).", application.Name, application.ID)
+					log.L.Println(err)
 				}
 			}
 		}

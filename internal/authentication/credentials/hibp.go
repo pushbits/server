@@ -4,9 +4,10 @@ import (
 	"crypto/sha1" //#nosec G505 -- False positive, see the use below.
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
+
+	"github.com/pushbits/server/internal/log"
 )
 
 const (
@@ -27,7 +28,7 @@ func IsPasswordPwned(password string) (bool, error) {
 	lookup := hashStr[0:5]
 	match := hashStr[5:]
 
-	log.Printf("Checking HIBP for hashes starting with '%s'.", lookup)
+	log.L.Printf("Checking HIBP for hashes starting with '%s'.", lookup)
 
 	resp, err := http.Get(pwnedHashesURL + lookup)
 	if err != nil {
@@ -35,13 +36,13 @@ func IsPasswordPwned(password string) (bool, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Request failed with HTTP %s.", resp.Status)
+		log.L.Fatalf("Request failed with HTTP %s.", resp.Status)
 	}
 
 	defer resp.Body.Close()
 	bodyText, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.L.Fatal(err)
 	}
 
 	bodyStr := string(bodyText)

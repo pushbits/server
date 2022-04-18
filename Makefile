@@ -5,12 +5,17 @@ DOCS_DIR := ./docs
 OUT_DIR := ./out
 TESTS_DIR := ./tests
 
+PB_BUILD_VERSION ?= $(shell git describe --tags)
+ifeq ($(PB_BUILD_VERSION),)
+	_ := $(error Cannot determine build version)
+endif
+
 SEMGREP_MODFILE := $(TESTS_DIR)/semgrep-rules/go.mod
 
 .PHONY: build
 build:
 	mkdir -p $(OUT_DIR)
-	go build -ldflags="-w -s" -o $(OUT_DIR)/pushbits ./cmd/pushbits
+	go build -ldflags="-w -s -X main.version=$(PB_BUILD_VERSION)" -o $(OUT_DIR)/pushbits ./cmd/pushbits
 
 .PHONY: clean
 clean:
@@ -37,7 +42,7 @@ setup:
 	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
-	go install honnef.co/go/tools/cmd/staticcheck@latest
+	go install honnef.co/go/tools/cmd/staticcheck@v0.2.2
 	poetry install
 
 .PHONY: swag
