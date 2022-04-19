@@ -2,32 +2,23 @@ name: Documentation
 
 on:
   push:
-    paths-ignore:
-      - '**.md'
-      - '**.jpg'
-      - '**.jpeg'
-      - '**.png'
-      - '**.yaml'
-      - '**.json'
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 env:
+  PB_BUILD_VERSION: unknown # Needed for using Make targets.
   SSH_AUTH_SOCK: /tmp/ssh_agent.sock
 
 jobs:
   build_documentation:
     name: Build documentation
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.head_ref }}
+        uses: actions/checkout@v3
 
       - name: Export GOBIN
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.16
 
