@@ -19,8 +19,7 @@ func TestApi_SuccessOrAbort(t *testing.T) {
 	testCases[errors.New("this is an error")] = tests.Request{Name: "Error - 500", Endpoint: "/", ShouldStatus: 500}
 	testCases[errors.New("this is an error")] = tests.Request{Name: "Error - 200", Endpoint: "/", ShouldStatus: 200}
 	testCases[errors.New("this is an error")] = tests.Request{Name: "Error - 404", Endpoint: "/", ShouldStatus: 404}
-	testCases[errors.New("this is an error")] = tests.Request{Name: "Error - 1001", Endpoint: "/", ShouldStatus: 1001}
-	testCases[nil] = tests.Request{Name: "No Error - 1001", Endpoint: "/", ShouldStatus: 1001}
+	testCases[nil] = tests.Request{Name: "No Error - 200", Endpoint: "/", ShouldStatus: 200}
 	testCases[nil] = tests.Request{Name: "No Error - 404", Endpoint: "/", ShouldStatus: 404}
 
 	for forcedErr, testCase := range testCases {

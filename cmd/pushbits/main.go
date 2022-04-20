@@ -17,7 +17,7 @@ import (
 var version string
 
 func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
