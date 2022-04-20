@@ -26,7 +26,7 @@ clean:
 .PHONY: test
 test:
 	touch $(SEMGREP_MODFILE) # See [1].
-	go fmt ./...
+	stdout=$$(gofumpt -l . 2>&1); if [ "$$stdout" ]; then exit 1; fi
 	go vet ./...
 	gocyclo -over 10 $(shell find . -type f \( -iname '*.go' ! -path "./tests/semgrep-rules/*" \))
 	staticcheck ./...
@@ -42,8 +42,13 @@ setup:
 	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
-	go install honnef.co/go/tools/cmd/staticcheck@v0.2.2
+	go install honnef.co/go/tools/cmd/staticcheck@latest
+	go install mvdan.cc/gofumpt@latest
 	poetry install
+
+.PHONY: fmt
+fmt:
+	gofumpt -l -w .
 
 .PHONY: swag
 swag:

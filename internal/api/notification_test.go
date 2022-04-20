@@ -61,7 +61,6 @@ func TestApi_CreateNotification(t *testing.T) {
 
 		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 	}
-
 }
 
 func TestApi_DeleteNotification(t *testing.T) {
@@ -93,5 +92,4 @@ func TestApi_DeleteNotification(t *testing.T) {
 
 		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 	}
-
 }

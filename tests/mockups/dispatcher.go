@@ -7,8 +7,7 @@ import (
 )
 
 // MockDispatcher is a dispatcher used for testing - it does not need any storage interface
-type MockDispatcher struct {
-}
+type MockDispatcher struct{}
 
 func (d *MockDispatcher) RegisterApplication(id uint, name, token, user string) (string, error) {
 	return fmt.Sprintf("%d-%s", id, name), nil

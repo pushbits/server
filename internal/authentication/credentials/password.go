@@ -20,7 +20,6 @@ func (m *Manager) CreatePasswordHash(password string) ([]byte, error) {
 	}
 
 	hash, err := argon2id.CreateHash(password, m.argon2Params)
-
 	if err != nil {
 		log.L.Fatal(err)
 		panic(err)
@@ -32,7 +31,6 @@ func (m *Manager) CreatePasswordHash(password string) ([]byte, error) {
 // ComparePassword compares a hashed password with its possible plaintext equivalent.
 func ComparePassword(hash, password []byte) bool {
 	match, err := argon2id.ComparePasswordAndHash(string(password), string(hash))
-
 	if err != nil {
 		log.L.Fatal(err)
 		return false

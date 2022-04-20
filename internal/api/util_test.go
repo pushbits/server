@@ -62,5 +62,4 @@ func TestApi_IsCurrentUser(t *testing.T) {
 			}
 		}
 	}
-
 }
