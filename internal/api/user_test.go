@@ -216,7 +216,6 @@ func TestApi_DeleteUser(t *testing.T) {
 
 		assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) Expected status code %d but have %d", testCase.Name, testCase.ShouldStatus, w.Code)
 	}
-
 }
 
 func getAdmin() *model.User {

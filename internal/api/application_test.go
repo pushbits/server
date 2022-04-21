@@ -19,12 +19,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var TestApplicationHandler *ApplicationHandler
-var TestUsers []*model.User
-var TestDatabase *database.Database
-var TestNotificationHandler *NotificationHandler
-var TestUserHandler *UserHandler
-var TestConfig *configuration.Configuration
+var (
+	TestApplicationHandler  *ApplicationHandler
+	TestUsers               []*model.User
+	TestDatabase            *database.Database
+	TestNotificationHandler *NotificationHandler
+	TestUserHandler         *UserHandler
+	TestConfig              *configuration.Configuration
+)
 
 // Collect all created applications to check & delete them later
 var SuccessAplications map[uint][]model.Application
@@ -95,7 +97,6 @@ func TestApi_RegisterApplicationWithoutUser(t *testing.T) {
 	}
 
 	assert.Panicsf(func() { TestApplicationHandler.CreateApplication(c) }, "CreateApplication did not panic altough user is not in context")
-
 }
 
 func TestApi_RegisterApplication(t *testing.T) {
@@ -186,7 +187,6 @@ func TestApi_GetApplicationsWithoutUser(t *testing.T) {
 	}
 
 	assert.Panicsf(func() { TestApplicationHandler.GetApplications(c) }, "GetApplications did not panic altough user is not in context")
-
 }
 
 func TestApi_GetApplicationErrors(t *testing.T) {

@@ -23,12 +23,11 @@ func ReadConfig(filename string, removeFile bool) (config *configuration.Configu
 	}
 
 	file, err := ioutil.ReadFile(filename)
-
 	if err != nil {
 		return nil, err
 	}
 
-	err = ioutil.WriteFile("config.yml", file, 0644)
+	err = ioutil.WriteFile("config.yml", file, 0o644)
 	if err != nil {
 		return nil, err
 	}

@@ -84,7 +84,6 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 
 	// get the message we want to delete
 	deleteMessage, err := d.getMessage(a, n.ID)
-
 	if err != nil {
 		log.L.Println(err)
 		return pberrors.ErrorMessageNotFound
@@ -219,7 +218,6 @@ func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedB
 	}
 
 	sendEvent, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &replaceEvent)
-
 	if err != nil {
 		log.L.Println(err)
 		return nil, err
@@ -231,7 +229,6 @@ func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedB
 // Sends a notification in response to another matrix message event
 func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody string, respondMessage *event.Event) (*mautrix.RespSendEvent, error) {
 	oldBody, oldFormattedBody, err := bodiesFromMessage(respondMessage)
-
 	if err != nil {
 		return nil, err
 	}

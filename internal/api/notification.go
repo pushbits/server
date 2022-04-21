@@ -13,8 +13,7 @@ import (
 )
 
 // The NotificationDatabase interface for encapsulating database access.
-type NotificationDatabase interface {
-}
+type NotificationDatabase interface{}
 
 // The NotificationDispatcher interface for relaying notifications.
 type NotificationDispatcher interface {
