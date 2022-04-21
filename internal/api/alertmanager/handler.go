@@ -95,13 +95,15 @@ func (alert *alert) ToNotification(titleAnnotation, messageAnnotation string) mo
 
 	if titleString, ok := alert.Annotiations[titleAnnotation]; ok {
 		title.WriteString(titleString)
+	} else if titleString, ok := alert.Labels[titleAnnotation]; ok {
+		title.WriteString(titleString)
 	} else {
 		title.WriteString("Unknown Title")
 	}
-	title.WriteString(" - ")
-	title.WriteString(alert.StartsAt)
 
 	if messageString, ok := alert.Annotiations[messageAnnotation]; ok {
+		message.WriteString(messageString)
+	} else if messageString, ok := alert.Labels[messageAnnotation]; ok {
 		message.WriteString(messageString)
 	} else {
 		message.WriteString("Unknown Message")
