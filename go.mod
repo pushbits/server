@@ -8,13 +8,10 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gomarkdown/markdown v0.0.0-20210408062403-ad838ccf8cdd
 	github.com/jinzhu/configor v1.2.1
-<<<<<<< HEAD
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
-=======
->>>>>>> origin/main
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	gopkg.in/yaml.v2 v2.4.0
