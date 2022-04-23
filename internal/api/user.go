@@ -39,7 +39,7 @@ func (h *UserHandler) requireMultipleAdmins(ctx *gin.Context) error {
 
 func (h *UserHandler) deleteApplications(ctx *gin.Context, u *model.User) error {
 	applications, err := h.DB.GetApplications(u)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
 
@@ -56,7 +56,7 @@ func (h *UserHandler) deleteApplications(ctx *gin.Context, u *model.User) error 
 
 func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, matrixID string) error {
 	applications, err := h.DB.GetApplications(u)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
 
@@ -64,7 +64,7 @@ func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, matrixID s
 		application := application // See https://stackoverflow.com/a/68247837
 
 		err := h.DP.DeregisterApplication(&application, u)
-		if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 			return err
 		}
 	}
@@ -97,7 +97,7 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 	}
 	if updateUser.Password != nil {
 		hash, err := h.CM.CreatePasswordHash(*updateUser.Password)
-		if success := successOrAbort(ctx, http.StatusBadRequest, err); !success {
+		if success := SuccessOrAbort(ctx, http.StatusBadRequest, err); !success {
 			return err
 		}
 
@@ -111,7 +111,7 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 	}
 
 	err := h.DB.UpdateUser(u)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
 
@@ -150,7 +150,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 
 	user, err := h.DB.CreateUser(createUser)
 
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
 	}
 
@@ -171,7 +171,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 // @Router /user [get]
 func (h *UserHandler) GetUsers(ctx *gin.Context) {
 	users, err := h.DB.GetUsers()
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
 	}
 
@@ -238,7 +238,7 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DB.DeleteUser(user)); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, h.DB.DeleteUser(user)); !success {
 		return
 	}
 
