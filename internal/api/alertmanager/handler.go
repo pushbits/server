@@ -1,13 +1,13 @@
 package alertmanager
 
 import (
-	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pushbits/server/internal/api"
 	"github.com/pushbits/server/internal/authentication"
+	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 )
 
@@ -35,7 +35,7 @@ type AlertmanagerHandlerSettings struct {
 // @Router /alert [post]
 func (h *AlertmanagerHandler) CreateAlert(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
-	log.Printf("Sending alert notification for application %s.", application.Name)
+	log.L.Printf("Sending alert notification for application %s.", application.Name)
 
 	var hook model.AlertmanagerWebhook
 	if err := ctx.Bind(&hook); err != nil {
