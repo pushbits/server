@@ -30,14 +30,14 @@ func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Appl
 	log.L.Printf("Registering application %s.", a.Name)
 
 	channelID, err := h.DP.RegisterApplication(a.ID, a.Name, a.Token, u.MatrixID)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
 
 	a.MatrixID = channelID
 
 	err = h.DB.UpdateApplication(a)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
 
@@ -53,13 +53,13 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, 
 	application.UserID = u.ID
 
 	err := h.DB.CreateApplication(&application)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return nil, err
 	}
 
 	if err := h.registerApplication(ctx, &application, u); err != nil {
 		err := h.DB.DeleteApplication(&application)
-		if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 			log.L.Printf("Cannot delete application with ID %d.", application.ID)
 		}
 
@@ -73,12 +73,12 @@ func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Applic
 	log.L.Printf("Deleting application %s (ID %d).", a.Name, a.ID)
 
 	err := h.DP.DeregisterApplication(a, u)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
 
 	err = h.DB.DeleteApplication(a)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
 
@@ -100,12 +100,12 @@ func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Applic
 	}
 
 	err := h.DB.UpdateApplication(a)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
 
 	err = h.DP.UpdateApplication(a)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
 
@@ -164,7 +164,7 @@ func (h *ApplicationHandler) GetApplications(ctx *gin.Context) {
 	}
 
 	applications, err := h.DB.GetApplications(user)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
 	}
 

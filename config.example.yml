@@ -63,3 +63,10 @@ crypto:
 formatting:
     # Whether to use colored titles based on the message priority (<0: grey, 0-3: default, 4-10: yellow, 10-20: orange, >20: red).
     coloredtitle: false
+
+# This settings are only relevant if you want to use PushBits with alertmanager
+alertmanager:
+    # The name of the entry in the alerts annotations or lables that should be used for the title
+    annotationtitle: title
+    # The name of the entry in the alerts annotations or labels that should be used for the message
+    annotationmessage: message

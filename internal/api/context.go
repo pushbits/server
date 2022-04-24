@@ -38,7 +38,7 @@ func getApplication(ctx *gin.Context, db Database) (*model.Application, error) {
 	}
 
 	application, err := db.GetApplicationByID(id)
-	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusNotFound, err); !success {
 		return nil, err
 	}
 
@@ -52,7 +52,7 @@ func getUser(ctx *gin.Context, db Database) (*model.User, error) {
 	}
 
 	user, err := db.GetUserByID(id)
-	if success := successOrAbort(ctx, http.StatusNotFound, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusNotFound, err); !success {
 		return nil, err
 	}
 

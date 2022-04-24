@@ -54,7 +54,7 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	notification.Sanitize(application)
 
 	messageID, err := h.DP.SendNotification(application, &notification)
-	if success := successOrAbort(ctx, http.StatusInternalServerError, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
 	}
 
@@ -81,7 +81,7 @@ func (h *NotificationHandler) DeleteNotification(ctx *gin.Context) {
 	log.L.Printf("Deleting notification for application %s.", application.Name)
 
 	id, err := getMessageID(ctx)
-	if success := successOrAbort(ctx, http.StatusUnprocessableEntity, err); !success {
+	if success := SuccessOrAbort(ctx, http.StatusUnprocessableEntity, err); !success {
 		return
 	}
 
@@ -90,7 +90,7 @@ func (h *NotificationHandler) DeleteNotification(ctx *gin.Context) {
 		Date: time.Now(),
 	}
 
-	if success := successOrAbort(ctx, http.StatusInternalServerError, h.DP.DeleteNotification(application, &n)); !success {
+	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, h.DP.DeleteNotification(application, &n)); !success {
 		return
 	}
 

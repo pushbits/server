@@ -82,7 +82,7 @@ func main() {
 		log.L.Fatal(err)
 	}
 
-	engine, err := router.Create(c.Debug, c.HTTP.TrustedProxies, cm, db, dp)
+	engine, err := router.Create(c.Debug, c.HTTP.TrustedProxies, cm, db, dp, &c.Alertmanager)
 	if err != nil {
 		log.L.Fatal(err)
 	}
