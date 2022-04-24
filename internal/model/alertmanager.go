@@ -8,17 +8,17 @@ type AlertmanagerWebhook struct {
 	Receiver          string              `json:"receiver"`
 	GroupLabels       map[string]string   `json:"groupLabels"`
 	CommonLabels      map[string]string   `json:"commonLabels"`
-	CommonAnnotations map[string]string   `json:"commonAnnotiations"`
+	CommonAnnotations map[string]string   `json:"commonAnnotations"`
 	ExternalURL       string              `json:"externalURL"`
 	Alerts            []AlertmanagerAlert `json:"alerts"`
 }
 
 type AlertmanagerAlert struct {
-	Labels       map[string]string `json:"labels"`
-	Annotiations map[string]string `json:"annotiations"`
-	StartsAt     string            `json:"startsAt"`
-	EndsAt       string            `json:"endsAt"`
-	Status       string            `json:"status"`
+	Labels      map[string]string `json:"labels"`
+	Annotations map[string]string `json:"annotations"`
+	StartsAt    string            `json:"startsAt"`
+	EndsAt      string            `json:"endsAt"`
+	Status      string            `json:"status"`
 }
 
 func (alert *AlertmanagerAlert) ToNotification(titleAnnotation, messageAnnotation string) Notification {
@@ -35,7 +35,7 @@ func (alert *AlertmanagerAlert) ToNotification(titleAnnotation, messageAnnotatio
 	message.WriteString(alert.Status)
 	message.WriteString("\n\n")
 
-	if titleString, ok := alert.Annotiations[titleAnnotation]; ok {
+	if titleString, ok := alert.Annotations[titleAnnotation]; ok {
 		title.WriteString(titleString)
 	} else if titleString, ok := alert.Labels[titleAnnotation]; ok {
 		title.WriteString(titleString)
@@ -43,7 +43,7 @@ func (alert *AlertmanagerAlert) ToNotification(titleAnnotation, messageAnnotatio
 		title.WriteString("Unknown Title")
 	}
 
-	if messageString, ok := alert.Annotiations[messageAnnotation]; ok {
+	if messageString, ok := alert.Annotations[messageAnnotation]; ok {
 		message.WriteString(messageString)
 	} else if messageString, ok := alert.Labels[messageAnnotation]; ok {
 		message.WriteString(messageString)
