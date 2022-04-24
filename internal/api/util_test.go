@@ -26,7 +26,7 @@ func TestApi_SuccessOrAbort(t *testing.T) {
 		w, c, err := testCase.GetRequest()
 		require.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
 
-		aborted := successOrAbort(c, testCase.ShouldStatus, forcedErr)
+		aborted := SuccessOrAbort(c, testCase.ShouldStatus, forcedErr)
 
 		if forcedErr != nil {
 			assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) Expected status code %d but have %d", testCase.Name, testCase.ShouldStatus, w.Code)

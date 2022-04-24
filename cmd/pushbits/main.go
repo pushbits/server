@@ -82,7 +82,7 @@ func main() {
 		log.L.Fatal(err)
 	}
 
-	engine := router.Create(c.Debug, cm, db, dp)
+	engine := router.Create(c.Debug, cm, db, dp, &c.Alertmanager)
 
 	err = runner.Run(engine, c.HTTP.ListenAddress, c.HTTP.Port)
 	if err != nil {

@@ -33,6 +33,12 @@ type Matrix struct {
 	Password   string `required:"true"`
 }
 
+// Alertmanager holds information on how to parse alertmanager calls
+type Alertmanager struct {
+	AnnotationTitle   string `default:"title"`
+	AnnotationMessage string `default:"message"`
+}
+
 // Configuration holds values that can be configured by the user.
 type Configuration struct {
 	Debug bool `default:"false"`
@@ -53,8 +59,9 @@ type Configuration struct {
 	Security struct {
 		CheckHIBP bool `default:"false"`
 	}
-	Crypto     CryptoConfig
-	Formatting Formatting
+	Crypto       CryptoConfig
+	Formatting   Formatting
+	Alertmanager Alertmanager
 }
 
 func configFiles() []string {
