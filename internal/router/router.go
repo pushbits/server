@@ -13,7 +13,7 @@ import (
 )
 
 // Create a Gin engine and setup all routes.
-func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher) *gin.Engine {
+func Create(debug bool, trustedProxies []string, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher) (*gin.Engine, error) {
 	log.L.Println("Setting up HTTP routes.")
 
 	if !debug {
@@ -29,6 +29,16 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 
 	r := gin.New()
 	r.Use(log.GinLogger(log.L), gin.Recovery())
+
+	var err error
+	if len(trustedProxies) > 0 {
+		err = r.SetTrustedProxies(trustedProxies)
+	} else {
+		err = r.SetTrustedProxies(nil)
+	}
+	if err != nil {
+		return nil, err
+	}
 
 	r.Use(location.Default())
 
@@ -59,5 +69,5 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 		userGroup.PUT("/:id", api.RequireIDInURI(), userHandler.UpdateUser)
 	}
 
-	return r
+	return r, nil
 }

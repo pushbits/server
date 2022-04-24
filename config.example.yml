@@ -13,6 +13,9 @@ http:
     # The port to listen on.
     port: 8080
 
+    # What proxies to trust.
+    trustedproxies: []
+
 database:
     # Currently sqlite3 and mysql are supported.
     dialect: 'sqlite3'
