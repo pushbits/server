@@ -43,8 +43,9 @@ type Alertmanager struct {
 type Configuration struct {
 	Debug bool `default:"false"`
 	HTTP  struct {
-		ListenAddress string `default:""`
-		Port          int    `default:"8080"`
+		ListenAddress  string   `default:""`
+		Port           int      `default:"8080"`
+		TrustedProxies []string `default:"[]"`
 	}
 	Database struct {
 		Dialect    string `default:"sqlite3"`

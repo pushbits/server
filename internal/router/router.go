@@ -15,7 +15,7 @@ import (
 )
 
 // Create a Gin engine and setup all routes.
-func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher, alertmanagerConfig *configuration.Alertmanager) *gin.Engine {
+func Create(debug bool, trustedProxies []string, cm *credentials.Manager, db *database.Database, dp *dispatcher.Dispatcher, alertmanagerConfig *configuration.Alertmanager) (*gin.Engine, error) {
 	log.L.Println("Setting up HTTP routes.")
 
 	if !debug {
@@ -35,6 +35,16 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 
 	r := gin.New()
 	r.Use(log.GinLogger(log.L), gin.Recovery())
+
+	var err error
+	if len(trustedProxies) > 0 {
+		err = r.SetTrustedProxies(trustedProxies)
+	} else {
+		err = r.SetTrustedProxies(nil)
+	}
+	if err != nil {
+		return nil, err
+	}
 
 	r.Use(location.Default())
 
@@ -67,5 +77,5 @@ func Create(debug bool, cm *credentials.Manager, db *database.Database, dp *disp
 
 	r.POST("/alert", auth.RequireApplicationToken(), alertmanagerHandler.CreateAlert)
 
-	return r
+	return r, nil
 }
