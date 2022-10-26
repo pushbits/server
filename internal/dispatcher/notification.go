@@ -72,6 +72,9 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 	}
 
 	evt, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &messageEvent)
+	if err != nil {
+		return "", err
+	}
 
 	return evt.EventID.String(), err
 }
