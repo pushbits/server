@@ -73,10 +73,11 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 
 	evt, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &messageEvent)
 	if err != nil {
+		log.L.Errorln(err)
 		return "", err
 	}
 
-	return evt.EventID.String(), err
+	return evt.EventID.String(), nil
 }
 
 // DeleteNotification sends a notification to the specified user that another notificaion is deleted
@@ -85,7 +86,7 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 	var oldFormattedBody string
 	var oldBody string
 
-	// get the message we want to delete
+	// Get the message we want to delete
 	deleteMessage, err := d.getMessage(a, n.ID)
 	if err != nil {
 		log.L.Println(err)
@@ -93,12 +94,11 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 	}
 
 	oldBody, oldFormattedBody, err = bodiesFromMessage(deleteMessage)
-
 	if err != nil {
 		return err
 	}
 
-	// update the message with strikethrough
+	// Update the message with strikethrough
 	newBody := fmt.Sprintf("<del>%s</del>\n- deleted", oldBody)
 	newFormattedBody := fmt.Sprintf("<del>%s</del><br>- deleted", oldFormattedBody)
 
@@ -142,7 +142,7 @@ func (d *Dispatcher) getFormattedMessage(n *model.Notification) string {
 				case "html", "text/html":
 					message = strings.Replace(trimmedMessage, "\n", "<br />", -1)
 				case "markdown", "md", "text/md", "text/markdown":
-					// allow HTML in Markdown
+					// Allow HTML in Markdown
 					message = string(markdown.ToHTML([]byte(trimmedMessage), nil, nil))
 				}
 			}
@@ -183,10 +183,14 @@ func (d *Dispatcher) coloredText(color string, text string) string {
 func (d *Dispatcher) getMessage(a *model.Application, id string) (*event.Event, error) {
 	start := ""
 	end := ""
-	maxPages := 10 // maximum pages to request (10 messages per page)
+	maxPages := 10 // Maximum pages to request (10 messages per page)
 
 	for i := 0; i < maxPages; i++ {
-		messages, _ := d.mautrixClient.Messages(mId.RoomID(a.MatrixID), start, end, 'b', nil, 10)
+		messages, err := d.mautrixClient.Messages(mId.RoomID(a.MatrixID), start, end, 'b', nil, 10)
+		if err != nil {
+			return nil, err
+		}
+
 		for _, event := range messages.Chunk {
 			if event.ID.String() == id {
 				return event, nil
@@ -194,7 +198,8 @@ func (d *Dispatcher) getMessage(a *model.Application, id string) (*event.Event, 
 		}
 		start = messages.End
 	}
-	return &event.Event{}, pberrors.ErrorMessageNotFound
+
+	return nil, pberrors.ErrorMessageNotFound
 }
 
 // Replaces the content of a matrix message
@@ -222,7 +227,7 @@ func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedB
 
 	sendEvent, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &replaceEvent)
 	if err != nil {
-		log.L.Println(err)
+		log.L.Errorln(err)
 		return nil, err
 	}
 
@@ -236,7 +241,7 @@ func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody 
 		return nil, err
 	}
 
-	// formatting according to https://matrix.org/docs/spec/client_server/latest#fallbacks-and-event-representation
+	// Formatting according to https://matrix.org/docs/spec/client_server/latest#fallbacks-and-event-representation
 	newFormattedBody := fmt.Sprintf("<mx-reply><blockquote><a href='https://matrix.to/#/%s/%s'>In reply to</a> <a href='https://matrix.to/#/%s'>%s</a><br />%s</blockquote>\n</mx-reply>%s", respondMessage.RoomID, respondMessage.ID, respondMessage.Sender, respondMessage.Sender, oldFormattedBody, formattedBody)
 	newBody := fmt.Sprintf("> <%s>%s\n\n%s", respondMessage.Sender, oldBody, body)
 
@@ -255,7 +260,13 @@ func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody 
 	}
 	notificationEvent.RelatesTo = &notificationRelation
 
-	return d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &notificationEvent)
+	sendEvent, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &notificationEvent)
+	if err != nil {
+		log.L.Errorln(err)
+		return nil, err
+	}
+
+	return sendEvent, nil
 }
 
 // Extracts body and formatted body from a matrix message event
