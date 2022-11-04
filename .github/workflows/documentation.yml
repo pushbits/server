@@ -35,7 +35,7 @@ jobs:
         run: make swag
 
       - name: Build static HTML
-        run: npx redoc-cli bundle docs/swagger.yaml --output index.html
+        run: npx redoc-cli build docs/swagger.yaml --output index.html
 
       - name: Setup SSH keys and known_hosts
         run: |
