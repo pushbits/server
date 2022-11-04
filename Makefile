@@ -53,5 +53,5 @@ fmt:
 	gofumpt -l -w $(GO_FILES)
 
 .PHONY: swag
-swag:
+swag: build
 	swag init --parseDependency=true --exclude $(TESTS_DIR) -g cmd/pushbits/main.go
