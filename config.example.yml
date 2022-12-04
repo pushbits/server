@@ -70,3 +70,9 @@ alertmanager:
     annotationtitle: title
     # The name of the entry in the alerts annotations or labels that should be used for the message
     annotationmessage: message
+
+repairbehavior:
+    # Reset the room's name to what was initially set by PushBits.
+    resetroomname: true
+    # Reset the room's topic to what was initially set by PushBits.
+    resetroomtopic: true
