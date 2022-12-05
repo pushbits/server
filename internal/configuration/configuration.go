@@ -39,6 +39,12 @@ type Alertmanager struct {
 	AnnotationMessage string `default:"message"`
 }
 
+// RepairBehavior holds information on how repair applications.
+type RepairBehavior struct {
+	ResetRoomName  bool `default:"true"`
+	ResetRoomTopic bool `default:"true"`
+}
+
 // Configuration holds values that can be configured by the user.
 type Configuration struct {
 	Debug bool `default:"false"`
@@ -60,9 +66,10 @@ type Configuration struct {
 	Security struct {
 		CheckHIBP bool `default:"false"`
 	}
-	Crypto       CryptoConfig
-	Formatting   Formatting
-	Alertmanager Alertmanager
+	Crypto         CryptoConfig
+	Formatting     Formatting
+	Alertmanager   Alertmanager
+	RepairBehavior RepairBehavior
 }
 
 func configFiles() []string {

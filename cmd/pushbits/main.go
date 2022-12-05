@@ -77,7 +77,7 @@ func main() {
 
 	setupCleanup(db, dp)
 
-	err = db.RepairChannels(dp)
+	err = db.RepairChannels(dp, &c.RepairBehavior)
 	if err != nil {
 		log.L.Fatal(err)
 	}

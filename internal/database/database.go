@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/pushbits/server/internal/authentication/credentials"
+	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 
@@ -111,7 +112,7 @@ func (d *Database) Populate(name, password, matrixID string) error {
 }
 
 // RepairChannels resets channels that have been modified by a user.
-func (d *Database) RepairChannels(dp Dispatcher) error {
+func (d *Database) RepairChannels(dp Dispatcher, behavior *configuration.RepairBehavior) error {
 	log.L.Print("Repairing application channels.")
 
 	users, err := d.GetUsers()
@@ -130,7 +131,7 @@ func (d *Database) RepairChannels(dp Dispatcher) error {
 		for _, application := range applications {
 			application := application // See https://stackoverflow.com/a/68247837
 
-			if err := dp.UpdateApplication(&application); err != nil {
+			if err := dp.UpdateApplication(&application, behavior); err != nil {
 				return err
 			}
 

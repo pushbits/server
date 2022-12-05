@@ -3,6 +3,7 @@ package mockups
 import (
 	"fmt"
 
+	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/model"
 )
 
@@ -17,7 +18,7 @@ func (d *MockDispatcher) DeregisterApplication(a *model.Application, u *model.Us
 	return nil
 }
 
-func (d *MockDispatcher) UpdateApplication(a *model.Application) error {
+func (d *MockDispatcher) UpdateApplication(a *model.Application, behavior *configuration.RepairBehavior) error {
 	return nil
 }
 

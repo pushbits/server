@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/model"
 )
 
@@ -28,7 +29,7 @@ type Database interface {
 type Dispatcher interface {
 	RegisterApplication(id uint, name, token, user string) (string, error)
 	DeregisterApplication(a *model.Application, u *model.User) error
-	UpdateApplication(a *model.Application) error
+	UpdateApplication(a *model.Application, behavior *configuration.RepairBehavior) error
 }
 
 // The CredentialsManager interface for updating credentials.

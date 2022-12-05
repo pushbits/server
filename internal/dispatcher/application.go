@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"fmt"
 
+	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 
@@ -74,23 +75,31 @@ func (d *Dispatcher) sendRoomEvent(roomID, eventType string, content interface{}
 }
 
 // UpdateApplication updates a channel for an application.
-func (d *Dispatcher) UpdateApplication(a *model.Application) error {
+func (d *Dispatcher) UpdateApplication(a *model.Application, behavior *configuration.RepairBehavior) error {
 	log.L.Printf("Updating application %s (ID %d) with Matrix ID %s.\n", a.Name, a.ID, a.MatrixID)
 
-	content := map[string]interface{}{
-		"name": a.Name,
+	if behavior.ResetRoomName {
+		content := map[string]interface{}{
+			"name": a.Name,
+		}
+
+		if err := d.sendRoomEvent(a.MatrixID, "m.room.name", content); err != nil {
+			return err
+		}
+	} else {
+		log.L.Debugf("Not reseting room name as per configuration.\n")
 	}
 
-	if err := d.sendRoomEvent(a.MatrixID, "m.room.name", content); err != nil {
-		return err
-	}
+	if behavior.ResetRoomTopic {
+		content := map[string]interface{}{
+			"topic": buildRoomTopic(a.ID),
+		}
 
-	content = map[string]interface{}{
-		"topic": buildRoomTopic(a.ID),
-	}
-
-	if err := d.sendRoomEvent(a.MatrixID, "m.room.topic", content); err != nil {
-		return err
+		if err := d.sendRoomEvent(a.MatrixID, "m.room.topic", content); err != nil {
+			return err
+		}
+	} else {
+		log.L.Debugf("Not reseting room topic as per configuration.\n")
 	}
 
 	return nil

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/pushbits/server/internal/authentication"
+	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 
@@ -104,7 +105,7 @@ func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Applic
 		return err
 	}
 
-	err = h.DP.UpdateApplication(a)
+	err = h.DP.UpdateApplication(a, &configuration.RepairBehavior{ResetRoomName: true, ResetRoomTopic: true})
 	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}
