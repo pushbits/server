@@ -55,3 +55,9 @@ fmt:
 .PHONY: swag
 swag: build
 	swag init --parseDependency=true --exclude $(TESTS_DIR) -g cmd/pushbits/main.go
+
+.PHONY: docker_build_dev
+docker_build_dev:
+	podman build \
+		--build-arg=PB_BUILD_VERSION=dev \
+		-t local/pushbits .
