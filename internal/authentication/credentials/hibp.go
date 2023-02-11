@@ -39,10 +39,14 @@ func IsPasswordPwned(password string) (bool, error) {
 		log.L.Fatalf("Request failed with HTTP %s.", resp.Status)
 	}
 
-	defer resp.Body.Close()
 	bodyText, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.L.Fatal(err)
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		log.L.Warnf("Failed to close file: %s.", err)
 	}
 
 	bodyStr := string(bodyText)
