@@ -9,4 +9,3 @@ python = "^3.7"
 
 [tool.poetry.dev-dependencies]
 semgrep = "^0.82.0"
-setuptools = "^67.2.0"
