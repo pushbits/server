@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -44,7 +44,7 @@ func TestApi_CreateNotification(t *testing.T) {
 
 		// Parse body only for successful requests
 		if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
-			body, err := ioutil.ReadAll(w.Body)
+			body, err := io.ReadAll(w.Body)
 			require.NoErrorf(err, "Can not read request body")
 			err = json.Unmarshal(body, &notification)
 			require.NoErrorf(err, "Can not unmarshal request body")

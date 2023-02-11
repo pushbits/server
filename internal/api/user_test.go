@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"strconv"
 	"testing"
 
@@ -73,7 +73,7 @@ func TestApi_GetUsers(t *testing.T) {
 
 	// Get users from body
 	users := make([]model.ExternalUser, 0)
-	usersRaw, err := ioutil.ReadAll(w.Body)
+	usersRaw, err := io.ReadAll(w.Body)
 	require.NoErrorf(err, "Failed to parse response body")
 	err = json.Unmarshal(usersRaw, &users)
 	require.NoErrorf(err, "Can not unmarshal users")
@@ -173,7 +173,7 @@ func TestApi_GetUser(t *testing.T) {
 		// Check content for successful requests
 		if testCase.ShouldReturn == 200 {
 			user := &model.ExternalUser{}
-			userBytes, err := ioutil.ReadAll(w.Body)
+			userBytes, err := io.ReadAll(w.Body)
 			require.NoErrorf(err, "(Test case %s) Can not read body", testCase.Name)
 			err = json.Unmarshal(userBytes, user)
 			require.NoErrorf(err, "(Test case %s) Can not unmarshal body", testCase.Name)

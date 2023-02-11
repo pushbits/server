@@ -2,7 +2,6 @@ package configuration
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -146,7 +145,7 @@ func writeMinimalConfig() error {
 		return err
 	}
 
-	return ioutil.WriteFile("config_unittest.yml", configString, 0o644)
+	return os.WriteFile("config_unittest.yml", configString, 0o644)
 }
 
 // Writes a config with default values to config.yml
@@ -174,13 +173,13 @@ func writeValidConfig() error {
 		return err
 	}
 
-	return ioutil.WriteFile("config_unittest.yml", configString, 0o644)
+	return os.WriteFile("config_unittest.yml", configString, 0o644)
 }
 
 // Writes a config that is empty
 func writeEmptyConfig() error {
 	cleanUp()
-	return ioutil.WriteFile("config_unittest.yml", []byte(""), 0o644)
+	return os.WriteFile("config_unittest.yml", []byte(""), 0o644)
 }
 
 // Writes a config with invalid entries
@@ -197,7 +196,7 @@ func writeInvalidConfig() error {
 		return err
 	}
 
-	return ioutil.WriteFile("config_unittest.yml", configString, 0o644)
+	return os.WriteFile("config_unittest.yml", configString, 0o644)
 }
 
 func cleanUp() error {

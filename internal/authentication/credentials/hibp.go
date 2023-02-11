@@ -3,7 +3,7 @@ package credentials
 import (
 	"crypto/sha1" //#nosec G505 -- False positive, see the use below.
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -40,7 +40,7 @@ func IsPasswordPwned(password string) (bool, error) {
 	}
 
 	defer resp.Body.Close()
-	bodyText, err := ioutil.ReadAll(resp.Body)
+	bodyText, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.L.Fatal(err)
 	}

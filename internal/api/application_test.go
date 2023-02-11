@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 
@@ -123,7 +123,7 @@ func TestApi_RegisterApplication(t *testing.T) {
 
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
-				body, err := ioutil.ReadAll(w.Body)
+				body, err := io.ReadAll(w.Body)
 				require.NoErrorf(err, "Can not read request body")
 				err = json.Unmarshal(body, &application)
 				require.NoErrorf(err, "Can not unmarshal request body")
@@ -158,7 +158,7 @@ func TestApi_GetApplications(t *testing.T) {
 
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
-				body, err := ioutil.ReadAll(w.Body)
+				body, err := io.ReadAll(w.Body)
 				require.NoErrorf(err, "Can not read request body")
 				err = json.Unmarshal(body, &applications)
 				require.NoErrorf(err, "Can not unmarshal request body")
@@ -238,7 +238,7 @@ func TestApi_GetApplication(t *testing.T) {
 
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
-				body, err := ioutil.ReadAll(w.Body)
+				body, err := io.ReadAll(w.Body)
 				require.NoErrorf(err, "Can not read request body")
 				err = json.Unmarshal(body, &application)
 				require.NoErrorf(err, "Can not unmarshal request body: %v", err)

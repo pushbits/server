@@ -2,7 +2,6 @@ package mockups
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 
 	"github.com/pushbits/server/internal/configuration"
@@ -22,12 +21,12 @@ func ReadConfig(filename string, removeFile bool) (config *configuration.Configu
 		return nil, errors.New("empty filename")
 	}
 
-	file, err := ioutil.ReadFile(filename)
+	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ioutil.WriteFile("config.yml", file, 0o644)
+	err = os.WriteFile("config.yml", file, 0o644)
 	if err != nil {
 		return nil, err
 	}
