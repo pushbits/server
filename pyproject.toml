@@ -8,4 +8,4 @@ authors = []
 python = "^3.7"
 
 [tool.poetry.dev-dependencies]
-semgrep = "^0.82.0"
+semgrep = "^1.13.0"
