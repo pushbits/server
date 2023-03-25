@@ -26,16 +26,11 @@ jobs:
         with:
           go-version: '1.20.2'
 
-      - name: Install Poetry
-        run: curl -sSL https://install.python-poetry.org | python3 -
-
       - name: Install dependencies
         run: make setup
 
       - name: Run tests
-        run: |
-          source $(poetry env info --path)/bin/activate
-          make test
+        run: make test
 
       - name: Build
         run: make build

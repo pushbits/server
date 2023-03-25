@@ -33,7 +33,6 @@ test:
 
 .PHONY: setup
 setup:
-	git submodule update --init --recursive
 	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
 	go install github.com/kisielk/errcheck@latest
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
@@ -41,7 +40,6 @@ setup:
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 	go install mvdan.cc/gofumpt@latest
-	poetry install
 
 .PHONY: fmt
 fmt:
