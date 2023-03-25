@@ -22,7 +22,6 @@ func IsPasswordPwned(password string) (bool, error) {
 		return true, nil
 	}
 
-	// nosemgrep: tests.semgrep-rules.go.lang.security.audit.crypto.insecure-module-used, tests.semgrep-rules.go.lang.security.audit.crypto.use-of-sha1
 	hash := sha1.Sum([]byte(password)) //#nosec G401 -- False positive, only the first 5 bytes are transmitted.
 	hashStr := fmt.Sprintf("%X", hash)
 	lookup := hashStr[0:5]

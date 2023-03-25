@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/jinzhu/configor"
+	"github.com/pushbits/server/internal/log"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
@@ -26,8 +27,7 @@ func TestMain(m *testing.M) {
 func TestConfiguration_GetMinimal(t *testing.T) {
 	err := writeMinimalConfig()
 	if err != nil {
-		fmt.Println("Could not write minimal config: ", err)
-		os.Exit(1)
+		log.L.Fatalln("Cannot write minimal config file: ", err)
 	}
 
 	validateConfig(t)
@@ -38,8 +38,7 @@ func TestConfiguration_GetValid(t *testing.T) {
 
 	err := writeValidConfig()
 	if err != nil {
-		fmt.Println("Could not write valid config: ", err)
-		os.Exit(1)
+		log.L.Fatalln("Cannot write valid config file: ", err)
 	}
 
 	validateConfig(t)
@@ -69,7 +68,7 @@ func TestConfiguration_GetEmpty(t *testing.T) {
 func TestConfiguration_GetInvalid(t *testing.T) {
 	err := writeInvalidConfig()
 	if err != nil {
-		fmt.Println("Could not write empty config: ", err)
+		fmt.Println("Could not write invalid config: ", err)
 		os.Exit(1)
 	}
 
@@ -135,6 +134,7 @@ type InvalidConfiguration struct {
 // Writes a minimal config to config.yml
 func writeMinimalConfig() error {
 	cleanUp()
+
 	config := MinimalConfiguration{}
 	config.Admin.MatrixID = "000000"
 	config.Matrix.Username = "default-username"
@@ -145,17 +145,26 @@ func writeMinimalConfig() error {
 		return err
 	}
 
-	return os.WriteFile("config_unittest.yml", configString, 0o644)
+	err = os.WriteFile("config_unittest.yml", configString, 0o644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Writes a config with default values to config.yml
 func writeValidConfig() error {
 	cleanUp()
 
+	err := writeMinimalConfig()
+	if err != nil {
+		return err
+	}
+
 	// Load minimal config to get default values
-	writeMinimalConfig()
 	config := &Configuration{}
-	err := configor.New(&configor.Config{
+	err = configor.New(&configor.Config{
 		Environment:          "production",
 		ENVPrefix:            "PUSHBITS",
 		ErrorOnUnmatchedKeys: true,
@@ -173,18 +182,30 @@ func writeValidConfig() error {
 		return err
 	}
 
-	return os.WriteFile("config_unittest.yml", configString, 0o644)
+	err = os.WriteFile("config_unittest.yml", configString, 0o644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Writes a config that is empty
 func writeEmptyConfig() error {
 	cleanUp()
-	return os.WriteFile("config_unittest.yml", []byte(""), 0o644)
+
+	err := os.WriteFile("config_unittest.yml", []byte(""), 0o644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Writes a config with invalid entries
 func writeInvalidConfig() error {
 	cleanUp()
+
 	config := InvalidConfiguration{}
 	config.Debug = 1337
 	config.HTTP.ListenAddress = true
@@ -196,9 +217,17 @@ func writeInvalidConfig() error {
 		return err
 	}
 
-	return os.WriteFile("config_unittest.yml", configString, 0o644)
+	err = os.WriteFile("config_unittest.yml", configString, 0o644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func cleanUp() error {
-	return os.Remove("config_unittest.yml")
+func cleanUp() {
+	err := os.Remove("config_unittest.yml")
+	if err != nil {
+		log.L.Warnln("Cannot remove config file: ", err)
+	}
 }

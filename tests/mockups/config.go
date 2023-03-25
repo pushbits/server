@@ -34,7 +34,10 @@ func ReadConfig(filename string, removeFile bool) (config *configuration.Configu
 	config = configuration.Get()
 
 	if removeFile {
-		os.Remove("config.yml")
+		err = os.Remove("config.yml")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return config, nil
