@@ -16,25 +16,21 @@ jobs:
   test_build:
     name: Test and build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Export GOBIN
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: '1.19'
-
-      - name: Install Poetry
-        run: curl -sSL https://install.python-poetry.org | python3 -
+          go-version: '1.20.2'
 
       - name: Install dependencies
         run: make setup
 
       - name: Run tests
-        run: |
-          source $(poetry env info --path)/bin/activate
-          make test
+        run: make test
 
       - name: Build
         run: make build

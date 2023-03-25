@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/tests"
 	"github.com/pushbits/server/tests/mockups"
@@ -58,7 +59,11 @@ func TestApi_getApplication(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	applications := mockups.GetAllApplications()
-	mockups.AddApplicationsToDb(TestDatabase, applications)
+
+	err := mockups.AddApplicationsToDb(TestDatabase, applications)
+	if err != nil {
+		log.L.Fatalln("Cannot add mock applications to database: ", err)
+	}
 
 	// No testing of invalid ids as that is tested in TestApi_getID already
 	testCases := make(map[uint]tests.Request)

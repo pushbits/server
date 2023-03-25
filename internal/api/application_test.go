@@ -52,7 +52,7 @@ func TestMain(m *testing.M) {
 	db, err := mockups.GetEmptyDatabase(config.Crypto)
 	if err != nil {
 		cleanUp()
-		log.L.Println("Can not set up database: ", err)
+		log.L.Println("Cannot set up database: ", err)
 		os.Exit(1)
 	}
 	TestDatabase = db
@@ -60,7 +60,7 @@ func TestMain(m *testing.M) {
 	appHandler, err := getApplicationHandler(config)
 	if err != nil {
 		cleanUp()
-		log.L.Println("Can not set up application handler: ", err)
+		log.L.Println("Cannot set up application handler: ", err)
 		os.Exit(1)
 	}
 
@@ -124,9 +124,9 @@ func TestApi_RegisterApplication(t *testing.T) {
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 				body, err := io.ReadAll(w.Body)
-				require.NoErrorf(err, "Can not read request body")
+				require.NoErrorf(err, "Cannot read request body")
 				err = json.Unmarshal(body, &application)
-				require.NoErrorf(err, "Can not unmarshal request body")
+				require.NoErrorf(err, "Cannot unmarshal request body")
 
 				SuccessAplications[user.ID] = append(SuccessAplications[user.ID], application)
 			}
@@ -159,9 +159,9 @@ func TestApi_GetApplications(t *testing.T) {
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 				body, err := io.ReadAll(w.Body)
-				require.NoErrorf(err, "Can not read request body")
+				require.NoErrorf(err, "Cannot read request body")
 				err = json.Unmarshal(body, &applications)
-				require.NoErrorf(err, "Can not unmarshal request body")
+				require.NoErrorf(err, "Cannot unmarshal request body")
 				if err != nil {
 					continue
 				}
@@ -239,9 +239,9 @@ func TestApi_GetApplication(t *testing.T) {
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
 				body, err := io.ReadAll(w.Body)
-				require.NoErrorf(err, "Can not read request body")
+				require.NoErrorf(err, "Cannot read request body")
 				err = json.Unmarshal(body, &application)
-				require.NoErrorf(err, "Can not unmarshal request body: %v", err)
+				require.NoErrorf(err, "Cannot unmarshal request body: %v", err)
 
 				assert.Equalf(application.ID, app.ID, "Application ID should be %d but is %d", app.ID, application.ID)
 				assert.Equalf(application.Name, app.Name, "Application Name should be %s but is %s", app.Name, application.Name)
@@ -356,5 +356,8 @@ func validateAllApplications(user *model.User, apps []model.Application) bool {
 }
 
 func cleanUp() {
-	os.Remove("pushbits-test.db")
+	err := os.Remove("pushbits-test.db")
+	if err != nil {
+		log.L.Warnln("Cannot delete test database: ", err)
+	}
 }

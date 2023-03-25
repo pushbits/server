@@ -1,3 +1,0 @@
-[submodule "tests/semgrep-rules"]
-	path = tests/semgrep-rules
-	url = https://github.com/returntocorp/semgrep-rules
