@@ -62,7 +62,7 @@ func TestConfiguration_GetEmpty(t *testing.T) {
 		os.Exit(1)
 	}
 
-	assert.Panicsf(t, func() { Get() }, "Get() did not panic altough config is empty")
+	assert.Panicsf(t, func() { Get() }, "Get() did not panic although config is empty")
 }
 
 func TestConfiguration_GetInvalid(t *testing.T) {
@@ -72,7 +72,7 @@ func TestConfiguration_GetInvalid(t *testing.T) {
 		os.Exit(1)
 	}
 
-	assert.Panicsf(t, func() { Get() }, "Get() did not panic altough config is empty")
+	assert.Panicsf(t, func() { Get() }, "Get() did not panic although config is empty")
 }
 
 func TestConfiguaration_ConfigFiles(t *testing.T) {

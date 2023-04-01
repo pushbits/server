@@ -121,7 +121,7 @@ func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Applic
 // @Accept json,mpfd
 // @Produce json
 // @Param name query string true "Name of the application"
-// @Param strict_compatability query boolean false "Use strict compatability mode"
+// @Param strict_compatibility query boolean false "Use strict compatibility mode"
 // @Success 200 {object} model.Application
 // @Failure 400 ""
 // @Security BasicAuth
@@ -243,7 +243,7 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 // @Param id path int true "ID of the application"
 // @Param name query string false "New name for the application"
 // @Param refresh_token query bool false "Generate new refresh token for the application"
-// @Param strict_compatability query bool false "Whether to use strict compataibility mode"
+// @Param strict_compatibility query bool false "Whether to use strict compataibility mode"
 // @Success 200 ""
 // @Failure 500,404,403 ""
 // @Security BasicAuth
