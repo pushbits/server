@@ -96,7 +96,7 @@ func TestApi_RegisterApplicationWithoutUser(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	assert.Panicsf(func() { TestApplicationHandler.CreateApplication(c) }, "CreateApplication did not panic altough user is not in context")
+	assert.Panicsf(func() { TestApplicationHandler.CreateApplication(c) }, "CreateApplication did not panic although user is not in context")
 }
 
 func TestApi_RegisterApplication(t *testing.T) {
@@ -186,7 +186,7 @@ func TestApi_GetApplicationsWithoutUser(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	assert.Panicsf(func() { TestApplicationHandler.GetApplications(c) }, "GetApplications did not panic altough user is not in context")
+	assert.Panicsf(func() { TestApplicationHandler.GetApplications(c) }, "GetApplications did not panic although user is not in context")
 }
 
 func TestApi_GetApplicationErrors(t *testing.T) {
@@ -323,7 +323,7 @@ func TestApi_DeleteApplication(t *testing.T) {
 }
 
 // GetApplicationHandler creates and returns an application handler
-func getApplicationHandler(c *configuration.Configuration) (*ApplicationHandler, error) {
+func getApplicationHandler(_ *configuration.Configuration) (*ApplicationHandler, error) {
 	dispatcher := &mockups.MockDispatcher{}
 
 	return &ApplicationHandler{

@@ -1,3 +1,4 @@
+// Package router provides functions to configure the web server.
 package router
 
 import (
@@ -28,7 +29,7 @@ func Create(debug bool, trustedProxies []string, cm *credentials.Manager, db *da
 	healthHandler := api.HealthHandler{DB: db}
 	notificationHandler := api.NotificationHandler{DB: db, DP: dp}
 	userHandler := api.UserHandler{AH: &applicationHandler, CM: cm, DB: db, DP: dp}
-	alertmanagerHandler := alertmanager.AlertmanagerHandler{DP: dp, Settings: alertmanager.AlertmanagerHandlerSettings{
+	alertmanagerHandler := alertmanager.Handler{DP: dp, Settings: alertmanager.HandlerSettings{
 		TitleAnnotation:   alertmanagerConfig.AnnotationTitle,
 		MessageAnnotation: alertmanagerConfig.AnnotationMessage,
 	}}

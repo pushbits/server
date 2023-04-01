@@ -1,3 +1,4 @@
+// Package model contains structs used in the PushBits API and across the application.
 package model
 
 import (
@@ -8,7 +9,7 @@ import (
 // Notification holds information like the message, the title, and the priority of a notification.
 type Notification struct {
 	ID            string                 `json:"id"`
-	UrlEncodedID  string                 `json:"id_url_encoded"`
+	URLEncodedID  string                 `json:"id_url_encoded"`
 	ApplicationID uint                   `json:"appid"`
 	Message       string                 `json:"message" form:"message" query:"message" binding:"required"`
 	Title         string                 `json:"title" form:"title" query:"title"`
@@ -20,7 +21,7 @@ type Notification struct {
 // Sanitize sets explicit defaults for a notification.
 func (n *Notification) Sanitize(application *Application) {
 	n.ID = ""
-	n.UrlEncodedID = ""
+	n.URLEncodedID = ""
 	n.ApplicationID = application.ID
 	if strings.TrimSpace(n.Title) == "" {
 		n.Title = application.Name

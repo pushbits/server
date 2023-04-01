@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// SuccessOrAbort is a convenience function to write a HTTP status code based on a given error.
 func SuccessOrAbort(ctx *gin.Context, code int, err error) bool {
 	if err != nil {
 		// If we know the error force error code
@@ -24,13 +25,13 @@ func SuccessOrAbort(ctx *gin.Context, code int, err error) bool {
 	return err == nil
 }
 
-func isCurrentUser(ctx *gin.Context, ID uint) bool {
+func isCurrentUser(ctx *gin.Context, id uint) bool {
 	user := authentication.GetUser(ctx)
 	if user == nil {
 		return false
 	}
 
-	if user.ID != ID {
+	if user.ID != id {
 		ctx.AbortWithError(http.StatusForbidden, errors.New("only owner can delete application"))
 		return false
 	}

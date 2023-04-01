@@ -1,3 +1,4 @@
+// Package credentials provides definitions and functionality related to credential management.
 package credentials
 
 import (

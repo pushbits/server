@@ -4,18 +4,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type idInURI struct {
+// IDInURI is used to retrieve an ID from a context.
+type IDInURI struct {
 	ID uint `uri:"id" binding:"required"`
 }
 
-type messageIdInURI struct {
+// messageIDInURI is used to retrieve an message ID from a context.
+type messageIDInURI struct {
 	MessageID string `uri:"messageid" binding:"required"`
 }
 
 // RequireIDInURI returns a Gin middleware which requires an ID to be supplied in the URI of the request.
 func RequireIDInURI() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var requestModel idInURI
+		var requestModel IDInURI
 
 		if err := ctx.BindUri(&requestModel); err != nil {
 			return
@@ -28,7 +30,7 @@ func RequireIDInURI() gin.HandlerFunc {
 // RequireMessageIDInURI returns a Gin middleware which requires an messageID to be supplied in the URI of the request.
 func RequireMessageIDInURI() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var requestModel messageIdInURI
+		var requestModel messageIDInURI
 
 		if err := ctx.BindUri(&requestModel); err != nil {
 			return

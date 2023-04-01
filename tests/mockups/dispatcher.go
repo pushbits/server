@@ -10,22 +10,27 @@ import (
 // MockDispatcher is a dispatcher used for testing - it does not need any storage interface
 type MockDispatcher struct{}
 
-func (d *MockDispatcher) RegisterApplication(id uint, name, token, user string) (string, error) {
+// RegisterApplication mocks a functions to create a channel for an application.
+func (*MockDispatcher) RegisterApplication(id uint, name, _ string) (string, error) {
 	return fmt.Sprintf("%d-%s", id, name), nil
 }
 
-func (d *MockDispatcher) DeregisterApplication(a *model.Application, u *model.User) error {
+// DeregisterApplication mocks a function to delete a channel for an application.
+func (*MockDispatcher) DeregisterApplication(_ *model.Application, _ *model.User) error {
 	return nil
 }
 
-func (d *MockDispatcher) UpdateApplication(a *model.Application, behavior *configuration.RepairBehavior) error {
+// UpdateApplication mocks a function to update a channel for an application.
+func (*MockDispatcher) UpdateApplication(_ *model.Application, _ *configuration.RepairBehavior) error {
 	return nil
 }
 
-func (d *MockDispatcher) SendNotification(a *model.Application, n *model.Notification) (id string, err error) {
+// SendNotification mocks a function to send a notification to a given user.
+func (*MockDispatcher) SendNotification(_ *model.Application, _ *model.Notification) (id string, err error) {
 	return randStr(15), nil
 }
 
-func (d *MockDispatcher) DeleteNotification(a *model.Application, n *model.DeleteNotification) error {
+// DeleteNotification mocks a function to send a notification to a given user that another notification is deleted
+func (*MockDispatcher) DeleteNotification(_ *model.Application, _ *model.DeleteNotification) error {
 	return nil
 }

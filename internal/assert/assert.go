@@ -1,3 +1,4 @@
+// Package assert provides convenience function to make assertions at runtime.
 package assert
 
 import (

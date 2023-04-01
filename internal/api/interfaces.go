@@ -1,3 +1,4 @@
+// Package api provides definitions and functionality related to the API.
 package api
 
 import (
@@ -27,7 +28,7 @@ type Database interface {
 
 // The Dispatcher interface for relaying notifications.
 type Dispatcher interface {
-	RegisterApplication(id uint, name, token, user string) (string, error)
+	RegisterApplication(id uint, name, user string) (string, error)
 	DeregisterApplication(a *model.Application, u *model.User) error
 	UpdateApplication(a *model.Application, behavior *configuration.RepairBehavior) error
 }

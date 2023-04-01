@@ -12,7 +12,7 @@ import (
 func getID(ctx *gin.Context) (uint, error) {
 	id, ok := ctx.MustGet("id").(uint)
 	if !ok {
-		err := errors.New("an error occured while retrieving ID from context")
+		err := errors.New("an error occurred while retrieving ID from context")
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return 0, err
 	}
@@ -23,7 +23,7 @@ func getID(ctx *gin.Context) (uint, error) {
 func getMessageID(ctx *gin.Context) (string, error) {
 	id, ok := ctx.MustGet("messageid").(string)
 	if !ok {
-		err := errors.New("an error occured while retrieving messageID from context")
+		err := errors.New("an error occurred while retrieving messageID from context")
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return "", err
 	}

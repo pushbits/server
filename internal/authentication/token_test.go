@@ -11,7 +11,7 @@ const (
 	minRandomChars = 14
 )
 
-func isGoodToken(assert *assert.Assertions, require *require.Assertions, token string, compat bool) {
+func isGoodToken(assert *assert.Assertions, _ *require.Assertions, token string, compat bool) {
 	tokenLength := len(token)
 
 	if compat {

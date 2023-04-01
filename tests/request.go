@@ -1,3 +1,4 @@
+// Package tests provides definitions and functionality related to unit and integration tests.
 package tests
 
 import (
@@ -23,14 +24,14 @@ type Request struct {
 // GetRequest returns a ResponseRecorder and gin context according to the data set in the Request.
 // String data is passed as is, all other data types are marshaled before.
 func (r *Request) GetRequest() (w *httptest.ResponseRecorder, c *gin.Context, err error) {
-	var body io.Reader
 	w = httptest.NewRecorder()
+	var body io.Reader
 
-	switch r.Data.(type) {
+	switch data := r.Data.(type) {
 	case string:
-		body = strings.NewReader(r.Data.(string))
+		body = strings.NewReader(data)
 	default:
-		dataMarshaled, err := json.Marshal(r.Data)
+		dataMarshaled, err := json.Marshal(data)
 		if err != nil {
 			return nil, nil, err
 		}

@@ -1,3 +1,4 @@
+// Package mockups contains mockup objects and functions for tests.
 package mockups
 
 import "github.com/pushbits/server/internal/model"
