@@ -25,16 +25,16 @@ func (d *Database) UpdateApplication(application *model.Application) error {
 }
 
 // GetApplicationByID returns the application with the given ID or nil.
-func (d *Database) GetApplicationByID(ID uint) (*model.Application, error) {
+func (d *Database) GetApplicationByID(id uint) (*model.Application, error) {
 	var application model.Application
 
-	err := d.gormdb.First(&application, ID).Error
+	err := d.gormdb.First(&application, id).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
-	assert.Assert(application.ID == ID)
+	assert.Assert(application.ID == id)
 
 	return &application, err
 }

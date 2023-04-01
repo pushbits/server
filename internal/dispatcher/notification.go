@@ -52,8 +52,8 @@ type NewContent struct {
 	Format        MessageFormat `json:"format"`
 }
 
-// SendNotification sends a notification to the specified user.
-func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) (eventId string, err error) {
+// SendNotification sends a notification to a given user.
+func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notification) (eventID string, err error) {
 	log.L.Printf("Sending notification to room %s.", a.MatrixID)
 
 	plainMessage := strings.TrimSpace(n.Message)
@@ -80,7 +80,7 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 	return evt.EventID.String(), nil
 }
 
-// DeleteNotification sends a notification to the specified user that another notificaion is deleted
+// DeleteNotification sends a notification to a given user that another notification is deleted
 func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNotification) error {
 	log.L.Printf("Sending delete notification to room %s", a.MatrixID)
 	var oldFormattedBody string
@@ -128,7 +128,7 @@ func (d *Dispatcher) getFormattedTitle(n *model.Notification) string {
 // Converts different syntaxes to a HTML-formatted message
 func (d *Dispatcher) getFormattedMessage(n *model.Notification) string {
 	trimmedMessage := strings.TrimSpace(n.Message)
-	message := strings.Replace(html.EscapeString(trimmedMessage), "\n", "<br />", -1) // default to text/plain
+	message := strings.ReplaceAll(html.EscapeString(trimmedMessage), "\n", "<br />") // default to text/plain
 
 	if optionsDisplayRaw, ok := n.Extras["client::display"]; ok {
 		optionsDisplay, ok := optionsDisplayRaw.(map[string]interface{})
@@ -140,7 +140,7 @@ func (d *Dispatcher) getFormattedMessage(n *model.Notification) string {
 
 				switch contentType {
 				case "html", "text/html":
-					message = strings.Replace(trimmedMessage, "\n", "<br />", -1)
+					message = strings.ReplaceAll(trimmedMessage, "\n", "<br />")
 				case "markdown", "md", "text/md", "text/markdown":
 					// Allow HTML in Markdown
 					message = string(markdown.ToHTML([]byte(trimmedMessage), nil, nil))

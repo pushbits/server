@@ -1,3 +1,4 @@
+// Package log provides functionality to configure the logger.
 package log
 
 import (
@@ -6,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// L is the global logger instance for PushBits.
 var L *log.Logger
 
 func init() {
@@ -17,6 +19,7 @@ func init() {
 	})
 }
 
+// SetDebug sets the logger to output debug information.
 func SetDebug() {
 	L.SetLevel(log.DebugLevel)
 }

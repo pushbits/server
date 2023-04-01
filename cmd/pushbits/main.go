@@ -1,3 +1,4 @@
+// Package main provides the main function as a starting point of this tool.
 package main
 
 import (

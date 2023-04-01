@@ -1,3 +1,4 @@
+// Package dispatcher provides definitions and functionality related to executing Matrix requests.
 package dispatcher
 
 import (

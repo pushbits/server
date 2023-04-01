@@ -1,5 +1,6 @@
 // Source: https://github.com/toorop/gin-logrus
 
+// Package log provides a connector between gin and logrus.
 package log
 
 import (

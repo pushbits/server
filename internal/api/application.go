@@ -30,7 +30,7 @@ func (h *ApplicationHandler) generateToken(compat bool) string {
 func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
 	log.L.Printf("Registering application %s.", a.Name)
 
-	channelID, err := h.DP.RegisterApplication(a.ID, a.Name, a.Token, u.MatrixID)
+	channelID, err := h.DP.RegisterApplication(a.ID, a.Name, u.MatrixID)
 	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
 	}

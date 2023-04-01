@@ -2,6 +2,7 @@ package model
 
 import "strings"
 
+// AlertmanagerWebhook is used to pass notifications over webhook pushes.
 type AlertmanagerWebhook struct {
 	Version           string              `json:"version"`
 	GroupKey          string              `json:"groupKey"`
@@ -13,6 +14,7 @@ type AlertmanagerWebhook struct {
 	Alerts            []AlertmanagerAlert `json:"alerts"`
 }
 
+// AlertmanagerAlert holds information related to a single alert in a notification.
 type AlertmanagerAlert struct {
 	Labels      map[string]string `json:"labels"`
 	Annotations map[string]string `json:"annotations"`
@@ -21,6 +23,7 @@ type AlertmanagerAlert struct {
 	Status      string            `json:"status"`
 }
 
+// ToNotification converts an Alertmanager alert into a Notification
 func (alert *AlertmanagerAlert) ToNotification(titleAnnotation, messageAnnotation string) Notification {
 	title := strings.Builder{}
 	message := strings.Builder{}

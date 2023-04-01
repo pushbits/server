@@ -1,3 +1,4 @@
+// Package pberrors defines errors specific to PushBits
 package pberrors
 
 import "errors"

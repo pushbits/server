@@ -1,3 +1,4 @@
+// Package authentication provides definitions and functionality related to user authentication.
 package authentication
 
 import (

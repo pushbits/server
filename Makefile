@@ -21,11 +21,13 @@ clean:
 
 .PHONY: test
 test:
-	stdout=$$(gofumpt -l $(GO_FILES) 2>&1); if [ "$$stdout" ]; then exit 1; fi
+	stdout=$$(gofumpt -l . 2>&1); if [ "$$stdout" ]; then exit 1; fi
 	go vet ./...
-	gocyclo -over 10 $(GO_FILES)
+	misspell -error $(GO_FILES)
 	staticcheck ./...
 	errcheck -exclude errcheck_excludes.txt ./...
+	gocritic check -disable='#experimental,#opinionated' -@ifElseChain.minThreshold 3 ./...
+	revive -set_exit_status -exclude ./docs ./...
 	go test -v -cover ./...
 	gosec -exclude-dir=tests ./...
 	govulncheck ./...
@@ -33,8 +35,10 @@ test:
 
 .PHONY: setup
 setup:
-	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+	go install github.com/client9/misspell/cmd/misspell@latest
+	go install github.com/go-critic/go-critic/cmd/gocritic@latest
 	go install github.com/kisielk/errcheck@latest
+	go install github.com/mgechev/revive@latest
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
 	go install golang.org/x/vuln/cmd/govulncheck@latest

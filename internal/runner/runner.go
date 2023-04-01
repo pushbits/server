@@ -1,3 +1,4 @@
+// Package runner provides functions to run the web server.
 package runner
 
 import (

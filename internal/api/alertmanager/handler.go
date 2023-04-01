@@ -1,3 +1,4 @@
+// Package alertmanager provides definitions and functionality related to Alertmanager notifications.
 package alertmanager
 
 import (
@@ -11,12 +12,14 @@ import (
 	"github.com/pushbits/server/internal/model"
 )
 
-type AlertmanagerHandler struct {
+// Handler holds information for processing alerts received via Alertmanager.
+type Handler struct {
 	DP       api.NotificationDispatcher
-	Settings AlertmanagerHandlerSettings
+	Settings HandlerSettings
 }
 
-type AlertmanagerHandlerSettings struct {
+// HandlerSettings represents the settings for processing alerts received via Alertmanager.
+type HandlerSettings struct {
 	TitleAnnotation   string
 	MessageAnnotation string
 }
@@ -33,7 +36,7 @@ type AlertmanagerHandlerSettings struct {
 // @Success 200 {object} []model.Notification
 // @Failure 500,404,403 ""
 // @Router /alert [post]
-func (h *AlertmanagerHandler) CreateAlert(ctx *gin.Context) {
+func (h *Handler) CreateAlert(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
 	log.L.Printf("Sending alert notification for application %s.", application.Name)
 
@@ -52,7 +55,7 @@ func (h *AlertmanagerHandler) CreateAlert(ctx *gin.Context) {
 		}
 
 		notification.ID = messageID
-		notification.UrlEncodedID = url.QueryEscape(messageID)
+		notification.URLEncodedID = url.QueryEscape(messageID)
 		notifications[i] = notification
 	}
 	ctx.JSON(http.StatusOK, &notifications)

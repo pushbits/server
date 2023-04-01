@@ -59,7 +59,7 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	}
 
 	notification.ID = messageID
-	notification.UrlEncodedID = url.QueryEscape(messageID)
+	notification.URLEncodedID = url.QueryEscape(messageID)
 
 	ctx.JSON(http.StatusOK, &notification)
 }

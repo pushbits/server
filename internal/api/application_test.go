@@ -323,7 +323,7 @@ func TestApi_DeleteApplication(t *testing.T) {
 }
 
 // GetApplicationHandler creates and returns an application handler
-func getApplicationHandler(c *configuration.Configuration) (*ApplicationHandler, error) {
+func getApplicationHandler(_ *configuration.Configuration) (*ApplicationHandler, error) {
 	dispatcher := &mockups.MockDispatcher{}
 
 	return &ApplicationHandler{

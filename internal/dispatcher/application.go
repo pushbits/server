@@ -17,7 +17,7 @@ func buildRoomTopic(id uint) string {
 }
 
 // RegisterApplication creates a channel for an application.
-func (d *Dispatcher) RegisterApplication(id uint, name, token, user string) (string, error) {
+func (d *Dispatcher) RegisterApplication(id uint, name, user string) (string, error) {
 	log.L.Printf("Registering application %s, notifications will be relayed to user %s.\n", name, user)
 
 	resp, err := d.mautrixClient.CreateRoom(&mautrix.ReqCreateRoom{

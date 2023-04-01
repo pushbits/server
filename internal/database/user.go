@@ -34,16 +34,16 @@ func (d *Database) UpdateUser(user *model.User) error {
 }
 
 // GetUserByID returns the user with the given ID or nil.
-func (d *Database) GetUserByID(ID uint) (*model.User, error) {
+func (d *Database) GetUserByID(id uint) (*model.User, error) {
 	var user model.User
 
-	err := d.gormdb.First(&user, ID).Error
+	err := d.gormdb.First(&user, id).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
-	assert.Assert(user.ID == ID)
+	assert.Assert(user.ID == id)
 
 	return &user, err
 }
