@@ -17,11 +17,13 @@ http:
     trustedproxies: []
 
 database:
-    # Currently sqlite3 and mysql are supported.
+    # Currently sqlite3, mysql, and postgres are supported.
     dialect: 'sqlite3'
 
-    # For sqlite3, specifies the database file. For mysql, specifies the connection string. Check out
-    # https://github.com/go-sql-driver/mysql#dsn-data-source-name for details.
+    # - For sqlite3, specify the database file.
+    # - For mysql specify the connection string. See details at https://github.com/go-sql-driver/mysql#dsn-data-source-name
+    # - For postgres, see https://github.com/jackc/pgx.
+    #   Also consider the canonical docs at https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING.
     connection: 'pushbits.db'
 
 admin:
