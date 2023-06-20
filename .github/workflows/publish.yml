@@ -19,7 +19,7 @@ jobs:
       - name: Export GOBIN
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20.2'
+          go-version: '1.20.5'
 
       - name: Install dependencies
         run: make setup
@@ -86,7 +86,7 @@ jobs:
       - name: Export GOBIN
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20.2'
+          go-version: '1.20.5'
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
