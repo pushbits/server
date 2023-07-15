@@ -14,6 +14,7 @@ import (
 	"github.com/pushbits/server/internal/model"
 
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -51,6 +52,8 @@ func Create(cm *credentials.Manager, dialect, connection string) (*Database, err
 		db, err = gorm.Open(sqlite.Open(connection), &gorm.Config{})
 	case "mysql":
 		db, err = gorm.Open(mysql.Open(connection), &gorm.Config{})
+	case "postgres":
+		db, err = gorm.Open(postgres.Open(connection), &gorm.Config{})
 	default:
 		message := "Database dialect is not supported"
 		return nil, errors.New(message)
