@@ -58,3 +58,11 @@ docker_build_dev:
 	podman build \
 		--build-arg=PB_BUILD_VERSION=dev \
 		-t local/pushbits .
+
+.PHONY: run_postgres_debug
+	podman run \
+		--rm \
+		--name=postgres \
+		--network=host \
+		--env-file \
+		postgres-debug.env docker.io/library/postgres:15
