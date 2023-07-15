@@ -88,7 +88,7 @@ func main() {
 		log.L.Fatal(err)
 	}
 
-	err = runner.Run(engine, c.HTTP.ListenAddress, c.HTTP.Port)
+	err = runner.Run(engine, c)
 	if err != nil {
 		log.L.Fatal(err)
 	}

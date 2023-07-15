@@ -16,6 +16,12 @@ http:
     # What proxies to trust.
     trustedproxies: []
 
+    # Filename of the TLS certificate.
+    certfile: ''
+
+    # Filename of the TLS private key.
+    keyfile: ''
+
 database:
     # Currently sqlite3, mysql, and postgres are supported.
     dialect: 'sqlite3'

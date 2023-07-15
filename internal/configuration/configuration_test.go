@@ -8,6 +8,7 @@ import (
 
 	"github.com/jinzhu/configor"
 	"github.com/pushbits/server/internal/log"
+	"github.com/pushbits/server/internal/pberrors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
@@ -230,4 +231,19 @@ func cleanUp() {
 	if err != nil {
 		log.L.Warnln("Cannot remove config file: ", err)
 	}
+}
+
+func TestConfigurationValidation_ConfigTLSFilesInconsistent(t *testing.T) {
+	assert := assert.New(t)
+
+	c := Configuration{}
+	c.Admin.MatrixID = "000000"
+	c.Matrix.Username = "default-username"
+	c.Matrix.Password = "default-password"
+	c.HTTP.CertFile = "populated"
+	c.HTTP.KeyFile = ""
+
+	is := validateConfiguration(&c)
+	should := pberrors.ErrConfigTLSFilesInconsistent
+	assert.Equal(is, should, "validateConfiguration() should return ConfigTLSFilesInconsistent")
 }

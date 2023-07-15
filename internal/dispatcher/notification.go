@@ -90,7 +90,7 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 	deleteMessage, err := d.getMessage(a, n.ID)
 	if err != nil {
 		log.L.Println(err)
-		return pberrors.ErrorMessageNotFound
+		return pberrors.ErrMessageNotFound
 	}
 
 	oldBody, oldFormattedBody, err = bodiesFromMessage(deleteMessage)
@@ -199,7 +199,7 @@ func (d *Dispatcher) getMessage(a *model.Application, id string) (*event.Event, 
 		start = messages.End
 	}
 
-	return nil, pberrors.ErrorMessageNotFound
+	return nil, pberrors.ErrMessageNotFound
 }
 
 // Replaces the content of a matrix message
@@ -273,7 +273,7 @@ func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody 
 func bodiesFromMessage(message *event.Event) (body, formattedBody string, err error) {
 	msgContent := message.Content.AsMessage()
 	if msgContent == nil {
-		return "", "", pberrors.ErrorMessageNotFound
+		return "", "", pberrors.ErrMessageNotFound
 	}
 
 	formattedBody = msgContent.Body

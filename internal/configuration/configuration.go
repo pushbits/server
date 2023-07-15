@@ -3,6 +3,8 @@ package configuration
 
 import (
 	"github.com/jinzhu/configor"
+	"github.com/pushbits/server/internal/log"
+	"github.com/pushbits/server/internal/pberrors"
 )
 
 // testMode indicates if the package is run in test mode
@@ -53,6 +55,8 @@ type Configuration struct {
 		ListenAddress  string   `default:""`
 		Port           int      `default:"8080"`
 		TrustedProxies []string `default:"[]"`
+		CertFile       string   `default:""`
+		KeyFile        string   `default:""`
 	}
 	Database struct {
 		Dialect    string `default:"sqlite3"`
@@ -80,6 +84,21 @@ func configFiles() []string {
 	return []string{"config.yml"}
 }
 
+func validateHTTPConfiguration(c *Configuration) error {
+	certAndKeyEmpty := (c.HTTP.CertFile == "" && c.HTTP.KeyFile == "")
+	certAndKeyPopulated := (c.HTTP.CertFile != "" && c.HTTP.KeyFile != "")
+
+	if !certAndKeyEmpty && !certAndKeyPopulated {
+		return pberrors.ErrConfigTLSFilesInconsistent
+	}
+
+	return nil
+}
+
+func validateConfiguration(c *Configuration) error {
+	return validateHTTPConfiguration(c)
+}
+
 // Get returns the configuration extracted from env variables or config file.
 func Get() *Configuration {
 	config := &Configuration{}
@@ -91,6 +110,10 @@ func Get() *Configuration {
 	}).Load(config, configFiles()...)
 	if err != nil {
 		panic(err)
+	}
+
+	if err := validateConfiguration(config); err != nil {
+		log.L.Fatal(err)
 	}
 
 	return config

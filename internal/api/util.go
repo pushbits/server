@@ -15,7 +15,7 @@ func SuccessOrAbort(ctx *gin.Context, code int, err error) bool {
 	if err != nil {
 		// If we know the error force error code
 		switch err {
-		case pberrors.ErrorMessageNotFound:
+		case pberrors.ErrMessageNotFound:
 			ctx.AbortWithError(http.StatusNotFound, err)
 		default:
 			ctx.AbortWithError(code, err)
