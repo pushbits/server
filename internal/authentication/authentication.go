@@ -34,9 +34,9 @@ func (a *Authenticator) userFromBasicAuth(ctx *gin.Context) (*model.User, error)
 			return nil, err
 		} else if user != nil && credentials.ComparePassword(user.PasswordHash, []byte(password)) {
 			return user, nil
-		} else {
-			return nil, errors.New("credentials were invalid")
 		}
+
+		return nil, errors.New("credentials were invalid")
 	}
 
 	return nil, errors.New("no credentials were supplied")
