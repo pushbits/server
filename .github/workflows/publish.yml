@@ -5,6 +5,9 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
+env:
+  GO_VERSION: '1.21.1'
+
 jobs:
   test:
     name: Test
@@ -19,7 +22,7 @@ jobs:
       - name: Export GOBIN
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21.1'
+          go-version: '${{env.GO_VERSION}}'
 
       - name: Install dependencies
         run: make setup
@@ -86,7 +89,7 @@ jobs:
       - name: Export GOBIN
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20.5'
+          go-version: '${{env.GO_VERSION}}'
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
