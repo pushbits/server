@@ -30,7 +30,7 @@ func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 }
 
 // @title PushBits Server API Documentation
-// @version 0.7.2
+// @version 0.10.1
 // @description Documentation for the PushBits server API.
 
 // @contact.name The PushBits Developers
