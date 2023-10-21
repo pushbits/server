@@ -9,7 +9,7 @@ on:
       - 'main'
 
 env:
-  GO_VERSION: '1.21.1'
+  GO_VERSION: '1.21.3'
   PB_BUILD_VERSION: pipeline-${{ github.sha }}
 
 jobs:
