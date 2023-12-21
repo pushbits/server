@@ -6,7 +6,7 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 env:
-  GO_VERSION: '1.21.3'
+  GO_VERSION: '1.21.5'
   PB_BUILD_VERSION: unknown # Needed for using Make targets.
   SSH_AUTH_SOCK: /tmp/ssh_agent.sock
 
