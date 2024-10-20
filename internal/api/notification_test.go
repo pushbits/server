@@ -36,7 +36,7 @@ func TestApi_CreateNotification(t *testing.T) {
 		var notification model.Notification
 		w, c, err := req.GetRequest()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 
 		c.Set("app", &testApplication)
@@ -83,7 +83,7 @@ func TestApi_DeleteNotification(t *testing.T) {
 	for id, req := range testCases {
 		w, c, err := req.GetRequest()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 
 		c.Set("app", &testApplication)

@@ -32,7 +32,7 @@ func TestApi_getID(t *testing.T) {
 	for id, req := range testCases {
 		w, c, err := req.GetRequest()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 
 		c.Set("id", id)
@@ -74,7 +74,7 @@ func TestApi_getApplication(t *testing.T) {
 	for id, req := range testCases {
 		w, c, err := req.GetRequest()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 
 		c.Set("id", id)
@@ -109,7 +109,7 @@ func TestApi_getUser(t *testing.T) {
 	for id, req := range testCases {
 		w, c, err := req.GetRequest()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 
 		c.Set("id", id)

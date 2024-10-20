@@ -19,7 +19,7 @@ func TestApi_Health(t *testing.T) {
 	for _, req := range testCases {
 		w, c, err := req.GetRequest()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 		handler.Health(c)
 
