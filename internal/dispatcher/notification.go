@@ -103,7 +103,6 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 	newFormattedBody := fmt.Sprintf("<del>%s</del><br>- deleted", oldFormattedBody)
 
 	_, err = d.replaceMessage(a, newBody, newFormattedBody, deleteMessage.ID.String(), oldBody, oldFormattedBody)
-
 	if err != nil {
 		return err
 	}

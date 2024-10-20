@@ -45,7 +45,7 @@ func TestApi_CreateUser(t *testing.T) {
 	for _, req := range testCases {
 		w, c, err := req.GetRequest()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 
 		TestUserHandler.CreateUser(c)
@@ -120,7 +120,7 @@ func TestApi_UpdateUser(t *testing.T) {
 	for id, req := range testCases {
 		w, c, err := req.GetRequest()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 
 		c.Set("id", id)
@@ -134,7 +134,7 @@ func TestApi_UpdateUser(t *testing.T) {
 	for id, req := range testCases {
 		_, c, err := req.GetRequest()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 
 		c.Set("id", id)

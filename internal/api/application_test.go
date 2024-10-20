@@ -93,7 +93,7 @@ func TestApi_RegisterApplicationWithoutUser(t *testing.T) {
 	reqWoUser := tests.Request{Name: "Invalid JSON Data", Method: "POST", Endpoint: "/application", Data: `{"name": "test1", "strict_compatibility": true}`, Headers: map[string]string{"Content-Type": "application/json"}}
 	_, c, err := reqWoUser.GetRequest()
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err.Error())
 	}
 
 	assert.Panicsf(func() { TestApplicationHandler.CreateApplication(c) }, "CreateApplication did not panic although user is not in context")
@@ -115,7 +115,7 @@ func TestApi_RegisterApplication(t *testing.T) {
 			var application model.Application
 			w, c, err := req.GetRequest()
 			if err != nil {
-				t.Fatalf(err.Error())
+				t.Fatal(err.Error())
 			}
 
 			c.Set("user", user)
@@ -150,7 +150,7 @@ func TestApi_GetApplications(t *testing.T) {
 		for _, req := range testCases {
 			w, c, err := req.GetRequest()
 			if err != nil {
-				t.Fatalf(err.Error())
+				t.Fatal(err.Error())
 			}
 
 			c.Set("user", user)
@@ -183,7 +183,7 @@ func TestApi_GetApplicationsWithoutUser(t *testing.T) {
 
 	_, c, err := testCase.GetRequest()
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err.Error())
 	}
 
 	assert.Panicsf(func() { TestApplicationHandler.GetApplications(c) }, "GetApplications did not panic although user is not in context")
@@ -203,7 +203,7 @@ func TestApi_GetApplicationErrors(t *testing.T) {
 		for id, req := range testCases {
 			w, c, err := req.GetRequest()
 			if err != nil {
-				t.Fatalf(err.Error())
+				t.Fatal(err.Error())
 			}
 
 			c.Set("user", user)
@@ -229,7 +229,7 @@ func TestApi_GetApplication(t *testing.T) {
 
 			w, c, err := req.GetRequest()
 			if err != nil {
-				t.Fatalf(err.Error())
+				t.Fatal(err.Error())
 			}
 
 			c.Set("user", user)
@@ -282,7 +282,7 @@ func TestApi_UpdateApplication(t *testing.T) {
 		for id, req := range testCases {
 			w, c, err := req.GetRequest()
 			if err != nil {
-				t.Fatalf(err.Error())
+				t.Fatal(err.Error())
 			}
 
 			c.Set("user", user)
@@ -310,7 +310,7 @@ func TestApi_DeleteApplication(t *testing.T) {
 		for id, req := range testCases {
 			w, c, err := req.GetRequest()
 			if err != nil {
-				t.Fatalf(err.Error())
+				t.Fatal(err.Error())
 			}
 
 			c.Set("user", user)
