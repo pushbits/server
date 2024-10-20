@@ -61,7 +61,7 @@ func (a *Authenticator) requireUserProperty(has hasUserProperty) gin.HandlerFunc
 
 // RequireUser returns a Gin middleware which requires valid user credentials to be supplied with the request.
 func (a *Authenticator) RequireUser() gin.HandlerFunc {
-	return a.requireUserProperty(func(user *model.User) bool {
+	return a.requireUserProperty(func(_ *model.User) bool {
 		return true
 	})
 }

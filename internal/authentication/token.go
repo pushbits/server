@@ -13,9 +13,9 @@ var (
 )
 
 func randIntn(n int) int {
-	max := big.NewInt(int64(n))
+	maxValue := big.NewInt(int64(n))
 
-	res, err := rand.Int(rand.Reader, max)
+	res, err := rand.Int(rand.Reader, maxValue)
 	if err != nil {
 		panic("random source is not available")
 	}

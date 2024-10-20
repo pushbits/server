@@ -5,8 +5,8 @@ import (
 	"encoding/base64"
 )
 
-func randStr(len int) string {
-	buff := make([]byte, len)
+func randStr(length int) string {
+	buff := make([]byte, length)
 
 	_, err := rand.Read(buff)
 	if err != nil {
@@ -16,5 +16,5 @@ func randStr(len int) string {
 	str := base64.StdEncoding.EncodeToString(buff)
 
 	// Base 64 can be longer than len
-	return str[:len]
+	return str[:length]
 }
