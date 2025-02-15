@@ -2,6 +2,8 @@
 package dispatcher
 
 import (
+	"context"
+
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/id"
 
@@ -24,7 +26,7 @@ func Create(homeserver, username, password string, formatting configuration.Form
 		return nil, err
 	}
 
-	_, err = matrixClient.Login(&mautrix.ReqLogin{
+	_, err = matrixClient.Login(context.Background(), &mautrix.ReqLogin{
 		Type:             mautrix.AuthTypePassword,
 		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: username},
 		Password:         password,
@@ -42,7 +44,7 @@ func Create(homeserver, username, password string, formatting configuration.Form
 func (d *Dispatcher) Close() {
 	log.L.Printf("Logging out.")
 
-	_, err := d.mautrixClient.Logout()
+	_, err := d.mautrixClient.Logout(context.Background())
 	if err != nil {
 		log.L.Printf("Error while logging out: %s", err)
 	}

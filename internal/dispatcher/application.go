@@ -1,6 +1,7 @@
 package dispatcher
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/pushbits/server/internal/configuration"
@@ -20,7 +21,7 @@ func buildRoomTopic(id uint) string {
 func (d *Dispatcher) RegisterApplication(id uint, name, user string) (string, error) {
 	log.L.Printf("Registering application %s, notifications will be relayed to user %s.\n", name, user)
 
-	resp, err := d.mautrixClient.CreateRoom(&mautrix.ReqCreateRoom{
+	resp, err := d.mautrixClient.CreateRoom(context.Background(), &mautrix.ReqCreateRoom{
 		Visibility: "private",
 		Invite:     []mId.UserID{mId.UserID(user)},
 		IsDirect:   true,
@@ -44,7 +45,7 @@ func (d *Dispatcher) DeregisterApplication(a *model.Application, u *model.User) 
 
 	// The user might have left the channel, but we can still try to remove them.
 
-	if _, err := d.mautrixClient.KickUser(mId.RoomID(a.MatrixID), &mautrix.ReqKickUser{
+	if _, err := d.mautrixClient.KickUser(context.Background(), mId.RoomID(a.MatrixID), &mautrix.ReqKickUser{
 		Reason: "This application was deleted",
 		UserID: mId.UserID(u.MatrixID),
 	}); err != nil {
@@ -52,12 +53,12 @@ func (d *Dispatcher) DeregisterApplication(a *model.Application, u *model.User) 
 		return err
 	}
 
-	if _, err := d.mautrixClient.LeaveRoom(mId.RoomID(a.MatrixID)); err != nil {
+	if _, err := d.mautrixClient.LeaveRoom(context.Background(), mId.RoomID(a.MatrixID)); err != nil {
 		log.L.Print(err)
 		return err
 	}
 
-	if _, err := d.mautrixClient.ForgetRoom(mId.RoomID(a.MatrixID)); err != nil {
+	if _, err := d.mautrixClient.ForgetRoom(context.Background(), mId.RoomID(a.MatrixID)); err != nil {
 		log.L.Print(err)
 		return err
 	}
@@ -66,7 +67,7 @@ func (d *Dispatcher) DeregisterApplication(a *model.Application, u *model.User) 
 }
 
 func (d *Dispatcher) sendRoomEvent(roomID, eventType string, content interface{}) error {
-	if _, err := d.mautrixClient.SendStateEvent(mId.RoomID(roomID), event.NewEventType(eventType), "", content); err != nil {
+	if _, err := d.mautrixClient.SendStateEvent(context.Background(), mId.RoomID(roomID), event.NewEventType(eventType), "", content); err != nil {
 		log.L.Print(err)
 		return err
 	}
@@ -107,7 +108,7 @@ func (d *Dispatcher) UpdateApplication(a *model.Application, behavior *configura
 
 // IsOrphan checks if the user is still connected to the channel.
 func (d *Dispatcher) IsOrphan(a *model.Application, u *model.User) (bool, error) {
-	resp, err := d.mautrixClient.JoinedMembers(mId.RoomID(a.MatrixID))
+	resp, err := d.mautrixClient.JoinedMembers(context.Background(), mId.RoomID(a.MatrixID))
 	if err != nil {
 		return false, err
 	}
@@ -123,7 +124,7 @@ func (d *Dispatcher) IsOrphan(a *model.Application, u *model.User) (bool, error)
 
 // RepairApplication re-invites the user to the channel.
 func (d *Dispatcher) RepairApplication(a *model.Application, u *model.User) error {
-	_, err := d.mautrixClient.InviteUser(mId.RoomID(a.MatrixID), &mautrix.ReqInviteUser{
+	_, err := d.mautrixClient.InviteUser(context.Background(), mId.RoomID(a.MatrixID), &mautrix.ReqInviteUser{
 		UserID: mId.UserID(u.MatrixID),
 	})
 	if err != nil {

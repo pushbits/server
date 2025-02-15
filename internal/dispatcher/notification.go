@@ -1,6 +1,7 @@
 package dispatcher
 
 import (
+	"context"
 	"fmt"
 	"html"
 	"strings"
@@ -71,7 +72,7 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 		Format:        MessageFormatHTML,
 	}
 
-	evt, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &messageEvent)
+	evt, err := d.mautrixClient.SendMessageEvent(context.Background(), mId.RoomID(a.MatrixID), event.EventMessage, &messageEvent)
 	if err != nil {
 		log.L.Errorln(err)
 		return "", err
@@ -185,7 +186,7 @@ func (d *Dispatcher) getMessage(a *model.Application, id string) (*event.Event, 
 	maxPages := 10 // Maximum pages to request (10 messages per page)
 
 	for i := 0; i < maxPages; i++ {
-		messages, err := d.mautrixClient.Messages(mId.RoomID(a.MatrixID), start, end, 'b', nil, 10)
+		messages, err := d.mautrixClient.Messages(context.Background(), mId.RoomID(a.MatrixID), start, end, 'b', nil, 10)
 		if err != nil {
 			return nil, err
 		}
@@ -224,7 +225,7 @@ func (d *Dispatcher) replaceMessage(a *model.Application, newBody, newFormattedB
 		Format:        MessageFormatHTML,
 	}
 
-	sendEvent, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &replaceEvent)
+	sendEvent, err := d.mautrixClient.SendMessageEvent(context.Background(), mId.RoomID(a.MatrixID), event.EventMessage, &replaceEvent)
 	if err != nil {
 		log.L.Errorln(err)
 		return nil, err
@@ -259,7 +260,7 @@ func (d *Dispatcher) respondToMessage(a *model.Application, body, formattedBody 
 	}
 	notificationEvent.RelatesTo = &notificationRelation
 
-	sendEvent, err := d.mautrixClient.SendMessageEvent(mId.RoomID(a.MatrixID), event.EventMessage, &notificationEvent)
+	sendEvent, err := d.mautrixClient.SendMessageEvent(context.Background(), mId.RoomID(a.MatrixID), event.EventMessage, &notificationEvent)
 	if err != nil {
 		log.L.Errorln(err)
 		return nil, err
