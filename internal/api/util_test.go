@@ -11,6 +11,8 @@ import (
 )
 
 func TestApi_SuccessOrAbort(t *testing.T) {
+	GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -37,10 +39,12 @@ func TestApi_SuccessOrAbort(t *testing.T) {
 }
 
 func TestApi_IsCurrentUser(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
 
-	for _, user := range TestUsers {
+	for _, user := range ctx.Users {
 		testCases := make(map[uint]tests.Request)
 
 		testCases[user.ID] = tests.Request{Name: fmt.Sprintf("User %s - success", user.Name), Endpoint: "/", ShouldStatus: 200}

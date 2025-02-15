@@ -28,6 +28,10 @@ func (h *ApplicationHandler) generateToken(compat bool) string {
 }
 
 func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
+	if a == nil || u == nil {
+		return errors.New("nil parameters provided")
+	}
+
 	log.L.Printf("Registering application %s.", a.Name)
 
 	channelID, err := h.DP.RegisterApplication(a.ID, a.Name, u.MatrixID)
@@ -46,6 +50,10 @@ func (h *ApplicationHandler) registerApplication(ctx *gin.Context, a *model.Appl
 }
 
 func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, name string, compat bool) (*model.Application, error) {
+	if u == nil {
+		return nil, errors.New("nil parameters provided")
+	}
+
 	log.L.Printf("Creating application %s.", name)
 
 	application := model.Application{}
@@ -71,6 +79,10 @@ func (h *ApplicationHandler) createApplication(ctx *gin.Context, u *model.User, 
 }
 
 func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Application, u *model.User) error {
+	if a == nil || u == nil {
+		return errors.New("nil parameters provided")
+	}
+
 	log.L.Printf("Deleting application %s (ID %d).", a.Name, a.ID)
 
 	err := h.DP.DeregisterApplication(a, u)
@@ -87,6 +99,10 @@ func (h *ApplicationHandler) deleteApplication(ctx *gin.Context, a *model.Applic
 }
 
 func (h *ApplicationHandler) updateApplication(ctx *gin.Context, a *model.Application, updateApplication *model.UpdateApplication) error {
+	if a == nil || updateApplication == nil {
+		return errors.New("nil parameters provided")
+	}
+
 	log.L.Printf("Updating application %s (ID %d).", a.Name, a.ID)
 
 	if updateApplication.Name != nil {
@@ -186,7 +202,7 @@ func (h *ApplicationHandler) GetApplications(ctx *gin.Context) {
 // @Router /application/{id} [get]
 func (h *ApplicationHandler) GetApplication(ctx *gin.Context) {
 	application, err := getApplication(ctx, h.DB)
-	if err != nil {
+	if err != nil || application == nil {
 		return
 	}
 
@@ -218,7 +234,7 @@ func (h *ApplicationHandler) GetApplication(ctx *gin.Context) {
 // @Router /application/{id} [delete]
 func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 	application, err := getApplication(ctx, h.DB)
-	if err != nil {
+	if err != nil || application == nil {
 		return
 	}
 
@@ -250,7 +266,7 @@ func (h *ApplicationHandler) DeleteApplication(ctx *gin.Context) {
 // @Router /application/{id} [put]
 func (h *ApplicationHandler) UpdateApplication(ctx *gin.Context) {
 	application, err := getApplication(ctx, h.DB)
-	if err != nil {
+	if err != nil || application == nil {
 		return
 	}
 

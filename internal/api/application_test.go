@@ -4,91 +4,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"testing"
 
-	"github.com/gin-gonic/gin"
-	"github.com/pushbits/server/internal/authentication/credentials"
-	"github.com/pushbits/server/internal/configuration"
-	"github.com/pushbits/server/internal/database"
-	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/tests"
-	"github.com/pushbits/server/tests/mockups"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	TestApplicationHandler  *ApplicationHandler
-	TestUsers               []*model.User
-	TestDatabase            *database.Database
-	TestNotificationHandler *NotificationHandler
-	TestUserHandler         *UserHandler
-	TestConfig              *configuration.Configuration
-)
-
 // Collect all created applications to check & delete them later
-var SuccessAplications map[uint][]model.Application
-
-func TestMain(m *testing.M) {
-	cleanUp()
-	// Get main config and adapt
-	config := &configuration.Configuration{}
-
-	config.Database.Connection = "pushbits-test.db"
-	config.Database.Dialect = "sqlite3"
-	config.Crypto.Argon2.Iterations = 4
-	config.Crypto.Argon2.Parallelism = 4
-	config.Crypto.Argon2.Memory = 131072
-	config.Crypto.Argon2.SaltLength = 16
-	config.Crypto.Argon2.KeyLength = 32
-	config.Admin.Name = "user"
-	config.Admin.Password = "pushbits"
-
-	TestConfig = config
-
-	// Set up test environment
-	db, err := mockups.GetEmptyDatabase(config.Crypto)
-	if err != nil {
-		cleanUp()
-		log.L.Println("Cannot set up database: ", err)
-		os.Exit(1)
-	}
-	TestDatabase = db
-
-	appHandler, err := getApplicationHandler(config)
-	if err != nil {
-		cleanUp()
-		log.L.Println("Cannot set up application handler: ", err)
-		os.Exit(1)
-	}
-
-	TestApplicationHandler = appHandler
-	TestUsers = mockups.GetUsers(config)
-	SuccessAplications = make(map[uint][]model.Application)
-
-	TestNotificationHandler = &NotificationHandler{
-		DB: TestDatabase,
-		DP: &mockups.MockDispatcher{},
-	}
-
-	TestUserHandler = &UserHandler{
-		AH: TestApplicationHandler,
-		CM: credentials.CreateManager(false, config.Crypto),
-		DB: TestDatabase,
-		DP: &mockups.MockDispatcher{},
-	}
-
-	// Run
-	m.Run()
-	log.L.Println("Clean up after Test")
-	cleanUp()
-}
+var SuccessApplications = make(map[uint][]model.Application)
 
 func TestApi_RegisterApplicationWithoutUser(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
-	gin.SetMode(gin.TestMode)
 
 	reqWoUser := tests.Request{Name: "Invalid JSON Data", Method: "POST", Endpoint: "/application", Data: `{"name": "test1", "strict_compatibility": true}`, Headers: map[string]string{"Content-Type": "application/json"}}
 	_, c, err := reqWoUser.GetRequest()
@@ -96,21 +26,22 @@ func TestApi_RegisterApplicationWithoutUser(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	assert.Panicsf(func() { TestApplicationHandler.CreateApplication(c) }, "CreateApplication did not panic although user is not in context")
+	assert.Panicsf(func() { ctx.ApplicationHandler.CreateApplication(c) }, "CreateApplication did not panic although user is not in context")
 }
 
 func TestApi_RegisterApplication(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
-	gin.SetMode(gin.TestMode)
 
 	testCases := make([]tests.Request, 0)
 	testCases = append(testCases, tests.Request{Name: "Invalid Form Data", Method: "POST", Endpoint: "/application", Data: "k=1&v=abc", ShouldStatus: 400})
 	testCases = append(testCases, tests.Request{Name: "Invalid JSON Data", Method: "POST", Endpoint: "/application", Data: `{"name": "test1", "strict_compatibility": "oh yes"}`, Headers: map[string]string{"Content-Type": "application/json"}, ShouldStatus: 400})
 	testCases = append(testCases, tests.Request{Name: "Valid JSON Data", Method: "POST", Endpoint: "/application", Data: `{"name": "test2", "strict_compatibility": true}`, Headers: map[string]string{"Content-Type": "application/json"}, ShouldStatus: 200})
 
-	for _, user := range TestUsers {
-		SuccessAplications[user.ID] = make([]model.Application, 0)
+	for _, user := range ctx.Users {
+		SuccessApplications[user.ID] = make([]model.Application, 0)
 		for _, req := range testCases {
 			var application model.Application
 			w, c, err := req.GetRequest()
@@ -119,7 +50,7 @@ func TestApi_RegisterApplication(t *testing.T) {
 			}
 
 			c.Set("user", user)
-			TestApplicationHandler.CreateApplication(c)
+			ctx.ApplicationHandler.CreateApplication(c)
 
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
@@ -128,7 +59,7 @@ func TestApi_RegisterApplication(t *testing.T) {
 				err = json.Unmarshal(body, &application)
 				require.NoErrorf(err, "Cannot unmarshal request body")
 
-				SuccessAplications[user.ID] = append(SuccessAplications[user.ID], application)
+				SuccessApplications[user.ID] = append(SuccessApplications[user.ID], application)
 			}
 
 			assert.Equalf(w.Code, req.ShouldStatus, "CreateApplication (Test case: \"%s\") Expected status code %v but received %v.", req.Name, req.ShouldStatus, w.Code)
@@ -137,16 +68,17 @@ func TestApi_RegisterApplication(t *testing.T) {
 }
 
 func TestApi_GetApplications(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	var applications []model.Application
 
 	assert := assert.New(t)
 	require := require.New(t)
-	gin.SetMode(gin.TestMode)
 
 	testCases := make([]tests.Request, 0)
 	testCases = append(testCases, tests.Request{Name: "Valid Request", Method: "GET", Endpoint: "/application", ShouldStatus: 200})
 
-	for _, user := range TestUsers {
+	for _, user := range ctx.Users {
 		for _, req := range testCases {
 			w, c, err := req.GetRequest()
 			if err != nil {
@@ -154,7 +86,7 @@ func TestApi_GetApplications(t *testing.T) {
 			}
 
 			c.Set("user", user)
-			TestApplicationHandler.GetApplications(c)
+			ctx.ApplicationHandler.GetApplications(c)
 
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
@@ -167,7 +99,7 @@ func TestApi_GetApplications(t *testing.T) {
 				}
 
 				assert.Truef(validateAllApplications(user, applications), "Did not find application created previously")
-				assert.Equalf(len(applications), len(SuccessAplications[user.ID]), "Created %d application(s) but got %d back", len(SuccessAplications[user.ID]), len(applications))
+				assert.Equalf(len(applications), len(SuccessApplications[user.ID]), "Created %d application(s) but got %d back", len(SuccessApplications[user.ID]), len(applications))
 			}
 
 			assert.Equalf(w.Code, req.ShouldStatus, "GetApplications (Test case: \"%s\") Expected status code %v but received %v.", req.Name, req.ShouldStatus, w.Code)
@@ -176,8 +108,9 @@ func TestApi_GetApplications(t *testing.T) {
 }
 
 func TestApi_GetApplicationsWithoutUser(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
-	gin.SetMode(gin.TestMode)
 
 	testCase := tests.Request{Name: "Valid Request", Method: "GET", Endpoint: "/application"}
 
@@ -186,12 +119,13 @@ func TestApi_GetApplicationsWithoutUser(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	assert.Panicsf(func() { TestApplicationHandler.GetApplications(c) }, "GetApplications did not panic although user is not in context")
+	assert.Panicsf(func() { ctx.ApplicationHandler.GetApplications(c) }, "GetApplications did not panic although user is not in context")
 }
 
 func TestApi_GetApplicationErrors(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
-	gin.SetMode(gin.TestMode)
 
 	// Arbitrary test cases
 	testCases := make(map[uint]tests.Request)
@@ -199,7 +133,7 @@ func TestApi_GetApplicationErrors(t *testing.T) {
 	testCases[5555] = tests.Request{Name: "Requesting unknown application 5555", Method: "GET", Endpoint: "/application/5555", ShouldStatus: 404}
 	testCases[99999999999999999] = tests.Request{Name: "Requesting unknown application 99999999999999999", Method: "GET", Endpoint: "/application/99999999999999999", ShouldStatus: 404}
 
-	for _, user := range TestUsers {
+	for _, user := range ctx.Users {
 		for id, req := range testCases {
 			w, c, err := req.GetRequest()
 			if err != nil {
@@ -208,7 +142,7 @@ func TestApi_GetApplicationErrors(t *testing.T) {
 
 			c.Set("user", user)
 			c.Set("id", id)
-			TestApplicationHandler.GetApplication(c)
+			ctx.ApplicationHandler.GetApplication(c)
 
 			assert.Equalf(w.Code, req.ShouldStatus, "GetApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
@@ -216,15 +150,16 @@ func TestApi_GetApplicationErrors(t *testing.T) {
 }
 
 func TestApi_GetApplication(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	var application model.Application
 
 	assert := assert.New(t)
 	require := require.New(t)
-	gin.SetMode(gin.TestMode)
 
 	// Previously generated applications
-	for _, user := range TestUsers {
-		for _, app := range SuccessAplications[user.ID] {
+	for _, user := range ctx.Users {
+		for _, app := range SuccessApplications[user.ID] {
 			req := tests.Request{Name: fmt.Sprintf("Requesting application %s (%d)", app.Name, app.ID), Method: "GET", Endpoint: fmt.Sprintf("/application/%d", app.ID), ShouldStatus: 200}
 
 			w, c, err := req.GetRequest()
@@ -234,7 +169,7 @@ func TestApi_GetApplication(t *testing.T) {
 
 			c.Set("user", user)
 			c.Set("id", app.ID)
-			TestApplicationHandler.GetApplication(c)
+			ctx.ApplicationHandler.GetApplication(c)
 
 			// Parse body only for successful requests
 			if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
@@ -255,14 +190,15 @@ func TestApi_GetApplication(t *testing.T) {
 }
 
 func TestApi_UpdateApplication(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
-	gin.SetMode(gin.TestMode)
 
-	for _, user := range TestUsers {
+	for _, user := range ctx.Users {
 		testCases := make(map[uint]tests.Request)
 		// Previously generated applications
-		for _, app := range SuccessAplications[user.ID] {
+		for _, app := range SuccessApplications[user.ID] {
 			newName := app.Name + "-new_name"
 			updateApp := model.UpdateApplication{
 				Name: &newName,
@@ -287,7 +223,7 @@ func TestApi_UpdateApplication(t *testing.T) {
 
 			c.Set("user", user)
 			c.Set("id", id)
-			TestApplicationHandler.UpdateApplication(c)
+			ctx.ApplicationHandler.UpdateApplication(c)
 
 			assert.Equalf(w.Code, req.ShouldStatus, "UpdateApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
@@ -295,13 +231,14 @@ func TestApi_UpdateApplication(t *testing.T) {
 }
 
 func TestApi_DeleteApplication(t *testing.T) {
-	assert := assert.New(t)
-	gin.SetMode(gin.TestMode)
+	ctx := GetTestContext(t)
 
-	for _, user := range TestUsers {
+	assert := assert.New(t)
+
+	for _, user := range ctx.Users {
 		testCases := make(map[uint]tests.Request)
 		// Previously generated applications
-		for _, app := range SuccessAplications[user.ID] {
+		for _, app := range SuccessApplications[user.ID] {
 			testCases[app.ID] = tests.Request{Name: fmt.Sprintf("Delete application %s (%d)", app.Name, app.ID), Method: "DELETE", Endpoint: fmt.Sprintf("/application/%d", app.ID), ShouldStatus: 200}
 		}
 		// Arbitrary test cases
@@ -315,30 +252,20 @@ func TestApi_DeleteApplication(t *testing.T) {
 
 			c.Set("user", user)
 			c.Set("id", id)
-			TestApplicationHandler.DeleteApplication(c)
+			ctx.ApplicationHandler.DeleteApplication(c)
 
 			assert.Equalf(w.Code, req.ShouldStatus, "DeleteApplication (Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 		}
 	}
 }
 
-// GetApplicationHandler creates and returns an application handler
-func getApplicationHandler(_ *configuration.Configuration) (*ApplicationHandler, error) {
-	dispatcher := &mockups.MockDispatcher{}
-
-	return &ApplicationHandler{
-		DB: TestDatabase,
-		DP: dispatcher,
-	}, nil
-}
-
 // True if all created applications are in list
 func validateAllApplications(user *model.User, apps []model.Application) bool {
-	if _, ok := SuccessAplications[user.ID]; !ok {
+	if _, ok := SuccessApplications[user.ID]; !ok {
 		return len(apps) == 0
 	}
 
-	for _, successApp := range SuccessAplications[user.ID] {
+	for _, successApp := range SuccessApplications[user.ID] {
 		foundApp := false
 		for _, app := range apps {
 			if app.ID == successApp.ID {
@@ -353,11 +280,4 @@ func validateAllApplications(user *model.User, apps []model.Application) bool {
 	}
 
 	return true
-}
-
-func cleanUp() {
-	err := os.Remove("pushbits-test.db")
-	if err != nil {
-		log.L.Warnln("Cannot delete test database: ", err)
-	}
 }

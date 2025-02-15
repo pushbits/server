@@ -5,7 +5,6 @@ import (
 	"io"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/tests"
 	"github.com/stretchr/testify/assert"
@@ -13,9 +12,10 @@ import (
 )
 
 func TestApi_CreateNotification(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
-	gin.SetMode(gin.TestMode)
 
 	testApplication := model.Application{
 		ID:       1,
@@ -40,7 +40,7 @@ func TestApi_CreateNotification(t *testing.T) {
 		}
 
 		c.Set("app", &testApplication)
-		TestNotificationHandler.CreateNotification(c)
+		ctx.NotificationHandler.CreateNotification(c)
 
 		// Parse body only for successful requests
 		if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
@@ -64,8 +64,9 @@ func TestApi_CreateNotification(t *testing.T) {
 }
 
 func TestApi_DeleteNotification(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
-	gin.SetMode(gin.TestMode)
 
 	testApplication := model.Application{
 		ID:       1,
@@ -88,7 +89,7 @@ func TestApi_DeleteNotification(t *testing.T) {
 
 		c.Set("app", &testApplication)
 		c.Set("messageid", id)
-		TestNotificationHandler.DeleteNotification(c)
+		ctx.NotificationHandler.DeleteNotification(c)
 
 		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 	}

@@ -8,9 +8,11 @@ import (
 )
 
 func TestApi_Health(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	handler := HealthHandler{
-		DB: TestDatabase,
+		DB: ctx.Database,
 	}
 
 	testCases := make([]tests.Request, 0)

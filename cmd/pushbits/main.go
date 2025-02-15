@@ -29,6 +29,14 @@ func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 	}()
 }
 
+func printStarupMessage() {
+	if len(version) == 0 {
+		log.L.Panic("Version not set")
+	} else {
+		log.L.Printf("Starting PushBits %s", version)
+	}
+}
+
 // @title PushBits Server API Documentation
 // @version 0.10.5
 // @description Documentation for the PushBits server API.
@@ -45,11 +53,7 @@ func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 
 // @securityDefinitions.basic BasicAuth
 func main() {
-	if len(version) == 0 {
-		log.L.Panic("Version not set")
-	} else {
-		log.L.Printf("Starting PushBits %s", version)
-	}
+	printStarupMessage()
 
 	c := configuration.Get()
 
@@ -63,6 +67,11 @@ func main() {
 	db, err := database.Create(cm, c.Database.Dialect, c.Database.Connection)
 	if err != nil {
 		log.L.Fatal(err)
+		return
+	}
+	if db == nil {
+		log.L.Fatal("db is nil but error was nil")
+		return
 	}
 	defer db.Close()
 
@@ -73,6 +82,11 @@ func main() {
 	dp, err := dispatcher.Create(c.Matrix.Homeserver, c.Matrix.Username, c.Matrix.Password, c.Formatting)
 	if err != nil {
 		log.L.Fatal(err)
+		return
+	}
+	if dp == nil {
+		log.L.Fatal("dp is nil but error was nil")
+		return
 	}
 	defer dp.Close()
 
@@ -81,15 +95,18 @@ func main() {
 	err = db.RepairChannels(dp, &c.RepairBehavior)
 	if err != nil {
 		log.L.Fatal(err)
+		return
 	}
 
 	engine, err := router.Create(c.Debug, c.HTTP.TrustedProxies, cm, db, dp, &c.Alertmanager)
 	if err != nil {
 		log.L.Fatal(err)
+		return
 	}
 
 	err = runner.Run(engine, c)
 	if err != nil {
 		log.L.Fatal(err)
+		return
 	}
 }

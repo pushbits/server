@@ -38,6 +38,10 @@ type HandlerSettings struct {
 // @Router /alert [post]
 func (h *Handler) CreateAlert(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
+	if application == nil {
+		return
+	}
+
 	log.L.Printf("Sending alert notification for application %s.", application.Name)
 
 	var hook model.AlertmanagerWebhook

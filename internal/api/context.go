@@ -41,6 +41,11 @@ func getApplication(ctx *gin.Context, db Database) (*model.Application, error) {
 	if success := SuccessOrAbort(ctx, http.StatusNotFound, err); !success {
 		return nil, err
 	}
+	if application == nil {
+		err := errors.New("application not found")
+		ctx.AbortWithError(http.StatusNotFound, err)
+		return nil, err
+	}
 
 	return application, nil
 }

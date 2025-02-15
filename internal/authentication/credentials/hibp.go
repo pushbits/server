@@ -33,6 +33,9 @@ func IsPasswordPwned(password string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	if resp == nil {
+		return false, fmt.Errorf("received nil response from http request")
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		log.L.Fatalf("Request failed with HTTP %s.", resp.Status)

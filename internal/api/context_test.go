@@ -3,7 +3,6 @@ package api
 import (
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/model"
 	"github.com/pushbits/server/tests"
@@ -13,9 +12,10 @@ import (
 )
 
 func TestApi_getID(t *testing.T) {
+	GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
-	gin.SetMode(gin.TestMode)
 	testValue := uint(1337)
 
 	testCases := make(map[interface{}]tests.Request)
@@ -54,13 +54,14 @@ func TestApi_getID(t *testing.T) {
 }
 
 func TestApi_getApplication(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
-	gin.SetMode(gin.TestMode)
 
 	applications := mockups.GetAllApplications()
 
-	err := mockups.AddApplicationsToDb(TestDatabase, applications)
+	err := mockups.AddApplicationsToDb(ctx.Database, applications)
 	if err != nil {
 		log.L.Fatalln("Cannot add mock applications to database: ", err)
 	}
@@ -78,26 +79,28 @@ func TestApi_getApplication(t *testing.T) {
 		}
 
 		c.Set("id", id)
-		app, err := getApplication(c, TestDatabase)
+		app, err := getApplication(c, ctx.Database)
 
 		if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
-			require.NoErrorf(err, "getApplication with id %v (%t) returned an error although it should not: %v", id, id, err)
-			assert.Equalf(app.ID, id, "getApplication id was set to %d but resulting app id is %d", id, app.ID)
+			require.NoErrorf(err, "getApplication with id %v returned an unexpected error: %v", id, err)
+			require.NotNilf(app, "Expected a valid app for id %v, but got nil", id)
+			assert.Equalf(app.ID, id, "Expected app ID %d, but got %d", id, app.ID)
 		} else {
-			assert.Errorf(err, "getApplication with id %v (%t) returned no error although it should", id, id)
+			require.Errorf(err, "Expected an error for id %v, but got none", id)
+			assert.Nilf(app, "Expected app to be nil for id %v, but got %+v", id, app)
 		}
 
-		assert.Equalf(w.Code, req.ShouldStatus, "getApplication id was set to %v (%T) and should result in status code %d but code is %d", id, id, req.ShouldStatus, w.Code)
-
+		assert.Equalf(w.Code, req.ShouldStatus, "Expected status code %d for id %v, but got %d", req.ShouldStatus, id, w.Code)
 	}
 }
 
 func TestApi_getUser(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
-	gin.SetMode(gin.TestMode)
 
-	_, err := mockups.AddUsersToDb(TestDatabase, TestUsers)
+	_, err := mockups.AddUsersToDb(ctx.Database, ctx.Users)
 	assert.NoErrorf(err, "Adding users to database failed: %v", err)
 
 	// No testing of invalid ids as that is tested in TestApi_getID already
@@ -113,16 +116,18 @@ func TestApi_getUser(t *testing.T) {
 		}
 
 		c.Set("id", id)
-		user, err := getUser(c, TestDatabase)
+		user, err := getUser(c, ctx.Database)
 
 		if req.ShouldStatus >= 200 && req.ShouldStatus < 300 {
-			require.NoErrorf(err, "getUser with id %v (%t) returned an error although it should not: %v", id, id, err)
-			assert.Equalf(user.ID, id, "getUser id was set to %d but resulting app id is %d", id, user.ID)
-
+			require.NoErrorf(err, "getUser with id %v returned an unexpected error: %v", id, err)
+			require.NotNilf(user, "Expected a valid user for id %v, but got nil", id)
+			assert.Equalf(user.ID, id, "Expected user ID %d, but got %d", id, user.ID)
 		} else {
-			assert.Errorf(err, "getUser with id %v (%t) returned no error although it should", id, id)
+			require.Errorf(err, "Expected an error for id %v, but got none", id)
+			assert.Nilf(user, "Expected user to be nil for id %v, but got %+v", id, user)
 		}
 
-		assert.Equalf(w.Code, req.ShouldStatus, "getUser id was set to %v (%T) and should result in status code %d but code is %d", id, id, req.ShouldStatus, w.Code)
+		assert.Equalf(w.Code, req.ShouldStatus, "Expected status code %d for id %v, but got %d", req.ShouldStatus, id, w.Code)
+
 	}
 }

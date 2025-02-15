@@ -38,6 +38,10 @@ func (h *UserHandler) requireMultipleAdmins(ctx *gin.Context) error {
 }
 
 func (h *UserHandler) deleteApplications(ctx *gin.Context, u *model.User) error {
+	if ctx == nil || u == nil {
+		return errors.New("nil parameters provided")
+	}
+
 	applications, err := h.DB.GetApplications(u)
 	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
@@ -55,6 +59,10 @@ func (h *UserHandler) deleteApplications(ctx *gin.Context, u *model.User) error 
 }
 
 func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, matrixID string) error {
+	if ctx == nil || u == nil {
+		return errors.New("nil parameters provided")
+	}
+
 	applications, err := h.DB.GetApplications(u)
 	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return err
@@ -83,15 +91,7 @@ func (h *UserHandler) updateChannels(ctx *gin.Context, u *model.User, matrixID s
 	return nil
 }
 
-func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser model.UpdateUser) error {
-	if updateUser.MatrixID != nil && u.MatrixID != *updateUser.MatrixID {
-		if err := h.updateChannels(ctx, u, *updateUser.MatrixID); err != nil {
-			return err
-		}
-	}
-
-	log.L.Printf("Updating user %s.", u.Name)
-
+func (h *UserHandler) updateUserFields(ctx *gin.Context, u *model.User, updateUser model.UpdateUser) error {
 	if updateUser.Name != nil {
 		u.Name = *updateUser.Name
 	}
@@ -100,7 +100,6 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 		if success := SuccessOrAbort(ctx, http.StatusBadRequest, err); !success {
 			return err
 		}
-
 		u.PasswordHash = hash
 	}
 	if updateUser.MatrixID != nil {
@@ -108,6 +107,25 @@ func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser mod
 	}
 	if updateUser.IsAdmin != nil {
 		u.IsAdmin = *updateUser.IsAdmin
+	}
+	return nil
+}
+
+func (h *UserHandler) updateUser(ctx *gin.Context, u *model.User, updateUser model.UpdateUser) error {
+	if u == nil {
+		return errors.New("nil parameters provided")
+	}
+
+	if updateUser.MatrixID != nil && u.MatrixID != *updateUser.MatrixID {
+		if err := h.updateChannels(ctx, u, *updateUser.MatrixID); err != nil {
+			return err
+		}
+	}
+
+	log.L.Printf("Updating user %s.", u.Name)
+
+	if err := h.updateUserFields(ctx, u, updateUser); err != nil {
+		return err
 	}
 
 	err := h.DB.UpdateUser(u)
@@ -149,8 +167,10 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	log.L.Printf("Creating user %s.", createUser.Name)
 
 	user, err := h.DB.CreateUser(createUser)
-
 	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
+		return
+	}
+	if user == nil {
 		return
 	}
 
@@ -170,6 +190,10 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 // @Security BasicAuth
 // @Router /user [get]
 func (h *UserHandler) GetUsers(ctx *gin.Context) {
+	if ctx == nil {
+		return
+	}
+
 	users, err := h.DB.GetUsers()
 	if success := SuccessOrAbort(ctx, http.StatusInternalServerError, err); !success {
 		return
@@ -199,7 +223,7 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 // @Router /user/{id} [get]
 func (h *UserHandler) GetUser(ctx *gin.Context) {
 	user, err := getUser(ctx, h.DB)
-	if err != nil {
+	if err != nil || user == nil {
 		return
 	}
 
@@ -221,7 +245,7 @@ func (h *UserHandler) GetUser(ctx *gin.Context) {
 // @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 	user, err := getUser(ctx, h.DB)
-	if err != nil {
+	if err != nil || user == nil {
 		return
 	}
 
@@ -265,7 +289,7 @@ func (h *UserHandler) DeleteUser(ctx *gin.Context) {
 // @Router /user/{id} [put]
 func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	user, err := getUser(ctx, h.DB)
-	if err != nil {
+	if err != nil || user == nil {
 		return
 	}
 
@@ -275,6 +299,9 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	}
 
 	requestingUser := authentication.GetUser(ctx)
+	if requestingUser == nil {
+		return
+	}
 
 	// Last privileged user must not be taken privileges. Assumes that the current user has privileges.
 	if user.ID == requestingUser.ID && updateUser.IsAdmin != nil && !(*updateUser.IsAdmin) {

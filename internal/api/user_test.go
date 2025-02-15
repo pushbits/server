@@ -13,17 +13,19 @@ import (
 )
 
 func TestApi_CreateUser(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 
 	testCases := make([]tests.Request, 0)
 
 	// Add all test users
-	for _, user := range TestUsers {
+	for _, user := range ctx.Users {
 		createUser := &model.CreateUser{}
 		createUser.ExternalUser.Name = user.Name
 		createUser.ExternalUser.MatrixID = "@" + user.Name + ":matrix.org"
 		createUser.ExternalUser.IsAdmin = user.IsAdmin
-		createUser.UserCredentials.Password = TestConfig.Admin.Password
+		createUser.UserCredentials.Password = ctx.Config.Admin.Password
 
 		testCase := tests.Request{
 			Name:         "Already existing user " + user.Name,
@@ -48,13 +50,15 @@ func TestApi_CreateUser(t *testing.T) {
 			t.Fatal(err.Error())
 		}
 
-		TestUserHandler.CreateUser(c)
+		ctx.UserHandler.CreateUser(c)
 
 		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 	}
 }
 
 func TestApi_GetUsers(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -65,10 +69,10 @@ func TestApi_GetUsers(t *testing.T) {
 
 	w, c, err := request.GetRequest()
 	if err != nil {
-		t.Fatalf((err.Error()))
+		t.Fatalf("error getting request: %v", err)
 	}
 
-	TestUserHandler.GetUsers(c)
+	ctx.UserHandler.GetUsers(c)
 	assert.Equalf(w.Code, 200, "Response code should be 200 but is %d", w.Code)
 
 	// Get users from body
@@ -79,7 +83,7 @@ func TestApi_GetUsers(t *testing.T) {
 	require.NoErrorf(err, "Can not unmarshal users")
 
 	// Check existence of all known users
-	for _, user := range TestUsers {
+	for _, user := range ctx.Users {
 		found := false
 		for _, userExt := range users {
 			if user.ID == userExt.ID && user.Name == userExt.Name {
@@ -92,13 +96,15 @@ func TestApi_GetUsers(t *testing.T) {
 }
 
 func TestApi_UpdateUser(t *testing.T) {
-	assert := assert.New(t)
-	admin := getAdmin()
+	ctx := GetTestContext(t)
 
+	assert := assert.New(t)
+
+	admin := getAdmin(ctx)
 	testCases := make(map[uint]tests.Request)
 
 	// Add all test users
-	for _, user := range TestUsers {
+	for _, user := range ctx.Users {
 		updateUser := &model.UpdateUser{}
 		user.Name += "+1"
 		user.IsAdmin = !user.IsAdmin
@@ -125,7 +131,7 @@ func TestApi_UpdateUser(t *testing.T) {
 
 		c.Set("id", id)
 		c.Set("user", admin)
-		TestUserHandler.UpdateUser(c)
+		ctx.UserHandler.UpdateUser(c)
 
 		assert.Equalf(w.Code, req.ShouldStatus, "(Test case: \"%s\") Expected status code %v but have %v.", req.Name, req.ShouldStatus, w.Code)
 	}
@@ -138,11 +144,13 @@ func TestApi_UpdateUser(t *testing.T) {
 		}
 
 		c.Set("id", id)
-		assert.Panicsf(func() { TestUserHandler.UpdateUser(c) }, "User not set should panic but did not")
+		assert.Panicsf(func() { ctx.UserHandler.UpdateUser(c) }, "User not set should panic but did not")
 	}
 }
 
 func TestApi_GetUser(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
 
@@ -151,7 +159,7 @@ func TestApi_GetUser(t *testing.T) {
 	testCases[uint(9999999)] = tests.Request{Name: "Unknown id", Method: "GET", Endpoint: "/user/99999999", ShouldStatus: 404}
 
 	// Check if we can get all existing users
-	for _, user := range TestUsers {
+	for _, user := range ctx.Users {
 		testCases[user.ID] = tests.Request{
 			Name:         "Valid user " + user.Name,
 			Method:       "GET",
@@ -166,7 +174,7 @@ func TestApi_GetUser(t *testing.T) {
 		require.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
 
 		c.Set("id", id)
-		TestUserHandler.GetUser(c)
+		ctx.UserHandler.GetUser(c)
 
 		assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) Expected status code %d but have %d", testCase.Name, testCase.ShouldStatus, w.Code)
 
@@ -191,13 +199,16 @@ func TestApi_GetUser(t *testing.T) {
 }
 
 func TestApi_DeleteUser(t *testing.T) {
+	ctx := GetTestContext(t)
+
 	assert := assert.New(t)
 	require := require.New(t)
+
 	testCases := make(map[interface{}]tests.Request)
 	testCases["abcde"] = tests.Request{Name: "Invalid user - string", Method: "DELETE", Endpoint: "/user/abcde", ShouldStatus: 500}
 	testCases[uint(999999)] = tests.Request{Name: "Unknown user", Method: "DELETE", Endpoint: "/user/999999", ShouldStatus: 404}
 
-	for _, user := range TestUsers {
+	for _, user := range ctx.Users {
 		shouldStatus := 200
 		testCases[user.ID] = tests.Request{
 			Name:         "Valid user " + user.Name,
@@ -212,14 +223,14 @@ func TestApi_DeleteUser(t *testing.T) {
 		require.NoErrorf(err, "(Test case %s) Could not make request", testCase.Name)
 
 		c.Set("id", id)
-		TestUserHandler.DeleteUser(c)
+		ctx.UserHandler.DeleteUser(c)
 
 		assert.Equalf(testCase.ShouldStatus, w.Code, "(Test case %s) Expected status code %d but have %d", testCase.Name, testCase.ShouldStatus, w.Code)
 	}
 }
 
-func getAdmin() *model.User {
-	for _, user := range TestUsers {
+func getAdmin(ctx *TestContext) *model.User {
+	for _, user := range ctx.Users {
 		if user.IsAdmin {
 			return user
 		}

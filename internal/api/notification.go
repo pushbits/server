@@ -44,6 +44,10 @@ type NotificationHandler struct {
 // @Router /message [post]
 func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
+	if application == nil {
+		return
+	}
+
 	log.L.Printf("Sending notification for application %s.", application.Name)
 
 	var notification model.Notification
@@ -78,6 +82,10 @@ func (h *NotificationHandler) CreateNotification(ctx *gin.Context) {
 // @Router /message/{message_id} [DELETE]
 func (h *NotificationHandler) DeleteNotification(ctx *gin.Context) {
 	application := authentication.GetApplication(ctx)
+	if application == nil {
+		return
+	}
+
 	log.L.Printf("Deleting notification for application %s.", application.Name)
 
 	id, err := getMessageID(ctx)
