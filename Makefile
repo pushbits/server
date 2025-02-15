@@ -24,6 +24,7 @@ test:
 	stdout=$$(gofumpt -l . 2>&1); if [ "$$stdout" ]; then exit 1; fi
 	go vet ./...
 	misspell -error $(GO_FILES)
+	gocyclo -over 10 $(GO_FILES)
 	staticcheck ./...
 	errcheck -exclude errcheck_excludes.txt ./...
 	gocritic check -disable='#experimental,#opinionated' -@ifElseChain.minThreshold 3 ./...
@@ -36,6 +37,7 @@ test:
 .PHONY: setup
 setup:
 	go install github.com/client9/misspell/cmd/misspell@latest
+	go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
 	go install github.com/go-critic/go-critic/cmd/gocritic@latest
 	go install github.com/kisielk/errcheck@latest
 	go install github.com/mgechev/revive@latest
