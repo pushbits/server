@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pushbits/server/tests"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/pushbits/server/tests"
 )
 
 func TestApi_SuccessOrAbort(t *testing.T) {

@@ -7,10 +7,11 @@ import (
 	"testing"
 
 	"github.com/jinzhu/configor"
-	"github.com/pushbits/server/internal/log"
-	"github.com/pushbits/server/internal/pberrors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
+
+	"github.com/pushbits/server/internal/log"
+	"github.com/pushbits/server/internal/pberrors"
 )
 
 type Pair struct {

@@ -5,10 +5,11 @@ import (
 	"io"
 	"testing"
 
-	"github.com/pushbits/server/internal/model"
-	"github.com/pushbits/server/tests"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/pushbits/server/internal/model"
+	"github.com/pushbits/server/tests"
 )
 
 func TestApi_CreateNotification(t *testing.T) {

@@ -3,8 +3,9 @@ package api
 import (
 	"testing"
 
-	"github.com/pushbits/server/tests"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/pushbits/server/tests"
 )
 
 func TestApi_Health(t *testing.T) {

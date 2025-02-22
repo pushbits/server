@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/pushbits/server/internal/authentication/credentials"
 	"github.com/pushbits/server/internal/configuration"
 	"github.com/pushbits/server/internal/database"

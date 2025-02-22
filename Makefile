@@ -3,6 +3,7 @@ OUT_DIR := ./out
 TESTS_DIR := ./tests
 
 GO_FILES := $(shell find . -type f \( -iname '*.go' \))
+GO_MODULE := github.com/pushbits/server
 
 PB_BUILD_VERSION ?= $(shell git describe --tags)
 ifeq ($(PB_BUILD_VERSION),)
@@ -21,17 +22,18 @@ clean:
 
 .PHONY: test
 test:
-	stdout=$$(gofumpt -l . 2>&1); if [ "$$stdout" ]; then exit 1; fi
+	if [ -n "$$(gofumpt -l $(GO_FILES))" ]; then echo "Code is not properly formatted"; exit 1; fi
+	if [ -n "$$(goimports -l -local $(GO_MODULE) $(GO_FILES))" ]; then echo "Imports are not properly formatted"; exit 1; fi
 	go vet ./...
 	misspell -error $(GO_FILES)
 	gocyclo -over 10 $(GO_FILES)
 	staticcheck ./...
-	errcheck -exclude errcheck_excludes.txt ./...
+	errcheck -ignoregenerated -exclude errcheck_excludes.txt ./...
 	gocritic check -disable='#experimental,#opinionated' -@ifElseChain.minThreshold 3 ./...
 	revive -set_exit_status -exclude ./docs ./...
 	nilaway ./...
 	go test -v -cover ./...
-	gosec -exclude-dir=tests ./...
+	gosec -exclude-generated -exclude-dir=tests ./...
 	govulncheck ./...
 	@printf '\n%s\n' "> Test successful"
 
@@ -45,6 +47,7 @@ setup:
 	go install github.com/securego/gosec/v2/cmd/gosec@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
 	go install go.uber.org/nilaway/cmd/nilaway@latest
+	go install golang.org/x/tools/cmd/goimports@latest
 	go install golang.org/x/vuln/cmd/govulncheck@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
 	go install mvdan.cc/gofumpt@latest

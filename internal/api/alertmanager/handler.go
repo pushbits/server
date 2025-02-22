@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/pushbits/server/internal/api"
 	"github.com/pushbits/server/internal/authentication"
 	"github.com/pushbits/server/internal/log"

@@ -3,6 +3,7 @@ package configuration
 
 import (
 	"github.com/jinzhu/configor"
+
 	"github.com/pushbits/server/internal/log"
 	"github.com/pushbits/server/internal/pberrors"
 )
