@@ -1,6 +1,6 @@
 module github.com/pushbits/server
 
-go 1.23
+go 1.24
 
 require (
 	github.com/alexedwards/argon2id v1.0.0
