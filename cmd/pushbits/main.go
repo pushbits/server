@@ -4,6 +4,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 
 	"github.com/pushbits/server/internal/authentication/credentials"
@@ -14,8 +15,6 @@ import (
 	"github.com/pushbits/server/internal/router"
 	"github.com/pushbits/server/internal/runner"
 )
-
-var version string
 
 func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 	c := make(chan os.Signal, 2)
@@ -30,11 +29,13 @@ func setupCleanup(db *database.Database, dp *dispatcher.Dispatcher) {
 }
 
 func printStarupMessage() {
-	if len(version) == 0 {
-		log.L.Panic("Version not set")
-	} else {
-		log.L.Printf("Starting PushBits %s", version)
+	buildInfo, ok := debug.ReadBuildInfo()
+	if !ok {
+		log.L.Fatalln("Build info not available")
+		return
 	}
+
+	log.L.Printf("Starting PushBits %s", buildInfo.Main.Version)
 }
 
 // @title PushBits Server API Documentation

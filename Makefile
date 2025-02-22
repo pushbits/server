@@ -5,15 +5,10 @@ TESTS_DIR := ./tests
 GO_FILES := $(shell find . -type f \( -iname '*.go' \))
 GO_MODULE := github.com/pushbits/server
 
-PB_BUILD_VERSION ?= $(shell git describe --tags)
-ifeq ($(PB_BUILD_VERSION),)
-	_ := $(error Cannot determine build version)
-endif
-
 .PHONY: build
 build:
 	mkdir -p $(OUT_DIR)
-	go build -ldflags="-w -s -X main.version=$(PB_BUILD_VERSION)" -o $(OUT_DIR)/pushbits ./cmd/pushbits
+	go build -ldflags="-w -s" -o $(OUT_DIR)/pushbits ./cmd/pushbits
 
 .PHONY: clean
 clean:
@@ -63,7 +58,6 @@ swag: build
 .PHONY: docker_build_dev
 docker_build_dev:
 	podman build \
-		--build-arg=PB_BUILD_VERSION=dev \
 		-t local/pushbits .
 
 .PHONY: run_postgres_debug

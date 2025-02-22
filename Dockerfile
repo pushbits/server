@@ -1,7 +1,5 @@
 FROM docker.io/library/golang:alpine as builder
 
-ARG PB_BUILD_VERSION
-
 ARG CLI_VERSION=0.0.6
 ARG CLI_PLATFORM=linux_amd64
 
@@ -13,7 +11,7 @@ RUN set -ex \
 	&& apk add --no-cache build-base ca-certificates curl \
 	&& go mod download \
 	&& go mod verify \
-	&& PB_BUILD_VERSION="$PB_BUILD_VERSION" make build \
+	&& make build \
 	&& chmod +x /build/out/pushbits \
 	&& curl -q -s -S -L -o /tmp/pbcli_${CLI_VERSION}.tar.gz https://github.com/pushbits/cli/releases/download/v${CLI_VERSION}/pbcli_${CLI_VERSION}_${CLI_PLATFORM}.tar.gz \
 	&& tar -C /usr/local/bin -xvf /tmp/pbcli_${CLI_VERSION}.tar.gz pbcli \
