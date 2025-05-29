@@ -16,6 +16,37 @@ import (
 	"github.com/pushbits/server/internal/pberrors"
 )
 
+type notificationContentType string
+
+const (
+	contentTypePlain    notificationContentType = "text/plain"
+	contentTypeMarkdown notificationContentType = "text/markdown"
+	contentTypeHTML     notificationContentType = "text/html"
+)
+
+func getContentType(extras map[string]any) notificationContentType {
+	if optionsDisplayRaw, ok := extras["client::display"]; ok {
+		if optionsDisplay, ok2 := optionsDisplayRaw.(map[string]interface{}); ok2 {
+			if ctRaw, ok3 := optionsDisplay["contentType"]; ok3 {
+				contentTypeString := strings.ToLower(fmt.Sprintf("%v", ctRaw))
+				switch contentTypeString {
+				case "text/markdown":
+					return contentTypeMarkdown
+				case "text/html":
+					return contentTypeHTML
+				case "text/plain":
+					return contentTypePlain
+				default:
+					log.L.Printf("Unknown content type specified: %s, defaulting to text/plain", contentTypeString)
+					return contentTypePlain
+				}
+			}
+		}
+	}
+
+	return contentTypePlain
+}
+
 // MessageFormat is a matrix message format
 type MessageFormat string
 
@@ -60,10 +91,10 @@ func (d *Dispatcher) SendNotification(a *model.Application, n *model.Notificatio
 	plainMessage := strings.TrimSpace(n.Message)
 	plainTitle := strings.TrimSpace(n.Title)
 	message := d.getFormattedMessage(n)
-	title := d.getFormattedTitle(n)
+	title := d.getFormattedTitle(n) // Does not append <br /><br /> anymore
 
 	text := fmt.Sprintf("%s\n\n%s", plainTitle, plainMessage)
-	formattedText := fmt.Sprintf("%s %s", title, message)
+	formattedText := fmt.Sprintf("%s<br /><br />%s", title, message) // Append <br /><br /> here
 
 	messageEvent := &MessageEvent{
 		Body:          text,
@@ -116,37 +147,41 @@ func (d *Dispatcher) DeleteNotification(a *model.Application, n *model.DeleteNot
 // HTML-formats the title
 func (d *Dispatcher) getFormattedTitle(n *model.Notification) string {
 	trimmedTitle := strings.TrimSpace(n.Title)
-	title := html.EscapeString(trimmedTitle)
+	var title string
+
+	contentType := getContentType(n.Extras)
+
+	switch contentType {
+	case contentTypeMarkdown:
+		title = string(markdown.ToHTML([]byte(trimmedTitle), nil, nil))
+	case contentTypeHTML:
+		title = trimmedTitle
+	case contentTypePlain:
+		title = html.EscapeString(trimmedTitle)
+		title = "<b>" + title + "</b>"
+	}
 
 	if d.formatting.ColoredTitle {
 		title = d.coloredText(d.priorityToColor(n.Priority), title)
 	}
 
-	return "<b>" + title + "</b><br /><br />"
+	return title
 }
 
 // Converts different syntaxes to a HTML-formatted message
 func (d *Dispatcher) getFormattedMessage(n *model.Notification) string {
 	trimmedMessage := strings.TrimSpace(n.Message)
-	message := strings.ReplaceAll(html.EscapeString(trimmedMessage), "\n", "<br />") // default to text/plain
+	var message string
 
-	if optionsDisplayRaw, ok := n.Extras["client::display"]; ok {
-		optionsDisplay, ok := optionsDisplayRaw.(map[string]interface{})
+	contentType := getContentType(n.Extras)
 
-		if ok {
-			if contentTypeRaw, ok := optionsDisplay["contentType"]; ok {
-				contentType := fmt.Sprintf("%v", contentTypeRaw)
-				log.L.Printf("Message content type: %s", contentType)
-
-				switch contentType {
-				case "html", "text/html":
-					message = strings.ReplaceAll(trimmedMessage, "\n", "<br />")
-				case "markdown", "md", "text/md", "text/markdown":
-					// Allow HTML in Markdown
-					message = string(markdown.ToHTML([]byte(trimmedMessage), nil, nil))
-				}
-			}
-		}
+	switch contentType {
+	case contentTypeMarkdown:
+		message = string(markdown.ToHTML([]byte(trimmedMessage), nil, nil))
+	case contentTypeHTML:
+		message = trimmedMessage
+	case contentTypePlain:
+		message = strings.ReplaceAll(html.EscapeString(trimmedMessage), "\n", "<br />")
 	}
 
 	return message
