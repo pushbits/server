@@ -22,6 +22,12 @@
 	<a href="https://github.com/pushbits/server/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/pushbits/server"/></a>
 </p>
 
+## Looking for Maintainers
+
+Due to time constraints, I can no longer actively work on this project, and there is no clear timeline for when that may change.
+
+To keep the project healthy and moving forward, I am looking for one or more maintainers. If you are interested, please open an issue describing your background and interest.
+
 ## 💡&nbsp;About
 
 PushBits is a relay server for push notifications.
