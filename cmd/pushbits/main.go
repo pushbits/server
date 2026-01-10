@@ -43,7 +43,7 @@ func printStarupMessage() {
 // @description Documentation for the PushBits server API.
 
 // @contact.name The PushBits Developers
-// @contact.url https://www.pushbits.io
+// @contact.url https://pushbits.github.io/
 
 // @license.name ISC
 // @license.url https://github.com/pushbits/server/blob/master/LICENSE
